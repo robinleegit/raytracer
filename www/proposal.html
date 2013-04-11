@@ -38,7 +38,7 @@ High performance raytracing can be broken up into two phases:
 	<li>Build some kind hierarchical or spatial structure (eg. kd-tree, BVH) that can be used to reduce the number of rays we have to cast</li>
 	<li>Cast rays from the point of view of the human viewing the screen. This phase uses the data structure created in phase 1 to reduce the number of computations</li>
 </ol>
-When trying to do interactive raytracing for animation in real time, the process of doing the first phase starts to have more of an impact. BVHs cannot be re-used from frame to frame if the next frame differs too much from the previous frame. 'Refitting' can be reused to incrementally update the tree in cases where the triangles that make up the scene are only stretched, and no triangles are added or removed. This can cause a momentary drop in performance, which is undesirable when raytracing for real time animation. As a result, being able to construct this tree as fast as possible can help reduce instances of low frame rate spikes[1].
+When trying to do interactive raytracing for animation in real time, the process of doing the first phase starts to have a significant impact. BVHs cannot be re-used from frame to frame if the next frame differs too much from the previous frame. 'Refitting' can be reused to incrementally update the tree in cases where the triangles that make up the scene are only stretched, and no triangles are added or removed. This can cause a momentary drop in performance, which is undesirable when raytracing for real time animation. As a result, being able to construct this tree as fast as possible can help reduce instances of low frame rate spikes[1].
 
 <div class="section">Challenge</div>
 Ray tracing is heavily computationally intensive but is, at a high level, highly parallel, as each ray is in theory independent of all the others.  Practical method of accelerating ray tracing usually involve putting some sort of bounding box over objects in the scene.  Since each ray must be tested for intersection with every triangle in the scene, and complex objects may be made of millions of triangles, it is desirable to decide immediately that a ray does not intersect any of the triangles that make up an object by testing it for intersection with its bounding box first.
@@ -47,7 +47,7 @@ Ray tracing is heavily computationally intensive but is, at a high level, highly
 In keeping with this, triangles meshes are put into bounding volume hierarchies (BVHs) that can be traversed in logarithmic time for intersection tests.  Since traversal of the BVHs is divergent, the advantages of the pure data parallelism deteriorate.
 <br/>
 <br/>
-Building and maintaining the BVH data structure is a limiting factor in achieving speedup in raytracers. A BVH can be 'refitted' in the case where the image is merely deformed from frame to frame (no triangles are added or removed, just stretched), but at some point a new BVH must be rebuilt. This can cause a 
+Building and maintaining the BVH data structure is a limiting factor in achieving speedup in raytracers.
 <br/>
 <br/>
 Another technique is to use packets of rays, in which multiple rays are cast at once, often using SIMD instructions, and evaluated for intersections together.
