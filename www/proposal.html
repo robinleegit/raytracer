@@ -1,0 +1,123 @@
+<html>
+<head>
+<title>CMU 15-418/618 (Spring 2013) Final Project Proposal</title>
+
+<link rel="stylesheet" type="text/css" href="style.css">
+
+</head>
+<body>
+
+<div class="constrainedWidth">
+  
+<div style="padding-bottom: 10px;">
+<div class="title smallTitle">Project Proposal:</div>
+<div class="title" style="width: 900px; padding-bottom: 6px; border-bottom: #000000 2px solid;">
+    Parallel Raytracer
+</div>
+</div>
+
+<div class="boldText">
+<div>Nathan Slobody, Adam Wright</div>
+</div>
+
+<div style="padding-top: 1em;"><a href="index.html">Main Project Page</a></div>
+
+<div class="section">Summary</div>
+Ray tracing!
+
+<div class="section">Background</div>
+<a href=https://en.wikipedia.org/wiki/Ray_tracing_%28graphics%29>Ray tracing</a> is a technique for rendering 3D models onto a computer screen.  In contrast to rasterization, which loops over the objects described in a scene, ray tracing loops over the pixels in the screen to calculate which objects are visible and with what color from the current point of view.  
+<br/>
+<br/>
+"Rays" start from the virtual position of the viewer's eye and are traced back to the lights that generate them, reflecting off of objects as they go.  The results can display a high degree of photorealism.
+<br/>
+<br/>
+
+<div class="section">Challenge</div>
+Ray tracing is heavily computationally intensive but is, at a high level, highly parallel, as each ray is in theory independent of all the others.  Practical method of accelerating ray tracing usually involve putting some sort of bounding box over objects in the scene.  Since each ray must be tested for intersection with every triangle in the scene, and complex objects may be made of millions of triangles, it is desirable to decide immediately that a ray does not intersect any of the triangles that make up an object by testing it for intersection with its bounding box first.
+<br/>
+<br/>
+In keeping with this, triangles meshes are put into bounding volume hierarchies (BVHs) that can be traversed in logarithmic time for intersection tests.  Since traversal of the BVHs is divergent, the advantages of the pure data parallelism deteriorate.
+<br/>
+<br/>
+Building and maintaining the BVH data structure is a limiting factor in achieving speedup in raytracers.  
+<br/>
+<br/>
+Another technique is to use packets of rays, in which multiple rays are cast at once, often using SIMD instructions, and evaluated for intersections together.
+
+<div class="section">Resources</div>
+We will start with Nathan's raytracer from 15662.  This implementation is serial and features minimal bounding structures and no fancy effects like global illumination or depth of field.  This can be our baseline for comparison with our final result.  It renders the most difficult scene from 15662 in around 10 minutes.
+<br/>
+<br/>
+Papers:
+<br/>
+<a href=http://www.sci.utah.edu/~wald/Publications/2008///Async08/download//async.pdf>Wald et al - Fast, Parallel, and Asynchronous Construction of BVHs for Ray Tracing Animated Scenes</a>
+<br/>
+<a href=http://www.sci.utah.edu/~wald/Publications/2007///BVH/download//togbvh.pdf>Wald et al - Ray Tracing Deformable Scenes Using Dynamic Bounding Volume Hierarchies</a>
+<br/>
+<a href=http://www.sci.utah.edu/~wald/Publications/2009///STAR09/download//star09.pdf>Wald et al - State of the Art in Ray Tracing Animated Scenes</a>
+<br/>
+<a href=https://diglib.eg.org/EG/DL/WS/EGGH/HPG12/033-037.pdf.abstract.pdf>Karras, Tero - Maximizing Parallelism in the Construction of BVHs, Octrees, and k-d Trees</a>
+<br/>
+<a href=https://mediatech.aalto.fi/~timo/publications/aila2010hpg_paper.pdf>Aila & Karras - Architecture Considerations for Tracing Incoherent Rays</a>
+<br/>
+<a href=http://www.eng.utah.edu/~cs7940/papers09/Timo_GPU_rt_HPG09.pdf>Aila &amp; Lane - Understanding the Efficiency of Ray Traversal on GPUs</a>
+
+<div class="section">Goals/Deliverables</div>
+
+Techniques we, ideally, would like to implement in our raytracer include:
+<br/>
+- Global illumination
+<br/>
+- Depth of field
+<br/>
+- Soft shadows
+<br/>
+- Anti-aliasing
+<br/>
+<br/>
+Additional things we'd like to try, given sufficient time:
+<br/>
+- Write a simple component for distributing the frames of a pre-modeled animated scene across the machines in the GHC clusters using MPI.
+<br/>
+- Benchmark a basic implementation on the GPU.
+<br/>
+- Benchmark a basic implementation in Parallel Haskell.
+
+
+<div class="section">Platform</div>
+C++
+<br/>
+OpenMP
+<br/>
+OpenCL?
+<br/>
+OpenGL for basic drawing to screen
+
+<div class="section">Proposed Schedule</div>
+
+<div class="comment">[Please do not modify the schedule on this page
+after the proposal process (it is your proposed schedule, and it will
+be useful to compare it to your actually project logs at the end of
+the project).  Update the schedule on your project main page if your
+goals or timeline changes over the course of the project.]</div>
+
+<p>
+<table class="projectSchedule">
+<tr>
+  <td width="110"><span style="font-weight: bold;">Week</span></td>
+  <td width="380"><span style="font-weight: bold;">What We Plan To Do</span></td>
+</tr>
+<tr><td>Apr 1-7</td><td>Choose project; write proposal</td></tr>
+<tr><td>Apr 8-14</td><td>Read existing literature; get Adam up to speed with Nathan's raytracer; clean up the code base</td></tr>
+<tr><td>Apr 15-21</td><td>Achieve a sequential implementation of BVH</td></tr>
+<tr><td>Apr 22-28</td><td>Parallelize BVH construction and traversal; packets?</td></tr>
+<tr><td>Apr 29-May 5</td><td>Fine-tune</td></tr>
+<tr><td>May 6-11</td><td>Implement nice-to-haves</td></tr>
+</table>
+</p>
+
+</div>
+
+</body>
+</html>
