@@ -23,37 +23,34 @@
 <div style="padding-top: 1em;"><a href="index.html">Main Project Page</a></div>
 
 <div class="section">Summary</div>
-We will explore the parallelization a Bounding Volume Hierarchy (BVH) based raytracer.
+We will explore the parallelization of a packetized raytracer using a bounding volume hierarchy (BVH).
 
 <div class="section">Background</div>
-<a href=https://en.wikipedia.org/wiki/Ray_tracing_%28graphics%29>Ray tracing</a> is a technique for rendering 3D models onto a computer screen.  In contrast to rasterization, which loops over the objects described in a scene, ray tracing loops over the pixels in the screen to calculate which objects are visible and with what color from the current point of view.  
+<a href=https://en.wikipedia.org/wiki/Ray_tracing_%28graphics%29>Ray tracing</a> is a technique for rendering 3D models onto a computer screen.  In contrast to rasterization, which starts its visibility evaluation by looping over the objects described in a scene, ray tracing loops over the pixels in the screen to calculate which objects are visible and with what color from the current point of view.  
 <br/>
 <br/>
 "Rays" start from the virtual position of the viewer's eye and are traced back to the lights that generate them, reflecting off of objects as they go.  The results can display a high degree of photorealism.
 <br/>
 <br/>
-
-High performance raytracing can be broken up into two phases:
+High performance raytracing can be broken up into three phases:
 <ol>
-	<li>Build some kind hierarchical or spatial structure (eg. kd-tree, BVH) that can be used to reduce the number of rays we have to cast</li>
-	<li>Cast rays from the point of view of the human viewing the screen. This phase uses the data structure created in phase 1 to reduce the number of computations</li>
+	<li>Build some kind of hierarchical or spatial structure (eg. kd-tree, BVH) that can be used to reduce the number of intersection tests necessary.</li>
+	<li>Cast rays from the point of view of the human viewing the screen. This phase uses the data structure created in phase 1 to reduce the number of computations.</li>
+    <li>Calculate the color of the object with the closest intersection point.</li>
 </ol>
-When trying to do interactive raytracing for animation in real time, the process of doing the first phase starts to have a significant impact. BVHs cannot be re-used from frame to frame if the next frame differs too much from the previous frame. 'Refitting' can be reused to incrementally update the tree in cases where the triangles that make up the scene are only stretched, and no triangles are added or removed. This can cause a momentary drop in performance, which is undesirable when raytracing for real time animation. As a result, being able to construct this tree as fast as possible can help reduce instances of low frame rate spikes[1].
+Ray tracing static scenes in real time is still a research challenge, and becomes particularly difficult with interactive and animated scenes.  BVHs cannot be re-used from frame to frame if the next frame differs too much from the previous frame. 'Refitting' can be used to incrementally update the tree in cases where the triangles that make up the scene are only stretched, and no triangles are added or removed. This can cause a momentary drop in performance, which is undesirable when raytracing for real time animation. As a result, being able to construct this tree as fast as possible can help reduce instances of low frame rate spikes[1].
 
 <div class="section">Challenge</div>
-Ray tracing is heavily computationally intensive but is, at a high level, highly parallel, as each ray is in theory independent of all the others.  Practical method of accelerating ray tracing usually involve putting some sort of bounding box over objects in the scene.  Since each ray must be tested for intersection with every triangle in the scene, and complex objects may be made of millions of triangles, it is desirable to decide immediately that a ray does not intersect any of the triangles that make up an object by testing it for intersection with its bounding box first.
+Ray tracing is heavily computationally intensive but is, at a high level, highly parallel, as each ray is, in theory, independent of all the others.  Practical methods of accelerating ray tracing usually involve putting some sort of bounding box over objects in the scene.  Since each ray must be tested for intersection with every triangle in the scene, and complex objects may be made of thousands or millions of triangles, it is desirable to decide immediately that a ray does not intersect any of the triangles that make up an object by testing it for intersection with its bounding box first.
 <br/>
 <br/>
-In keeping with this, triangles meshes are put into bounding volume hierarchies (BVHs) that can be traversed in logarithmic time for intersection tests.  Since traversal of the BVHs is divergent, the advantages of the pure data parallelism deteriorate.
+One modern approach is to put triangles meshes into bounding volume hierarchies (BVHs) that can be traversed in logarithmic time for intersection tests.  Since traversal of the BVHs is divergent, the advantages of the pure data parallelism deteriorate.  Building and maintaining the BVH data structure is a limiting factor in achieving speedup in raytracers.
 <br/>
 <br/>
-Building and maintaining the BVH data structure is a limiting factor in achieving speedup in raytracers.
-<br/>
-<br/>
-Another technique is to use packets of rays, in which multiple rays are cast at once, often using SIMD instructions, and evaluated for intersections together.
+Another technique is to use packets of rays, in which multiple rays are cast at once, often using SIMD instructions, and evaluated for intersections together.  This technique takes advantage of the locality of rays, since most rays that are close together will intersect with the same objects in the scene in general.  However, this again poses challenges to parallelization over the bounding volume hierarchy, since rays that do intersect an object will start to diverge as the tree is traversed.  Balancing the approaches poses a significant challenge.
 
 <div class="section">Resources</div>
-We will start with Nathan's raytracer from 15662.  This implementation is serial and features minimal bounding structures and no fancy effects like global illumination or depth of field.  This can be our baseline for comparison with our final result.  It renders the most difficult scene from 15662 in around 10 minutes.
+We will start with Nathan's raytracer from 15662.  This implementation is serial and features minimal bounding structures and no sophisticated effects like global illumination or depth of field.  This can be our baseline for comparison with our final result.  It renders the most difficult scene from 15662 in around 10 minutes.
 <br/>
 <br/>
 Papers:
@@ -69,31 +66,24 @@ Papers:
 <div class="section">Goals/Deliverables</div>
 
 Techniques we, ideally, would like to implement in our raytracer include:
-<br/>
-- Global illumination
-<br/>
-- Depth of field
-<br/>
-- Soft shadows
-<br/>
-- Anti-aliasing
-<br/>
-<br/>
+<ul>
+    <li>Global illumination</li>
+    <li>Depth of field</li>
+    <li>Soft shadows</li>
+    <li>Anti-aliasing</li>
+</ul>
 Additional things we'd like to try, given sufficient time:
-<br/>
-- Write a simple component for distributing the frames of a pre-modeled animated scene across the machines in the GHC clusters using MPI.
-<br/>
-- Benchmark a basic implementation on the GPU.
-<br/>
-- Benchmark a basic implementation in Parallel Haskell.
-
+<ul>
+    <li>Optimize BVH construction for animated scenes on a single machine, perhaps using an asynchronous technique as in [1]</li>
+    <li>Write a simple component for distributing the frames of a pre-modeled animated scene across the machines in the GHC clusters using MPI.</li>
+    <li>Evaluate opportunities to utilize the GPU for specific tasks.</li>
+    <li>Benchmark a basic implementation in Parallel Haskell, just for fun.</li>
+</ul>
 
 <div class="section">Platform</div>
 C++
 <br/>
-OpenMP
-<br/>
-OpenCL?
+OpenMP or perhaps OpenCL
 <br/>
 OpenGL for basic drawing to screen
 
@@ -114,7 +104,7 @@ goals or timeline changes over the course of the project.]</div>
 <tr><td>Apr 1-7</td><td>Choose project; write proposal</td></tr>
 <tr><td>Apr 8-14</td><td>Read existing literature; get Adam up to speed with Nathan's raytracer; clean up the code base</td></tr>
 <tr><td>Apr 15-21</td><td>Achieve a sequential implementation of BVH</td></tr>
-<tr><td>Apr 22-28</td><td>Parallelize BVH construction and traversal; packets?</td></tr>
+<tr><td>Apr 22-28</td><td>Parallelize BVH construction and traversal; packets</td></tr>
 <tr><td>Apr 29-May 5</td><td>Fine-tune</td></tr>
 <tr><td>May 6-11</td><td>Implement nice-to-haves</td></tr>
 </table>
