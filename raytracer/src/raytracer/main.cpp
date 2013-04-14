@@ -16,6 +16,8 @@
 
 #include <iostream>
 #include <cstring>
+//#include <SDL/SDL_main.h>
+#include <GLUT/glut.h>
 
 namespace _462 {
 
@@ -508,6 +510,8 @@ static bool parse_args( Options* opt, int argc, char* argv[] )
 
 int main( int argc, char* argv[] )
 {
+    glutInit(&argc, argv);
+
     Options opt;
 
     Matrix3 mat;
