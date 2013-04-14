@@ -6,9 +6,15 @@
  * @author Zeyang Li (zeyangl)
  */
 
+#ifdef __linux
+#include <GL/gl.h>
+#elif __APPLE__
+#include <OpenGL/gl.h>
+#endif
+
 #include "scene/model.hpp"
 #include "scene/material.hpp"
-#include <OpenGL/gl.h>
+
 #include <iostream>
 #include <cstring>
 #include <string>

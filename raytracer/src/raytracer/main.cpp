@@ -16,8 +16,10 @@
 
 #include <iostream>
 #include <cstring>
-//#include <SDL/SDL_main.h>
+
+#ifdef __APPLE__
 #include <GLUT/glut.h>
+#endif
 
 namespace _462 {
 
@@ -510,7 +512,9 @@ static bool parse_args( Options* opt, int argc, char* argv[] )
 
 int main( int argc, char* argv[] )
 {
+#ifdef __APPLE__
     glutInit(&argc, argv);
+#endif
 
     Options opt;
 
