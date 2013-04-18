@@ -24,7 +24,7 @@ const Matrix3 Matrix3::Zero = Matrix3( 0, 0, 0,
 
 Matrix3::Matrix3( real_t r[SIZE] )
 {
-    memcpy( m, r, sizeof r );
+    memcpy( m, r, sizeof(real_t));
 }
 
 Matrix3::Matrix3( real_t m00, real_t m10, real_t m20,
@@ -191,7 +191,7 @@ const Matrix4 Matrix4::Zero = Matrix4( 0, 0, 0, 0,
 
 Matrix4::Matrix4( real_t r[SIZE] )
 {
-    memcpy( m , r, sizeof r );
+    memcpy( m , r, sizeof(real_t));
 }
 
 Matrix4::Matrix4( real_t m00, real_t m10, real_t m20, real_t m30,
