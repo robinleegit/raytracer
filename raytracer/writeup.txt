@@ -1,7 +1,0 @@
-This version correctly implements all required features, except that refraction is a little bit off from the reference shot in stacks.  There's some light transmission from the surrounding environment in my version that isn't present in the reference shot.  I think this is probably due to not enough total internal reflection in my version, but I'm not sure.  cornell_box works as it should.
-
-My trace_pixel function basically takes parameters for a pointer to a struct containing all the light info from the intersected object, parameters for start position and direction of light ray, and a parameter for the current surrounding refractive index.  (This last part is a little bit of a hack knowing that refractive objects aren't intersecting or adjacent to one another).  It is thus able to call itself recursively for reflection and transmission rays.
-
-I implemented jittered anti-aliasing with a sample grid of 16, which can be turned on with -x passed at the command line, as in ./raytracer -x ./scenes/cube.scene. 
-
-I implemented a simple bounding sphere around models which I check in intersection and shadow tests before looping through all triangles.  This is set up as a virtual function that is processed in initialize (along with transformation matrices) and only does stuff for models.  This gets toy to render in around eight minutes on my laptop without anti-aliasing.
