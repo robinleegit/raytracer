@@ -517,6 +517,8 @@ int main( int argc, char* argv[] )
 #endif
 
     Options opt;
+    opt.width = 0;
+    opt.height = 0;
 
     Matrix3 mat;
     Matrix4 trn;
