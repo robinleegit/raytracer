@@ -138,10 +138,12 @@ static void loop_update_func( LoopData* data, bool is_skip )
     }
 }
 
+typedef void (*loop_func)( LoopData*, bool );
+
 /**
  * Works with any update function.
  */
-static void run_main_loop( void (*update_fn)( LoopData*, bool ), LoopData* data, real_t ups )
+static void run_main_loop(loop_func update_fn, LoopData* data, real_t ups )
 {
     assert( data->running && ups > 0 );
 
