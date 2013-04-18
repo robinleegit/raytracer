@@ -25,10 +25,10 @@ endif
 CURR_DIR = $(shell pwd)
 
 # global compiler flags
-CXX = g++
+CXX = clang++
 CXXFLAGS += -Wall -ansi -pedantic -I"$(CURR_DIR)/include" -I"$(CURR_DIR)/$(SRC_DIR)"
 
-LDFLAGS = -lSDLmain -lSDL -lpng
+LDFLAGS = -lSDLmain -lSDL -lpng -lpthread
 
 ifeq ($(UNAME),Darwin)
 LDFLAGS += -L/usr/local/Cellar/libpng12/1.2.50/lib -framework OpenGL -framework GLUT
