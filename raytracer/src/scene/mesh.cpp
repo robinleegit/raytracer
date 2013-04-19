@@ -249,21 +249,66 @@ bool Mesh::load()
 
     // verify index list sanity
 
-    int num_vertex = position_list.size();
-    int num_normal = normal_list.size();
-    int num_tcoord = uv_list.size();
+    size_t num_vertex = position_list.size();
+    size_t num_normal = normal_list.size();
+    size_t num_tcoord = uv_list.size();
 
-    for ( size_t i = 0; i < face_list.size(); ++i ) {
-        const Face& face = face_list[i];
-        for ( size_t j = 0; j < 3; ++j ) {
+    for (size_t i = 0; i < face_list.size(); ++i) {
+        Face& face = face_list[i];
+        for (int j = 0; j < 3; ++j) {
             int vidx = face.v[j].vertex;
             int nidx = face.v[j].normal;
             int tidx = face.v[j].tcoord;
 
-            if (    vidx <  0 || vidx >= num_vertex
-                 || nidx < -1 || nidx >= num_normal
-                 || tidx < -1 || tidx >= num_tcoord ) {
-                std::cout << "Invalid index in face " << i << ".\n";
+            if (vidx <  0)
+            {
+                face_list[i].v[j].vertex = num_vertex + 1 + vidx;
+                // adding 1 because it's 1-indexed???
+            }
+
+            if (nidx < -1)
+            {
+                face_list[i].v[j].normal = num_normal + 1 + nidx;
+            }
+
+            if (tidx < -1)
+            {
+                face_list[i].v[j].tcoord = num_tcoord + 1 + tidx;
+            }
+
+            Face& face = face_list[i];
+            vidx = face.v[j].vertex;
+            nidx = face.v[j].normal;
+            tidx = face.v[j].tcoord;
+
+            bool c1, c2, c3, c4, c5, c6;
+            c1 = vidx <  0;
+            c2 = vidx >= (int)num_vertex;
+            c3 = nidx < -1;
+            c4 = nidx >= (int)num_normal;
+            c5 = tidx < -1;
+            c6 = tidx >= (int)num_tcoord;
+            if (vidx <  0 ||
+                vidx >= (int)num_vertex || 
+                nidx < -1 ||
+                nidx >= (int)num_normal ||
+                tidx < -1 ||
+                tidx >= (int)num_tcoord )
+            {
+                std::cout 
+                     << c1 << " "
+                     << c2 << " "
+                     << c3 << " "
+                     << c4 << " "
+                     << c5 << " "
+                     << c6 << "    "
+                     << vidx << " " 
+                     << nidx << " " 
+                     << tidx << "    "
+                     << num_vertex << " " 
+                     << num_normal << " " 
+                     << num_tcoord << std::endl;
+                //std::cout << "Invalid index in face " << i << ".\n";
             }
         }
     }
