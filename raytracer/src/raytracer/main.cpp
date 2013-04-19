@@ -54,6 +54,8 @@ struct Options
     const char* output_filename;
     // window dimensions
     int width, height;
+    // number of threads
+    int numthreads;
 };
 
 bool extras = false;
@@ -271,7 +273,7 @@ void RaytracerApplication::toggle_raytracing( int width, int height )
         // initialize the raytracer (first make sure camera aspect is correct)
         scene.camera.aspect = real_t( width ) / real_t( height );
 
-        if ( !raytracer.initialize( &scene, width, height ) ) {
+        if ( !raytracer.initialize( &scene, width, height, 8 ) ) {
             std::cout << "Raytracer initialization failed.\n";
             return; // leave untoggled since initialization failed.
         }
@@ -464,7 +466,6 @@ static bool parse_args( Options* opt, int argc, char* argv[] )
         ++input_index;
     }
 
-
     if ( argc <= input_index ) {
         print_usage( argv[0] );
         return false;
@@ -494,13 +495,15 @@ static bool parse_args( Options* opt, int argc, char* argv[] )
         opt->height = DEFAULT_HEIGHT;
     }
 
-    opt->input_filename = argv[input_index];
-
     if ( argc > input_index + 1 ) {
         opt->output_filename = argv[input_index + 1];
     } else {
         opt->output_filename = 0;
     }
+
+    if ( argc  > input_index + 1 )
+    istringstream iss(argv[input_index]);
+    iss >> opt->numthreads;
 
     if ( argc > input_index + 2 ) {
         std::cout << "Too many arguments.\n";

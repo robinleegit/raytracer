@@ -16,13 +16,21 @@
 #include <math.h>
 #include <algorithm>
 
+#include "tsqueue.hpp"
+
+using namespace std;
 
 namespace _462 {
+
+    int numthreads;
 
     Raytracer::Raytracer()
         : scene( 0 ), width( 0 ), height( 0 ) { }
 
-    Raytracer::~Raytracer() { }
+    Raytracer::~Raytracer() 
+    { 
+        numthreads = 1;
+    }
 
     /**
      * Initializes the raytracer for the given scene. Overrides any previous
@@ -33,13 +41,14 @@ namespace _462 {
      * @return true on success, false on error. The raytrace will abort if
      *  false is returned.
      */
-    bool Raytracer::initialize(Scene* scene0, size_t width0, size_t height0)
+    bool Raytracer::initialize(Scene* scene0, size_t width0, size_t height0, int _numthreads)
     {
+        numthreads = _numthreads;
+
         this->scene = scene0;
         this->width = width0;
         this->height = height0;
 
-        current_row = 0;
         size_t num_geometries = scene->num_geometries();
 
         // invert scene transformation matrices
@@ -317,6 +326,26 @@ namespace _462 {
         return true;
     }
 
+    void Raytracer::trace_pixel_worker(tsqueue<Int2> *pixel_queue, unsigned char *buffer)
+    {
+        Vector3 start_e = Vector3(0.0, 0.0, 0.0);
+        Vector3 start_ray = Vector3(0.0, 0.0, 0.0);
+
+        while (true)
+        {
+            bool empty;
+            Int2 pixel = pixel_queue->Pop(empty);
+
+            if (empty)
+            {
+                break;
+            }
+
+            Color3 color = trace_pixel(scene, pixel.x, pixel.y, width, height, 0, start_e, start_ray, 1.0, false);
+            color.to_array( &buffer[4 * ( pixel.y * width + pixel.x )] );
+        }
+    }
+
     /**
      * Raytraces some portion of the scene. Should raytrace for about
      * max_time duration and then return, even if the raytrace is not copmlete.
@@ -331,76 +360,30 @@ namespace _462 {
      */
     bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, bool extras)
     {
-        static const size_t PRINT_INTERVAL = 64;
-
-        // the time in milliseconds that we should stop
-        unsigned int end_time = 0;
-        bool is_done;
-        Vector3 start_e = Vector3(0.0, 0.0, 0.0);
-        Vector3 start_ray = Vector3(0.0, 0.0, 0.0);
-
-        if ( max_time ) {
-            // convert duration to milliseconds
-            unsigned int duration = (unsigned int) ( *max_time * 1000 );
-            end_time = SDL_GetTicks() + duration;
-        }
-
-        // until time is up, run the raytrace. we render an entire row at once
-        // for simplicity and efficiency.
-        int n = 4;
-        Color3 c = Color3::Black;
-        Color3 color;
-        double r;
-        srand((unsigned)time(NULL));
-
-        for ( ; !max_time || end_time > SDL_GetTicks(); ++current_row ) {
-
-            if ( current_row % PRINT_INTERVAL == 0 ) {
-                printf( "Raytracing (row %lu)...\n", current_row );
-            }
-
-            // we're done if we finish the last row
-            is_done = current_row == height;
-            // break if we finish
-            if ( is_done )
-                break;
-
-            for ( size_t x = 0; x < width; ++x )
+        boost::thread *thread = new boost::thread[numthreads];
+        tsqueue<Int2> pixel_queue;
+        for (size_t y = 0; y < height; ++y) 
+        {
+            for (size_t x = 0; x < width; ++x )
             {
-                // trace a pixel
-
-                if (extras)
-                {
-                    // anti-aliasing
-                    c = Color3::Black;
-
-                    for (int p = -1 * (n / 2); p < n / 2; p++)
-                    {
-                        for (int q = -1 * (n / 2); q < n / 2; q++)
-                        {
-                            r = (double) rand() / (double) RAND_MAX - 0.5; 
-                            c += trace_pixel(scene, x + (p + r) / n, current_row + (q + r) / n,
-                                    width, height, 0, start_e, start_ray, 1.0, true);
-                        }
-                    }
-
-                    color = c * (1.0 / pow(n, 2));
-                }
-                else
-                {
-                    color = trace_pixel(scene, x, current_row,
-                            width, height, 0, start_e, start_ray, 1.0, false);
-                }
-                // write the result to the buffer, always use 1.0 as the alpha
-                color.to_array( &buffer[4 * ( current_row * width + x )] );
+                Int2 tmp(x, y);
+                pixel_queue.Push(tmp);
             }
         }
 
-        if ( is_done ) {
-            printf( "Done raytracing!\n" );
+        for (int i = 0; i < numthreads; i++) {
+            cout << "Launching thread " << i << endl;
+            thread[i] = boost::thread(&Raytracer::trace_pixel_worker, this, &pixel_queue, buffer);
         }
 
-        return is_done;
+        for (int i = 0; i < numthreads; i++) {
+            cout << "Joining thread " << i << endl;
+            thread[i].join();
+        }
+
+        delete [] thread;
+
+        return true;
     }
 
 
