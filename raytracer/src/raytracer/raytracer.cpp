@@ -337,7 +337,6 @@ namespace _462 {
 
         // the time in milliseconds that we should stop
         unsigned int end_time = 0;
-        bool is_done;
         Vector3 start_e = Vector3(0.0, 0.0, 0.0);
         Vector3 start_ray = Vector3(0.0, 0.0, 0.0);
 
@@ -355,21 +354,15 @@ namespace _462 {
         double r;
         srand((unsigned)time(NULL));
 
-        //double start = CycleTimer::currentSeconds();
+        double start = CycleTimer::currentSeconds();
 
-        for ( ; !max_time || end_time > SDL_GetTicks(); ++current_row ) 
+        for ( current_row = 0; current_row < height; ++current_row ) 
         {
 
             if ( current_row % PRINT_INTERVAL == 0 ) 
             {
                 printf( "Raytracing (row %lu)...\n", current_row );
             }
-
-            // we're done if we finish the last row
-            is_done = current_row == height;
-            // break if we finish
-            if ( is_done )
-                break;
 
             for ( size_t x = 0; x < width; ++x )
             {
@@ -402,13 +395,9 @@ namespace _462 {
             }
         }
 
-        //cout << "Total time: " << (CycleTimer::currentSeconds()) - start << endl;
+        cout << "Total time: " << (CycleTimer::currentSeconds()) - start << endl;
 
-        if ( is_done ) {
-            printf( "Done raytracing!\n" );
-        }
-
-        return is_done;
+        return true;
     }
 
 
