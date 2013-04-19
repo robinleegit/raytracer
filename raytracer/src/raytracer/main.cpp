@@ -180,7 +180,7 @@ void RaytracerApplication::update( real_t delta_time )
         // do part of the raytrace
         if ( !raytrace_finished ) {
             assert( buffer );
-            for (int i = 1; i <= 8; i++) {
+            for (int i = 1; i <= boost::thread::hardware_concurrency(); i++) {
                 cout << "Running with " << i << " threads" << endl;
                 raytrace_finished = raytracer.raytrace( buffer, &delta_time, extras, i );
             }

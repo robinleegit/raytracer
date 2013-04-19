@@ -370,38 +370,22 @@ namespace _462 {
 
         double thread_start = CycleTimer::currentSeconds();
         for (int i = 0; i < numthreads; i++) {
-            cout << "Launching thread " << i << endl;
+            //cout << "Launching thread " << i << endl;
             thread[i] = boost::thread(&Raytracer::trace_pixel_worker, this, &pixel_queue, buffer);
         }
 
         for (int i = 0; i < numthreads; i++) {
-            cout << "Joining thread " << i << endl;
+            //cout << "Joining thread " << i << endl;
             thread[i].join();
         }
         double thread_duration = CycleTimer::currentSeconds() - thread_start;
         double tot_duration = CycleTimer::currentSeconds() - tot_start;
 
-        cout << "Total time:    " << tot_duration    << endl
-             << "Push time:     " << push_duration   << endl
-             << "Thread time:   " << thread_duration << endl;
+        cout << numthreads << " Total time:    " << tot_duration    << endl
+             << numthreads << " Push time:     " << push_duration   << endl
+             << numthreads << " Thread time:   " << thread_duration << endl;
 
         delete [] thread;
-
-        Vector3 start_e = Vector3(0.0, 0.0, 0.0);
-        Vector3 start_ray = Vector3(0.0, 0.0, 0.0);
-
-        double nothread_start = CycleTimer::currentSeconds();
-        for (size_t y = 0; y < height; ++y) 
-        {
-            for (size_t x = 0; x < width; ++x )
-            {
-                Color3 color = trace_pixel(scene, x, y, width, height, 0, start_e, start_ray, 1.0, false);
-                color.to_array( &buffer[4 * ( y * width + x )] );
-            }
-        }
-        double nothread_duration = CycleTimer::currentSeconds() - nothread_start;
-
-        cout << "Single thread: " << nothread_duration << endl;
 
         return true;
     }
