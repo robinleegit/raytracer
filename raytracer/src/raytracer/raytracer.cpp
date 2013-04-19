@@ -10,12 +10,14 @@
 
 #include "raytracer.hpp"
 #include "scene/scene.hpp"
+#include "CycleTimer.hpp"
 
 #include <SDL/SDL_timer.h>
 #include <iostream>
 #include <math.h>
 #include <algorithm>
 
+using namespace std;
 
 namespace _462 {
 
@@ -353,9 +355,13 @@ namespace _462 {
         double r;
         srand((unsigned)time(NULL));
 
-        for ( ; !max_time || end_time > SDL_GetTicks(); ++current_row ) {
+        //double start = CycleTimer::currentSeconds();
 
-            if ( current_row % PRINT_INTERVAL == 0 ) {
+        for ( ; !max_time || end_time > SDL_GetTicks(); ++current_row ) 
+        {
+
+            if ( current_row % PRINT_INTERVAL == 0 ) 
+            {
                 printf( "Raytracing (row %lu)...\n", current_row );
             }
 
@@ -384,7 +390,7 @@ namespace _462 {
                         }
                     }
 
-                    color = c * (1.0 / pow(n, 2));
+                    color = c * (1.0 / pow((float)n, 2));
                 }
                 else
                 {
@@ -395,6 +401,8 @@ namespace _462 {
                 color.to_array( &buffer[4 * ( current_row * width + x )] );
             }
         }
+
+        //cout << "Total time: " << (CycleTimer::currentSeconds()) - start << endl;
 
         if ( is_done ) {
             printf( "Done raytracing!\n" );
