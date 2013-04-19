@@ -23,15 +23,10 @@ using namespace std;
 
 namespace _462 {
 
-    int numthreads;
-
     Raytracer::Raytracer()
         : scene( 0 ), width( 0 ), height( 0 ) { }
 
-    Raytracer::~Raytracer() 
-    { 
-        numthreads = 1;
-    }
+    Raytracer::~Raytracer() { }
 
     /**
      * Initializes the raytracer for the given scene. Overrides any previous
@@ -42,10 +37,8 @@ namespace _462 {
      * @return true on success, false on error. The raytrace will abort if
      *  false is returned.
      */
-    bool Raytracer::initialize(Scene* scene0, size_t width0, size_t height0, int _numthreads)
+    bool Raytracer::initialize(Scene* scene0, size_t width0, size_t height0)
     {
-        numthreads = _numthreads;
-
         this->scene = scene0;
         this->width = width0;
         this->height = height0;
@@ -359,7 +352,7 @@ namespace _462 {
      * @return true if the raytrace is complete, false if there is more
      *  work to be done.
      */
-    bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, bool extras)
+    bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, bool extras, int numthreads)
     {
         boost::thread *thread = new boost::thread[numthreads];
         tsqueue<Int2> pixel_queue;
@@ -388,11 +381,27 @@ namespace _462 {
         double thread_duration = CycleTimer::currentSeconds() - thread_start;
         double tot_duration = CycleTimer::currentSeconds() - tot_start;
 
-        cout << "Total time:  " << tot_duration    << "s" << endl
-             << "Push time:   " << push_duration   << "s" << endl
-             << "Thread time: " << thread_duration << "s" << endl;
+        cout << "Total time:    " << tot_duration    << endl
+             << "Push time:     " << push_duration   << endl
+             << "Thread time:   " << thread_duration << endl;
 
         delete [] thread;
+
+        Vector3 start_e = Vector3(0.0, 0.0, 0.0);
+        Vector3 start_ray = Vector3(0.0, 0.0, 0.0);
+
+        double nothread_start = CycleTimer::currentSeconds();
+        for (size_t y = 0; y < height; ++y) 
+        {
+            for (size_t x = 0; x < width; ++x )
+            {
+                Color3 color = trace_pixel(scene, x, y, width, height, 0, start_e, start_ray, 1.0, false);
+                color.to_array( &buffer[4 * ( y * width + x )] );
+            }
+        }
+        double nothread_duration = CycleTimer::currentSeconds() - nothread_start;
+
+        cout << "Single thread: " << nothread_duration << endl;
 
         return true;
     }

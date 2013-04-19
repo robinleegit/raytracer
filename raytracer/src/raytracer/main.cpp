@@ -21,6 +21,8 @@
 #include <GLUT/glut.h>
 #endif
 
+using namespace std;
+
 namespace _462 {
 
 #define DEFAULT_WIDTH 800
@@ -178,7 +180,10 @@ void RaytracerApplication::update( real_t delta_time )
         // do part of the raytrace
         if ( !raytrace_finished ) {
             assert( buffer );
-            raytrace_finished = raytracer.raytrace( buffer, &delta_time, extras );
+            for (int i = 1; i <= 8; i++) {
+                cout << "Running with " << i << " threads" << endl;
+                raytrace_finished = raytracer.raytrace( buffer, &delta_time, extras, i );
+            }
         }
     } else {
         // copy camera over from camera control (if not raytracing)
@@ -273,7 +278,7 @@ void RaytracerApplication::toggle_raytracing( int width, int height )
         // initialize the raytracer (first make sure camera aspect is correct)
         scene.camera.aspect = real_t( width ) / real_t( height );
 
-        if ( !raytracer.initialize( &scene, width, height, 8 ) ) {
+        if ( !raytracer.initialize( &scene, width, height ) ) {
             std::cout << "Raytracer initialization failed.\n";
             return; // leave untoggled since initialization failed.
         }
@@ -556,7 +561,7 @@ int main( int argc, char* argv[] )
         }
         assert( app.buffer );
         // raytrace until done
-        app.raytracer.raytrace( app.buffer, 0, extras );
+        app.raytracer.raytrace( app.buffer, 0, extras, 8 );
         // output result
         app.output_image();
         return 0;

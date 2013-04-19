@@ -33,7 +33,7 @@ public:
 
     ~Raytracer();
 
-    bool initialize( Scene* scene, size_t width, size_t height, int _numthreads );
+    bool initialize( Scene* scene, size_t width, size_t height );
 
     Color3 trace_pixel(const Scene* scene, size_t x, size_t y, size_t width,
             size_t height, int recursions, Vector3 start_e, Vector3 start_ray,
@@ -41,7 +41,7 @@ public:
 
     void trace_pixel_worker(tsqueue<Int2> *pixel_queue, unsigned char *buffer);
 
-    bool raytrace(unsigned char* buffer, real_t* max_time, bool extras);
+    bool raytrace(unsigned char* buffer, real_t* max_time, bool extras, int numthreads);
 
     Vector3 get_viewing_ray(Vector3 e, size_t x, size_t y, size_t width, size_t height);
 
@@ -58,8 +58,6 @@ private:
 
     // the dimensions of the image to trace
     size_t width, height;
-
-    int numthreads;
 
 };
 
