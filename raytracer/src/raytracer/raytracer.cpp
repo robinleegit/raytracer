@@ -17,6 +17,7 @@
 #include <algorithm>
 
 #include "tsqueue.hpp"
+#include "CycleTimer.hpp"
 
 using namespace std;
 
@@ -362,6 +363,8 @@ namespace _462 {
     {
         boost::thread *thread = new boost::thread[numthreads];
         tsqueue<Int2> pixel_queue;
+
+        double tot_start = CycleTimer::currentSeconds();
         for (size_t y = 0; y < height; ++y) 
         {
             for (size_t x = 0; x < width; ++x )
@@ -370,7 +373,9 @@ namespace _462 {
                 pixel_queue.Push(tmp);
             }
         }
+        double push_duration = CycleTimer::currentSeconds() - tot_start;
 
+        double thread_start = CycleTimer::currentSeconds();
         for (int i = 0; i < numthreads; i++) {
             cout << "Launching thread " << i << endl;
             thread[i] = boost::thread(&Raytracer::trace_pixel_worker, this, &pixel_queue, buffer);
@@ -380,6 +385,12 @@ namespace _462 {
             cout << "Joining thread " << i << endl;
             thread[i].join();
         }
+        double thread_duration = CycleTimer::currentSeconds() - thread_start;
+        double tot_duration = CycleTimer::currentSeconds() - tot_start;
+
+        cout << "Total time:  " << tot_duration    << "s" << endl
+             << "Push time:   " << push_duration   << "s" << endl
+             << "Thread time: " << thread_duration << "s" << endl;
 
         delete [] thread;
 

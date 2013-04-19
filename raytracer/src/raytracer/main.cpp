@@ -495,15 +495,13 @@ static bool parse_args( Options* opt, int argc, char* argv[] )
         opt->height = DEFAULT_HEIGHT;
     }
 
+    opt->input_filename = argv[input_index++];
+
     if ( argc > input_index + 1 ) {
         opt->output_filename = argv[input_index + 1];
     } else {
         opt->output_filename = 0;
     }
-
-    if ( argc  > input_index + 1 )
-    istringstream iss(argv[input_index]);
-    iss >> opt->numthreads;
 
     if ( argc > input_index + 2 ) {
         std::cout << "Too many arguments.\n";
