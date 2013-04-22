@@ -27,7 +27,9 @@ def main():
 
             if nthreads not in x:
                 x.append(nthreads)
-                y.append(baseline/float(words[3]))
+
+                speedup = baseline/float(words[3])
+                y.append(speedup)
 
     f.close()
 
