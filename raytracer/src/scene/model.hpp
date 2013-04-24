@@ -1,10 +1,3 @@
-/**
- * @file model.hpp
- * @brief Model class
- *
- * @author Eric Butler (edbutler)
- */
-
 #ifndef _462_SCENE_MODEL_HPP_
 #define _462_SCENE_MODEL_HPP_
 

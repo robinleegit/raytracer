@@ -1,11 +1,3 @@
-/**
- * @file scene.cpp
- * @brief Function definitions for scenes.
- *
- * @author Eric Butler (edbutler)
- * @author Kristin Siu (kasiu)
- */
-
 #include "scene/scene.hpp"
 
 namespace _462 {

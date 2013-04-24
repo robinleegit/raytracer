@@ -1,7 +1,3 @@
-
-# 15-462 project makefile
-# EDIT THIS FILE TO ADD NEW SOURCE FILES
-
 SRCS = \
 	application/application.cpp \
 	application/imageio.cpp \

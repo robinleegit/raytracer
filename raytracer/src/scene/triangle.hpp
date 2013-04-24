@@ -1,10 +1,3 @@
-/**
- * @file triangle.hpp
- * @brief Class definition for Triangle.
- *
- * @author Eric Butler (edbutler)
- */
-
 #ifndef _462_SCENE_TRIANGLE_HPP_
 #define _462_SCENE_TRIANGLE_HPP_
 

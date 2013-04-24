@@ -1,11 +1,3 @@
-/**
- * @file main_rayracer.cpp
- * @brief Raytracer entry
- *
- * @author Eric Butler (edbutler)
- */
-
-
 #include "application/application.hpp"
 #include "application/camera_roam.hpp"
 #include "application/imageio.hpp"
