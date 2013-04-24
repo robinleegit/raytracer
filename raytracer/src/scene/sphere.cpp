@@ -1,11 +1,3 @@
-/**
- * @file sphere.cpp
- * @brief Function defnitions for the Sphere class.
- *
- * @author Kristin Siu (kasiu)
- * @author Eric Butler (edbutler)
- */
-
 #include "scene/sphere.hpp"
 #include "application/opengl.hpp"
 #include "math.h"

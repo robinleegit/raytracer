@@ -1,11 +1,3 @@
-/**
- * @file scene.hpp
- * @brief Class definitions for scenes.
- *
- * @author Eric Butler (edbutler)
- * @author Kristin Siu (kasiu)
- */
-
 #ifndef _462_SCENE_SCENE_HPP_
 #define _462_SCENE_SCENE_HPP_
 

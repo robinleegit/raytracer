@@ -1,13 +1,3 @@
-/**
- * @file raytacer.hpp
- * @brief Raytracer class
- *
- * Implement these functions for project 2.
- *
- * @author H. Q. Bovik (hqbovik)
- * @bug Unimplemented
- */
-
 #ifndef _462_RAYTRACER_HPP_
 #define _462_RAYTRACER_HPP_
 

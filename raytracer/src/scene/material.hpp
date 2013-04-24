@@ -1,10 +1,3 @@
-/**
- * @file material.hpp
- * @brief Material class
- *
- * @author Eric Butler (edbutler)
- */
-
 #ifndef _462_SCENE_MATERIAL_HPP_
 #define _462_SCENE_MATERIAL_HPP_
 
