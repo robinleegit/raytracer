@@ -62,10 +62,16 @@ BvhNode::BvhNode(const Mesh* _mesh, vector<int>& _indices)
 
 BvhNode::~BvhNode()
 {
-    if (left)
+    if (left) 
+    {
         delete left;
+        left = NULL;
+    }
     if (right)
+    {
         delete right;
+        right = NULL;
+    }
 }
 
 bool BvhNode::intersect(Vector3 e, Vector3 ray, vector<MeshTriangle>& winners)

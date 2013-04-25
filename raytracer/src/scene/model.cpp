@@ -19,7 +19,10 @@ using namespace std;
 namespace _462
 {
 
-Model::Model() : mesh( 0 ), material( 0 ) { }
+Model::Model() : mesh( 0 ), material( 0 ) 
+{
+    bvh = NULL;
+}
 Model::~Model() { }
 
 void Model::render() const

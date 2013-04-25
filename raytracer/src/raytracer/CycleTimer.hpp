@@ -137,7 +137,7 @@ public:
         {
             // NOTE(boulos): Because reading cpuinfo depends on dynamic
             // frequency scaling it's better to read the @ sign first
-            float GHz, MHz;
+            float GHz = 0.0, MHz = 0.0;
             if (strstr(input, "model name"))
             {
                 char* at_sign = strstr(input, "@");
