@@ -266,8 +266,6 @@ void Model::make_bounding_volume()
         binit = true;
     }
 
-    cout << "max, min = " << bbox_max << ", " << bbox_min << endl;
-
     bbox = Box(bbox_min, bbox_max);
 }
 
