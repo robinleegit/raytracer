@@ -31,6 +31,7 @@ SRCS = \
 	tinyxml/tinyxmlerror.cpp \
 	tinyxml/tinyxmlparser.cpp \
 	raytracer/main.cpp \
+	raytracer/bvh.cpp \
 	raytracer/raytracer.cpp
 
 TARGET = raytracer
