@@ -5,10 +5,10 @@
 #include "scene/mesh.hpp"
 #include "scene/box.hpp"
 
-namespace _462 
+namespace _462
 {
 
-class BvhNode 
+class BvhNode
 {
 private:
     Box bbox;

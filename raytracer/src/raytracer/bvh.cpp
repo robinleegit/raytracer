@@ -19,7 +19,7 @@ BvhNode::BvhNode(const Mesh* _mesh, vector<int>& _indices)
     cout << "min, max = " << bbox.min_corner << ", " << bbox.max_corner << endl;
 
     cout << "Leaf node" << endl;
-    for (int i = 0; i < _indices.size(); i++) 
+    for (int i = 0; i < _indices.size(); i++)
     {
         indices.push_back(_indices[i]);
         cout << "adding index " << i << endl;
@@ -62,7 +62,7 @@ BvhNode::BvhNode(const Mesh* _mesh, vector<int>& _indices)
 
 BvhNode::~BvhNode()
 {
-    if (left) 
+    if (left)
     {
         delete left;
         left = NULL;
@@ -97,7 +97,7 @@ bool BvhNode::intersect(Vector3 e, Vector3 ray, vector<MeshTriangle>& winners)
         }
 
         return left_isect || right_isect;
-    } 
+    }
 
     // if both are null, we are a leaf, so just return our triangles
     for (int i = 0; i < indices.size(); i++)

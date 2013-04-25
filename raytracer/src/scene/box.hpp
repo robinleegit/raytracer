@@ -37,7 +37,8 @@ public:
 
         return xzok && yzok && yxok;
     }
-    Box(const Mesh* mesh, std::vector<int>& indices) {
+    Box(const Mesh* mesh, std::vector<int>& indices)
+    {
         MeshVertex v;
         MeshTriangle t;
 
@@ -49,7 +50,7 @@ public:
 
             t = mesh->get_triangles()[idx];
 
-            for (size_t j = 0; j < 3; j++) 
+            for (size_t j = 0; j < 3; j++)
             {
                 int vidx = t.vertices[j];
                 v = mesh->get_vertices()[vidx];

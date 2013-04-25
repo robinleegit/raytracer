@@ -19,7 +19,7 @@ using namespace std;
 namespace _462
 {
 
-Model::Model() : mesh( 0 ), material( 0 ) 
+Model::Model() : mesh( 0 ), material( 0 )
 {
     bvh = NULL;
 }
@@ -245,7 +245,7 @@ void Model::make_bounding_volume()
         delete bvh;
 
     vector<int> all_indices;
-    for (int i= 0; i < mesh->num_triangles(); i++) 
+    for (int i= 0; i < mesh->num_triangles(); i++)
     {
         all_indices.push_back(i);
     }
