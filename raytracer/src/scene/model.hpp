@@ -3,6 +3,7 @@
 
 #include "scene/scene.hpp"
 #include "scene/mesh.hpp"
+#include "scene/box.hpp"
 
 namespace _462
 {
@@ -17,13 +18,7 @@ public:
     const Mesh* mesh;
     const Material* material;
 
-    struct BoundingSphere
-    {
-        Vector3 centroid;
-        float radius;
-    };
-
-    BoundingSphere bound;
+    Box bbox;
 
     Model();
     virtual ~Model();

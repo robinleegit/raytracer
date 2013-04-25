@@ -13,6 +13,7 @@
 #include <fstream>
 #include <sstream>
 
+using namespace std;
 
 namespace _462
 {
@@ -37,11 +38,7 @@ bool Model::intersect(Vector3 e, Vector3 ray, struct SceneInfo *info) const
     Vector3 instance_e = inverse_transform_matrix.transform_point(e);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
-    float discriminant = pow(dot(instance_ray, instance_e - bound.centroid), 2)
-                         - dot(instance_ray, instance_ray) *
-                         (dot(instance_e - bound.centroid, instance_e - bound.centroid) - pow(bound.radius, 2));
-
-    if (discriminant < 0)
+    if (!bbox.intersect(instance_e, instance_ray))
     {
         return false;
     }
@@ -165,11 +162,7 @@ bool Model::shadow_test(Vector3 e, Vector3 ray) const
     Vector3 instance_e = inverse_transform_matrix.transform_point(e);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
-    float discriminant = pow(dot(instance_ray, instance_e - bound.centroid), 2)
-                         - dot(instance_ray, instance_ray) *
-                         (dot(instance_e - bound.centroid, instance_e - bound.centroid) - pow(bound.radius, 2));
-
-    if (discriminant < 0)
+    if (!bbox.intersect(instance_e, instance_ray))
     {
         return false;
     }
@@ -247,45 +240,35 @@ void Model::make_bounding_volume()
     // loop through all the triangles in the mesh, calculate bound
     size_t num_vertices = mesh->num_vertices();
     MeshVertex v;
-    float sum_x = 0.0;
-    float sum_y = 0.0;
-    float sum_z = 0.0;
-    float avg_x, avg_y, avg_z;
-    float xdis, ydis, zdis;
-    float distance;
-    float max_distance = 0.0;
 
+    bool binit = false;
+    Vector3 bbox_min, bbox_max;
     for (size_t i = 0; i < num_vertices; i++)
     {
         v = mesh->get_vertices()[i];
-        sum_x += v.position.x;
-        sum_y += v.position.y;
-        sum_z += v.position.z;
+        cout << "Trying " << v.position << endl;
+
+        if (v.position.x > bbox_max.x || !binit)
+            bbox_max.x = v.position.x;
+        if (v.position.x < bbox_min.x || !binit)
+            bbox_min.x = v.position.x;
+
+        if (v.position.y > bbox_max.y || !binit)
+            bbox_max.y = v.position.y;
+        if (v.position.y < bbox_min.y || !binit)
+            bbox_min.y = v.position.y;
+
+        if (v.position.z > bbox_max.z || !binit)
+            bbox_max.z = v.position.z;
+        if (v.position.z < bbox_min.z || !binit)
+            bbox_min.z = v.position.z;
+
+        binit = true;
     }
 
-    avg_x = sum_x / num_vertices;
-    avg_y = sum_y / num_vertices;
-    avg_z = sum_z / num_vertices;
+    cout << "max, min = " << bbox_max << ", " << bbox_min << endl;
 
-    bound.centroid = Vector3(avg_x, avg_y, avg_z);
-
-    for (size_t i = 0; i < num_vertices; i++)
-    {
-        v = mesh->get_vertices()[i];
-        xdis = pow((bound.centroid.x - v.position.x), 2);
-        ydis = pow((bound.centroid.y - v.position.y), 2);
-        zdis = pow((bound.centroid.z - v.position.z), 2);
-        distance = sqrt(xdis + ydis + zdis);
-
-        if (distance > max_distance)
-        {
-            max_distance = distance;
-        }
-    }
-
-    bound.radius = max_distance;
-
-    return;
+    bbox = Box(bbox_min, bbox_max);
 }
 
 } /* _462 */
