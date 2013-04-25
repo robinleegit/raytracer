@@ -106,7 +106,7 @@ bool BvhNode::intersect(Vector3 e, Vector3 ray, vector<MeshTriangle>& winners)
         winners.push_back(mesh->get_triangles()[idx]);
     }
 
-    return false;
+    return true;
 }
 
 }
