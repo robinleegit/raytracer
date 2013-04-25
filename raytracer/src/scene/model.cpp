@@ -6,6 +6,7 @@
 
 #include "scene/model.hpp"
 #include "scene/material.hpp"
+#include "raytracer/bvh.hpp"
 
 #include <iostream>
 #include <cstring>
@@ -38,13 +39,13 @@ bool Model::intersect(Vector3 e, Vector3 ray, struct SceneInfo *info) const
     Vector3 instance_e = inverse_transform_matrix.transform_point(e);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
-    if (!bbox.intersect(instance_e, instance_ray))
+    vector<MeshTriangle> winners;
+    if (!bvh->intersect(instance_e, instance_ray, winners))
     {
         return false;
     }
 
     // if it intersects, loop over all triangles in the mesh and find closest hit, if any
-    size_t num_triangles = mesh->num_triangles();
     float min_time = -1.0;
     unsigned int v0, v1, v2;
     float x0, y0, z0, x1, y1, z1, x2, y2, z2;
@@ -53,11 +54,11 @@ bool Model::intersect(Vector3 e, Vector3 ray, struct SceneInfo *info) const
     float t;
     size_t min_index = 0;
 
-    for (size_t s = 0; s < num_triangles; s++)
+    for (size_t s = 0; s < winners.size(); s++)
     {
-        v0 = mesh->get_triangles()[s].vertices[0];
-        v1 = mesh->get_triangles()[s].vertices[1];
-        v2 = mesh->get_triangles()[s].vertices[2];
+        v0 = winners[s].vertices[0];
+        v1 = winners[s].vertices[1];
+        v2 = winners[s].vertices[2];
         x0 = mesh->get_vertices()[v0].position.x;
         y0 = mesh->get_vertices()[v0].position.y;
         z0 = mesh->get_vertices()[v0].position.z;
@@ -162,23 +163,23 @@ bool Model::shadow_test(Vector3 e, Vector3 ray) const
     Vector3 instance_e = inverse_transform_matrix.transform_point(e);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
-    if (!bbox.intersect(instance_e, instance_ray))
+    vector<MeshTriangle> winners;
+    if (!bvh->intersect(instance_e, instance_ray, winners))
     {
         return false;
     }
 
     // if it intersects, loop over all triangles in the mesh and find closest hit, if any
-    size_t num_triangles = mesh->num_triangles();
     unsigned int v0, v1, v2;
     float x0, y0, z0, x1, y1, z1, x2, y2, z2;
     float beta, gamma;
     float t;
 
-    for (size_t s = 0; s < num_triangles; s++)
+    for (size_t s = 0; s < winners.size(); s++)
     {
-        v0 = mesh->get_triangles()[s].vertices[0];
-        v1 = mesh->get_triangles()[s].vertices[1];
-        v2 = mesh->get_triangles()[s].vertices[2];
+        v0 = winners[s].vertices[0];
+        v1 = winners[s].vertices[1];
+        v2 = winners[s].vertices[2];
         x0 = mesh->get_vertices()[v0].position.x;
         y0 = mesh->get_vertices()[v0].position.y;
         z0 = mesh->get_vertices()[v0].position.z;
@@ -237,7 +238,16 @@ bool Model::shadow_test(Vector3 e, Vector3 ray) const
 
 void Model::make_bounding_volume()
 {
-    bbox = Box::create(mesh);
+    if (bvh)
+        delete bvh;
+
+    vector<int> all_indices;
+    for (int i= 0; i < mesh->num_triangles(); i++) 
+    {
+        all_indices.push_back(i);
+    }
+
+    bvh = new BvhNode(mesh, all_indices);
 }
 
 } /* _462 */

@@ -1,7 +1,8 @@
 #ifndef __BVH_H__
 #define __BVH_H__
 
-#include "scene/model.hpp"
+#include <vector>
+#include "scene/mesh.hpp"
 #include "scene/box.hpp"
 
 namespace _462 
@@ -9,12 +10,16 @@ namespace _462
 
 class BvhNode 
 {
+private:
+    Box bbox;
+    const Mesh* mesh;
 public:
-    static BvhNode create(Model m);
+    static const int leaf_size = 4;
+    BvhNode(const Mesh* _mesh, std::vector<int>& _indices);
     ~BvhNode();
     BvhNode *left, *right;
-    Box bbox;
-    bool intersect(Vector3 e, Vector3 ray);
+    std::vector<int> indices;
+    bool intersect(Vector3 e, Vector3 ray, std::vector<MeshTriangle>& winners);
 };
 
 }

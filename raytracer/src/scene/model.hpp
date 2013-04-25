@@ -4,6 +4,7 @@
 #include "scene/scene.hpp"
 #include "scene/mesh.hpp"
 #include "scene/box.hpp"
+#include "raytracer/bvh.hpp"
 
 namespace _462
 {
@@ -18,7 +19,7 @@ public:
     const Mesh* mesh;
     const Material* material;
 
-    Box bbox;
+    BvhNode* bvh;
 
     Model();
     virtual ~Model();

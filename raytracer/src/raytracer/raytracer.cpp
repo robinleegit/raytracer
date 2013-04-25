@@ -50,8 +50,9 @@ bool Raytracer::initialize(Scene* scene0, size_t width0, size_t height0)
         make_normal_matrix(&scene->get_geometries()[i]->normal_matrix,
                            scene->get_geometries()[i]->transform_matrix);
 
-        // calculate bounding sphere for models
+        // calculate bounding volume for models
         scene->get_geometries()[i]->make_bounding_volume();
+        cout << "Created bounding volume for geometry " << i << endl;
     }
 
     return true;

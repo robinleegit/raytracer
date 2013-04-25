@@ -10,7 +10,6 @@ class Box
 {
 public:
     Box() { }
-    Box(Vector3 min, Vector3 max) : min_corner(min), max_corner(max) { }
     Vector3 min_corner, max_corner;
     bool intersect(Vector3 e, Vector3 d) const
     {
@@ -38,15 +37,16 @@ public:
 
         return xzok && yzok && yxok;
     }
-    static Box create(const Mesh* mesh) {
-        size_t num_vertices = mesh->num_vertices();
+    Box(const Mesh* mesh, std::vector<int>& indices) {
         MeshVertex v;
 
         bool binit = false;
         Vector3 bbox_min, bbox_max;
-        for (size_t i = 0; i < num_vertices; i++)
+        for (size_t i = 0; i < indices.size(); i++)
         {
-            v = mesh->get_vertices()[i];
+            int idx = indices[i];
+
+            v = mesh->get_vertices()[idx];
 
             if (v.position.x > bbox_max.x || !binit)
                 bbox_max.x = v.position.x;
@@ -66,7 +66,8 @@ public:
             binit = true;
         }
 
-        return Box(bbox_min, bbox_max);
+        min_corner = bbox_min;
+        max_corner = bbox_max;
     }
 };
 
