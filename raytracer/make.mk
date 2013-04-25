@@ -8,6 +8,7 @@ UNAME := $(shell uname)
 # MODE: the mode, either "debug" or "release"
 # SRCS: the source files
 # TARGET: the target (executable) name
+MODE = release
 
 ifeq ($(TARGET),)
 ERRORMSG = "No target specified"
