@@ -3,7 +3,8 @@
 
 #include "scene/scene.hpp"
 
-namespace _462 {
+namespace _462
+{
 
 /**
  * A sphere, centered on its position with a certain radius.

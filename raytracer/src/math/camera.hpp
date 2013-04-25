@@ -11,7 +11,8 @@
 #include "math/vector.hpp"
 #include "math/quaternion.hpp"
 
-namespace _462 {
+namespace _462
+{
 
 /**
  * Stores position data of the camera.

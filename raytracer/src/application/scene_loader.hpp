@@ -8,7 +8,8 @@
 #ifndef _462_APPLICATOIN_SCENELOADER_HPP_
 #define _462_APPLICATOIN_SCENELOADER_HPP_
 
-namespace _462 {
+namespace _462
+{
 
 class Scene;
 

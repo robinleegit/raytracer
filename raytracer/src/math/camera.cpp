@@ -7,7 +7,8 @@
 
 #include "math/camera.hpp"
 
-namespace _462 {
+namespace _462
+{
 
 Camera::Camera()
     : position( Vector3::Zero ),
@@ -16,7 +17,7 @@ Camera::Camera()
       aspect( 1 ),
       near_clip( .1 ),
       far_clip( 10 )
-    { }
+{ }
 
 const Vector3& Camera::get_position() const
 {

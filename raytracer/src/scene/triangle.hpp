@@ -3,7 +3,8 @@
 
 #include "scene/scene.hpp"
 
-namespace _462 {
+namespace _462
+{
 
 /**
  * a triangle geometry.

@@ -66,22 +66,22 @@ const unsigned char TIXML_UTF_LEAD_2 = 0xbfU;
 const int TiXmlBase::utf8ByteTable[256] =
 {
     //    0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x00
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x10
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x20
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x30
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x40
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x50
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x60
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x70    End of ASCII range
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x80 0x80 to 0xc1 invalid
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x90
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0xa0
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0xb0
-        1,    1,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    // 0xc0 0xc2 to 0xdf 2 byte
-        2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    // 0xd0
-        3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    // 0xe0 0xe0 to 0xef 3 byte
-        4,    4,    4,    4,    4,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1    // 0xf0 0xf0 to 0xf4 4 byte, 0xf5 and higher invalid
+    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x00
+    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x10
+    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x20
+    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x30
+    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x40
+    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x50
+    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x60
+    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x70    End of ASCII range
+    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x80 0x80 to 0xc1 invalid
+    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0x90
+    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0xa0
+    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    // 0xb0
+    1,    1,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    // 0xc0 0xc2 to 0xdf 2 byte
+    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    2,    // 0xd0
+    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    // 0xe0 0xe0 to 0xef 3 byte
+    4,    4,    4,    4,    4,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1,    1    // 0xf0 0xf0 to 0xf4 4 byte, 0xf5 and higher invalid
 };
 
 
@@ -100,28 +100,31 @@ void TiXmlBase::ConvertUTF32ToUTF8( unsigned long input, char* output, int* leng
     else if ( input < 0x200000 )
         *length = 4;
     else
-        { *length = 0; return; }    // This code won't covert this correctly anyway.
+    {
+        *length = 0;    // This code won't covert this correctly anyway.
+        return;
+    }
 
     output += *length;
 
     // Scary scary fall throughs.
     switch (*length)
     {
-        case 4:
-            --output;
-            *output = (char)((input | BYTE_MARK) & BYTE_MASK);
-            input >>= 6;
-        case 3:
-            --output;
-            *output = (char)((input | BYTE_MARK) & BYTE_MASK);
-            input >>= 6;
-        case 2:
-            --output;
-            *output = (char)((input | BYTE_MARK) & BYTE_MASK);
-            input >>= 6;
-        case 1:
-            --output;
-            *output = (char)(input | FIRST_BYTE_MARK[*length]);
+    case 4:
+        --output;
+        *output = (char)((input | BYTE_MARK) & BYTE_MASK);
+        input >>= 6;
+    case 3:
+        --output;
+        *output = (char)((input | BYTE_MARK) & BYTE_MASK);
+        input >>= 6;
+    case 2:
+        --output;
+        *output = (char)((input | BYTE_MARK) & BYTE_MASK);
+        input >>= 6;
+    case 1:
+        --output;
+        *output = (char)(input | FIRST_BYTE_MARK[*length]);
     }
 }
 
@@ -135,10 +138,10 @@ void TiXmlBase::ConvertUTF32ToUTF8( unsigned long input, char* output, int* leng
 
 //    if ( encoding == TIXML_ENCODING_UTF8 )
 //    {
-        if ( anyByte < 127 )
-            return isalpha( anyByte );
-        else
-            return 1;    // What else to do? The unicode set is huge...get the english ones right.
+    if ( anyByte < 127 )
+        return isalpha( anyByte );
+    else
+        return 1;    // What else to do? The unicode set is huge...get the english ones right.
 //    }
 //    else
 //    {
@@ -156,10 +159,10 @@ void TiXmlBase::ConvertUTF32ToUTF8( unsigned long input, char* output, int* leng
 
 //    if ( encoding == TIXML_ENCODING_UTF8 )
 //    {
-        if ( anyByte < 127 )
-            return isalnum( anyByte );
-        else
-            return 1;    // What else to do? The unicode set is huge...get the english ones right.
+    if ( anyByte < 127 )
+        return isalnum( anyByte );
+    else
+        return 1;    // What else to do? The unicode set is huge...get the english ones right.
 //    }
 //    else
 //    {
@@ -171,12 +174,15 @@ void TiXmlBase::ConvertUTF32ToUTF8( unsigned long input, char* output, int* leng
 class TiXmlParsingData
 {
     friend class TiXmlDocument;
-  public:
+public:
     void Stamp( const char* now, TiXmlEncoding encoding );
 
-    const TiXmlCursor& Cursor()    { return cursor; }
+    const TiXmlCursor& Cursor()
+    {
+        return cursor;
+    }
 
-  private:
+private:
     // Only used by the document!
     TiXmlParsingData( const char* start, int _tabsize, int row, int col )
     {
@@ -215,91 +221,97 @@ void TiXmlParsingData::Stamp( const char* now, TiXmlEncoding encoding )
         const unsigned char* pU = (const unsigned char*)p;
 
         // Code contributed by Fletcher Dunn: (modified by lee)
-        switch (*pU) {
-            case 0:
-                // We *should* never get here, but in case we do, don't
-                // advance past the terminating null character, ever
-                return;
+        switch (*pU)
+        {
+        case 0:
+            // We *should* never get here, but in case we do, don't
+            // advance past the terminating null character, ever
+            return;
 
-            case '\r':
-                // bump down to the next line
-                ++row;
-                col = 0;
-                // Eat the character
+        case '\r':
+            // bump down to the next line
+            ++row;
+            col = 0;
+            // Eat the character
+            ++p;
+
+            // Check for \r\n sequence, and treat this as a single character
+            if (*p == '\n')
+            {
                 ++p;
+            }
+            break;
 
-                // Check for \r\n sequence, and treat this as a single character
-                if (*p == '\n') {
-                    ++p;
-                }
-                break;
+        case '\n':
+            // bump down to the next line
+            ++row;
+            col = 0;
 
-            case '\n':
-                // bump down to the next line
-                ++row;
-                col = 0;
+            // Eat the character
+            ++p;
 
-                // Eat the character
+            // Check for \n\r sequence, and treat this as a single
+            // character.  (Yes, this bizarre thing does occur still
+            // on some arcane platforms...)
+            if (*p == '\r')
+            {
                 ++p;
+            }
+            break;
 
-                // Check for \n\r sequence, and treat this as a single
-                // character.  (Yes, this bizarre thing does occur still
-                // on some arcane platforms...)
-                if (*p == '\r') {
-                    ++p;
-                }
-                break;
+        case '\t':
+            // Eat the character
+            ++p;
 
-            case '\t':
-                // Eat the character
-                ++p;
+            // Skip to next tab stop
+            col = (col / tabsize + 1) * tabsize;
+            break;
 
-                // Skip to next tab stop
-                col = (col / tabsize + 1) * tabsize;
-                break;
-
-            case TIXML_UTF_LEAD_0:
-                if ( encoding == TIXML_ENCODING_UTF8 )
+        case TIXML_UTF_LEAD_0:
+            if ( encoding == TIXML_ENCODING_UTF8 )
+            {
+                if ( *(p+1) && *(p+2) )
                 {
-                    if ( *(p+1) && *(p+2) )
+                    // In these cases, don't advance the column. These are
+                    // 0-width spaces.
+                    if ( *(pU+1)==TIXML_UTF_LEAD_1 && *(pU+2)==TIXML_UTF_LEAD_2 )
+                        p += 3;
+                    else if ( *(pU+1)==0xbfU && *(pU+2)==0xbeU )
+                        p += 3;
+                    else if ( *(pU+1)==0xbfU && *(pU+2)==0xbfU )
+                        p += 3;
+                    else
                     {
-                        // In these cases, don't advance the column. These are
-                        // 0-width spaces.
-                        if ( *(pU+1)==TIXML_UTF_LEAD_1 && *(pU+2)==TIXML_UTF_LEAD_2 )
-                            p += 3;
-                        else if ( *(pU+1)==0xbfU && *(pU+2)==0xbeU )
-                            p += 3;
-                        else if ( *(pU+1)==0xbfU && *(pU+2)==0xbfU )
-                            p += 3;
-                        else
-                            { p +=3; ++col; }    // A normal character.
+                        p +=3;    // A normal character.
+                        ++col;
                     }
                 }
-                else
-                {
-                    ++p;
-                    ++col;
-                }
-                break;
+            }
+            else
+            {
+                ++p;
+                ++col;
+            }
+            break;
 
-            default:
-                if ( encoding == TIXML_ENCODING_UTF8 )
-                {
-                    // Eat the 1 to 4 byte utf8 character.
-                    int step = TiXmlBase::utf8ByteTable[*((const unsigned char*)p)];
-                    if ( step == 0 )
-                        step = 1;        // Error case from bad encoding, but handle gracefully.
-                    p += step;
+        default:
+            if ( encoding == TIXML_ENCODING_UTF8 )
+            {
+                // Eat the 1 to 4 byte utf8 character.
+                int step = TiXmlBase::utf8ByteTable[*((const unsigned char*)p)];
+                if ( step == 0 )
+                    step = 1;        // Error case from bad encoding, but handle gracefully.
+                p += step;
 
-                    // Just advance one column, of course.
-                    ++col;
-                }
-                else
-                {
-                    ++p;
-                    ++col;
-                }
-                break;
+                // Just advance one column, of course.
+                ++col;
+            }
+            else
+            {
+                ++p;
+                ++col;
+            }
+            break;
         }
     }
     cursor.row = row;
@@ -325,22 +337,22 @@ const char* TiXmlBase::SkipWhiteSpace( const char* p, TiXmlEncoding encoding )
 
             // Skip the stupid Microsoft UTF-8 Byte order marks
             if (    *(pU+0)==TIXML_UTF_LEAD_0
-                 && *(pU+1)==TIXML_UTF_LEAD_1
-                 && *(pU+2)==TIXML_UTF_LEAD_2 )
+                    && *(pU+1)==TIXML_UTF_LEAD_1
+                    && *(pU+2)==TIXML_UTF_LEAD_2 )
             {
                 p += 3;
                 continue;
             }
             else if(*(pU+0)==TIXML_UTF_LEAD_0
-                 && *(pU+1)==0xbfU
-                 && *(pU+2)==0xbeU )
+                    && *(pU+1)==0xbfU
+                    && *(pU+2)==0xbeU )
             {
                 p += 3;
                 continue;
             }
             else if(*(pU+0)==TIXML_UTF_LEAD_0
-                 && *(pU+1)==0xbfU
-                 && *(pU+2)==0xbfU )
+                    && *(pU+1)==0xbfU
+                    && *(pU+2)==0xbfU )
             {
                 p += 3;
                 continue;
@@ -414,20 +426,21 @@ const char* TiXmlBase::ReadName( const char* p, TIXML_STRING * name, TiXmlEncodi
     // hyphens, or colons. (Colons are valid ony for namespaces,
     // but tinyxml can't tell namespaces from names.)
     if (    p && *p
-         && ( IsAlpha( (unsigned char) *p, encoding ) || *p == '_' ) )
+            && ( IsAlpha( (unsigned char) *p, encoding ) || *p == '_' ) )
     {
         const char* start = p;
         while(        p && *p
-                &&    (        IsAlphaNum( (unsigned char ) *p, encoding )
-                         || *p == '_'
-                         || *p == '-'
-                         || *p == '.'
-                         || *p == ':' ) )
+                      &&    (        IsAlphaNum( (unsigned char ) *p, encoding )
+                                     || *p == '_'
+                                     || *p == '-'
+                                     || *p == '.'
+                                     || *p == ':' ) )
         {
             //(*name) += *p; // expensive
             ++p;
         }
-        if ( p-start > 0 ) {
+        if ( p-start > 0 )
+        {
             name->assign( start, p-start );
         }
         return p;
@@ -526,7 +539,7 @@ const char* TiXmlBase::GetEntity( const char* p, char* value, int* length, TiXml
     // So it wasn't an entity, its unrecognized, or something like that.
     *value = *p;    // Don't put back the last one, since we return it!
     //*length = 1;    // Leave unrecognized entities - this doesn't really work.
-                    // Just writes strange XML.
+    // Just writes strange XML.
     return p+1;
 }
 
@@ -580,11 +593,11 @@ const char* TiXmlBase::ReadText(    const char* p,
 {
     *text = "";
     if (    !trimWhiteSpace            // certain tags always keep whitespace
-         || !condenseWhiteSpace )    // if true, whitespace is always kept
+            || !condenseWhiteSpace )    // if true, whitespace is always kept
     {
         // Keep all the white space.
         while (       p && *p
-                && !StringEqual( p, endTag, caseInsensitive, encoding )
+                      && !StringEqual( p, endTag, caseInsensitive, encoding )
               )
         {
             int len;
@@ -600,7 +613,7 @@ const char* TiXmlBase::ReadText(    const char* p,
         // Remove leading white space:
         p = SkipWhiteSpace( p, encoding );
         while (       p && *p
-                && !StringEqual( p, endTag, caseInsensitive, encoding ) )
+                      && !StringEqual( p, endTag, caseInsensitive, encoding ) )
         {
             if ( *p == '\r' || *p == '\n' )
             {
@@ -736,8 +749,8 @@ const char* TiXmlDocument::Parse( const char* p, TiXmlParsingData* prevData, TiX
         // Check for the Microsoft UTF-8 lead bytes.
         const unsigned char* pU = (const unsigned char*)p;
         if (    *(pU+0) && *(pU+0) == TIXML_UTF_LEAD_0
-             && *(pU+1) && *(pU+1) == TIXML_UTF_LEAD_1
-             && *(pU+2) && *(pU+2) == TIXML_UTF_LEAD_2 )
+                && *(pU+1) && *(pU+1) == TIXML_UTF_LEAD_1
+                && *(pU+2) && *(pU+2) == TIXML_UTF_LEAD_2 )
         {
             encoding = TIXML_ENCODING_UTF8;
             useMicrosoftBOM = true;
@@ -766,7 +779,7 @@ const char* TiXmlDocument::Parse( const char* p, TiXmlParsingData* prevData, TiX
 
         // Did we get encoding info?
         if (    encoding == TIXML_ENCODING_UNKNOWN
-             && node->ToDeclaration() )
+                && node->ToDeclaration() )
         {
             TiXmlDeclaration* dec = node->ToDeclaration();
             const char* enc = dec->Encoding();
@@ -786,7 +799,8 @@ const char* TiXmlDocument::Parse( const char* p, TiXmlParsingData* prevData, TiX
     }
 
     // Was this empty?
-    if ( !firstChild ) {
+    if ( !firstChild )
+    {
         SetError( TIXML_ERROR_DOCUMENT_EMPTY, 0, 0, encoding );
         return 0;
     }
@@ -847,47 +861,47 @@ TiXmlNode* TiXmlNode::Identify( const char* p, TiXmlEncoding encoding )
 
     if ( StringEqual( p, xmlHeader, true, encoding ) )
     {
-        #ifdef DEBUG_PARSER
-            TIXML_LOG( "XML parsing Declaration\n" );
-        #endif
+#ifdef DEBUG_PARSER
+        TIXML_LOG( "XML parsing Declaration\n" );
+#endif
         returnNode = new TiXmlDeclaration();
     }
     else if ( StringEqual( p, commentHeader, false, encoding ) )
     {
-        #ifdef DEBUG_PARSER
-            TIXML_LOG( "XML parsing Comment\n" );
-        #endif
+#ifdef DEBUG_PARSER
+        TIXML_LOG( "XML parsing Comment\n" );
+#endif
         returnNode = new TiXmlComment();
     }
     else if ( StringEqual( p, cdataHeader, false, encoding ) )
     {
-        #ifdef DEBUG_PARSER
-            TIXML_LOG( "XML parsing CDATA\n" );
-        #endif
+#ifdef DEBUG_PARSER
+        TIXML_LOG( "XML parsing CDATA\n" );
+#endif
         TiXmlText* text = new TiXmlText( "" );
         text->SetCDATA( true );
         returnNode = text;
     }
     else if ( StringEqual( p, dtdHeader, false, encoding ) )
     {
-        #ifdef DEBUG_PARSER
-            TIXML_LOG( "XML parsing Unknown(1)\n" );
-        #endif
+#ifdef DEBUG_PARSER
+        TIXML_LOG( "XML parsing Unknown(1)\n" );
+#endif
         returnNode = new TiXmlUnknown();
     }
     else if (    IsAlpha( *(p+1), encoding )
-              || *(p+1) == '_' )
+                 || *(p+1) == '_' )
     {
-        #ifdef DEBUG_PARSER
-            TIXML_LOG( "XML parsing Element\n" );
-        #endif
+#ifdef DEBUG_PARSER
+        TIXML_LOG( "XML parsing Element\n" );
+#endif
         returnNode = new TiXmlElement( "" );
     }
     else
     {
-        #ifdef DEBUG_PARSER
-            TIXML_LOG( "XML parsing Unknown(2)\n" );
-        #endif
+#ifdef DEBUG_PARSER
+        TIXML_LOG( "XML parsing Unknown(2)\n" );
+#endif
         returnNode = new TiXmlUnknown();
     }
 
@@ -932,7 +946,7 @@ void TiXmlElement::StreamIn (std::istream * in, TIXML_STRING * tag)
     // If not, identify and stream.
 
     if (    tag->at( tag->length() - 1 ) == '>'
-         && tag->at( tag->length() - 2 ) == '/' )
+            && tag->at( tag->length() - 2 ) == '/' )
     {
         // All good!
         return;
@@ -994,7 +1008,8 @@ void TiXmlElement::StreamIn (std::istream * in, TIXML_STRING * tag)
                 {
                     size_t len = tag->size();
                     const char* start = tag->c_str() + len - 9;
-                    if ( strcmp( start, "<![CDATA[" ) == 0 ) {
+                    if ( strcmp( start, "<![CDATA[" ) == 0 )
+                    {
                         assert( !closingTag );
                         break;
                     }
@@ -1114,7 +1129,8 @@ const char* TiXmlElement::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
             // elements -- read the end tag, and return.
             ++p;
             p = ReadValue( p, data, encoding );        // Note this is an Element method, and will set the error if one happens.
-            if ( !p || !*p ) {
+            if ( !p || !*p )
+            {
                 // We were looking for the end tag, but found nothing.
                 // Fix for [ 1663758 ] Failure to report error on bad XML
                 if ( document ) document->SetError( TIXML_ERROR_READING_END_TAG, p, data, encoding );
@@ -1155,11 +1171,11 @@ const char* TiXmlElement::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
             }
 
             // Handle the strange case of double attributes:
-            #ifdef TIXML_USE_STL
+#ifdef TIXML_USE_STL
             TiXmlAttribute* node = attributeSet.Find( attrib->NameTStr() );
-            #else
+#else
             TiXmlAttribute* node = attributeSet.Find( attrib->Name() );
-            #endif
+#endif
             if ( node )
             {
                 node->SetValue( attrib->Value() );
@@ -1192,7 +1208,7 @@ const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXm
             if ( !textNode )
             {
                 if ( document ) document->SetError( TIXML_ERROR_OUT_OF_MEMORY, 0, 0, encoding );
-                    return 0;
+                return 0;
             }
 
             if ( TiXmlBase::IsWhiteSpaceCondensed() )
@@ -1321,8 +1337,8 @@ void TiXmlComment::StreamIn( std::istream * in, TIXML_STRING * tag )
         (*tag) += (char) c;
 
         if ( c == '>'
-             && tag->at( tag->length() - 2 ) == '-'
-             && tag->at( tag->length() - 3 ) == '-' )
+                && tag->at( tag->length() - 2 ) == '-'
+                && tag->at( tag->length() - 3 ) == '-' )
         {
             // All is well.
             return;
@@ -1446,10 +1462,11 @@ const char* TiXmlAttribute::Parse( const char* p, TiXmlParsingData* data, TiXmlE
         // its best, even without them.
         value = "";
         while (    p && *p                                            // existence
-                && !IsWhiteSpace( *p ) && *p != '\n' && *p != '\r'    // whitespace
-                && *p != '/' && *p != '>' )                            // tag end
+                   && !IsWhiteSpace( *p ) && *p != '\n' && *p != '\r'    // whitespace
+                   && *p != '/' && *p != '>' )                            // tag end
         {
-            if ( *p == SINGLE_QUOTE || *p == DOUBLE_QUOTE ) {
+            if ( *p == SINGLE_QUOTE || *p == DOUBLE_QUOTE )
+            {
                 // [ 1451649 ] Attribute values with trailing quotes not handled correctly
                 // We did not have an opening quote but seem to have a
                 // closing one. Give up and throw an error.
@@ -1484,9 +1501,11 @@ void TiXmlText::StreamIn( std::istream * in, TIXML_STRING * tag )
         (*tag) += (char) c;
         in->get();    // "commits" the peek made above
 
-        if ( cdata && c == '>' && tag->size() >= 3 ) {
+        if ( cdata && c == '>' && tag->size() >= 3 )
+        {
             size_t len = tag->size();
-            if ( (*tag)[len-2] == ']' && (*tag)[len-3] == ']' ) {
+            if ( (*tag)[len-2] == ']' && (*tag)[len-3] == ']' )
+            {
                 // terminator of cdata.
                 return;
             }
@@ -1522,7 +1541,7 @@ const char* TiXmlText::Parse( const char* p, TiXmlParsingData* data, TiXmlEncodi
 
         // Keep all the white space, ignore the encoding, etc.
         while (       p && *p
-                && !StringEqual( p, endTag, false, encoding )
+                      && !StringEqual( p, endTag, false, encoding )
               )
         {
             value += *p;

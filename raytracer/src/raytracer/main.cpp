@@ -13,7 +13,8 @@
 #include <GLUT/glut.h>
 #endif
 
-namespace _462 {
+namespace _462
+{
 
 #define DEFAULT_WIDTH 800
 #define DEFAULT_HEIGHT 600
@@ -24,7 +25,8 @@ namespace _462 {
 #define KEY_SCREENSHOT SDLK_f
 
 // pretty sure these are sequential, but use an array just in case
-static const GLenum LightConstants[] = {
+static const GLenum LightConstants[] =
+{
     GL_LIGHT0, GL_LIGHT1, GL_LIGHT2, GL_LIGHT3,
     GL_LIGHT4, GL_LIGHT5, GL_LIGHT6, GL_LIGHT7
 };
@@ -56,7 +58,10 @@ public:
 
     RaytracerApplication( const Options& opt )
         : options( opt ), buffer( 0 ), buf_width( 0 ), buf_height( 0 ), raytracing( false ) { }
-    virtual ~RaytracerApplication() { free( buffer ); }
+    virtual ~RaytracerApplication()
+    {
+        free( buffer );
+    }
 
     virtual bool initialize();
     virtual void destroy();
@@ -98,34 +103,42 @@ bool RaytracerApplication::initialize()
     camera_control.camera = scene.camera;
     bool load_gl = options.open_window;
 
-    try {
+    try
+    {
 
         Material* const* materials = scene.get_materials();
         Mesh* const* meshes = scene.get_meshes();
 
         // load all textures
-        for ( size_t i = 0; i < scene.num_materials(); ++i ) {
-            if ( !materials[i]->load() || ( load_gl && !materials[i]->create_gl_data() ) ) {
+        for ( size_t i = 0; i < scene.num_materials(); ++i )
+        {
+            if ( !materials[i]->load() || ( load_gl && !materials[i]->create_gl_data() ) )
+            {
                 std::cout << "Error loading texture, aborting.\n";
                 return false;
             }
         }
 
         // load all meshes
-        for ( size_t i = 0; i < scene.num_meshes(); ++i ) {
-            if ( !meshes[i]->load() || ( load_gl && !meshes[i]->create_gl_data() ) ) {
+        for ( size_t i = 0; i < scene.num_meshes(); ++i )
+        {
+            if ( !meshes[i]->load() || ( load_gl && !meshes[i]->create_gl_data() ) )
+            {
                 std::cout << "Error loading mesh, aborting.\n";
                 return false;
             }
         }
 
-    } catch ( std::bad_alloc const& ) {
+    }
+    catch ( std::bad_alloc const& )
+    {
         std::cout << "Out of memory error while initializing scene\n.";
         return false;
     }
 
     // set the gl state
-    if ( load_gl ) {
+    if ( load_gl )
+    {
         float arr[4];
         arr[3] = 1.0; // alpha is always 1
 
@@ -140,7 +153,8 @@ bool RaytracerApplication::initialize()
 
         const PointLight* lights = scene.get_lights();
 
-        for ( size_t i = 0; i < NUM_GL_LIGHTS && i < scene.num_lights(); i++ ) {
+        for ( size_t i = 0; i < NUM_GL_LIGHTS && i < scene.num_lights(); i++ )
+        {
             const PointLight& light = lights[i];
             glEnable( LightConstants[i] );
             light.color.to_array( arr );
@@ -164,13 +178,17 @@ void RaytracerApplication::destroy()
 
 void RaytracerApplication::update( real_t delta_time )
 {
-    if ( raytracing ) {
+    if ( raytracing )
+    {
         // do part of the raytrace
-        if ( !raytrace_finished ) {
+        if ( !raytrace_finished )
+        {
             assert( buffer );
             raytrace_finished = raytracer.raytrace( buffer, &delta_time, extras );
         }
-    } else {
+    }
+    else
+    {
         // copy camera over from camera control (if not raytracing)
         camera_control.update( delta_time );
         scene.camera = camera_control.camera;
@@ -198,14 +216,17 @@ void RaytracerApplication::render()
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 
-    if ( raytracing ) {
+    if ( raytracing )
+    {
         // if raytracing, just display the buffer
         assert( buffer );
         glColor4d( 1.0, 1.0, 1.0, 1.0 );
         glRasterPos2f( -1.0f, -1.0f );
         glDrawPixels( buf_width, buf_height, GL_RGBA, GL_UNSIGNED_BYTE, &buffer[0] );
 
-    } else {
+    }
+    else
+    {
         // else, render the scene using opengl
         glPushAttrib( GL_ALL_ATTRIB_BITS );
         render_scene( scene );
@@ -217,7 +238,8 @@ void RaytracerApplication::handle_event( const SDL_Event& event )
 {
     int width, height;
 
-    if ( !raytracing ) {
+    if ( !raytracing )
+    {
         camera_control.handle_event( this, event );
     }
 
@@ -246,13 +268,16 @@ void RaytracerApplication::toggle_raytracing( int width, int height )
     assert( width > 0 && height > 0 );
 
     // do setup if starting a new raytrace
-    if ( !raytracing ) {
+    if ( !raytracing )
+    {
 
         // only re-allocate if the dimensions changed
-        if ( buf_width != width || buf_height != height ) {
+        if ( buf_width != width || buf_height != height )
+        {
             free( buffer );
             buffer = (unsigned char*) malloc( BUFFER_SIZE( width, height ) );
-            if ( !buffer ) {
+            if ( !buffer )
+            {
                 std::cout << "Unable to allocate buffer.\n";
                 return; // leave untoggled since we have no buffer.
             }
@@ -263,7 +288,8 @@ void RaytracerApplication::toggle_raytracing( int width, int height )
         // initialize the raytracer (first make sure camera aspect is correct)
         scene.camera.aspect = real_t( width ) / real_t( height );
 
-        if ( !raytracer.initialize( &scene, width, height ) ) {
+        if ( !raytracer.initialize( &scene, width, height ) )
+        {
             std::cout << "Raytracer initialization failed.\n";
             return; // leave untoggled since initialization failed.
         }
@@ -281,7 +307,8 @@ void RaytracerApplication::output_image()
     const char* filename;
     char buf[MAX_LEN];
 
-    if ( !buffer ) {
+    if ( !buffer )
+    {
         std::cout << "No image to output.\n";
         return;
     }
@@ -291,14 +318,18 @@ void RaytracerApplication::output_image()
     filename = options.output_filename;
 
     // if we weren't given a file, use a default name
-    if ( !filename ) {
+    if ( !filename )
+    {
         imageio_gen_name( buf, MAX_LEN );
         filename = buf;
     }
 
-    if ( imageio_save_image( filename, buffer, buf_width, buf_height ) ) {
+    if ( imageio_save_image( filename, buffer, buf_width, buf_height ) )
+    {
         std::cout << "Saved raytraced image to '" << filename << "'.\n";
-    } else {
+    }
+    else
+    {
         std::cout << "Error saving raytraced image to '" << filename << "'.\n";
     }
 }
@@ -353,7 +384,8 @@ static void render_scene( const Scene& scene )
 
     const PointLight* lights = scene.get_lights();
 
-    for ( size_t i = 0; i < NUM_GL_LIGHTS && i < scene.num_lights(); i++ ) {
+    for ( size_t i = 0; i < NUM_GL_LIGHTS && i < scene.num_lights(); i++ )
+    {
         const PointLight& light = lights[i];
         glEnable( LightConstants[i] );
         light.color.to_array( arr );
@@ -369,7 +401,8 @@ static void render_scene( const Scene& scene )
 
     Geometry* const* geometries = scene.get_geometries();
 
-    for ( size_t i = 0; i < scene.num_geometries(); ++i ) {
+    for ( size_t i = 0; i < scene.num_geometries(); ++i )
+    {
         const Geometry& geom = *geometries[i];
         Vector3 axis;
         real_t angle;
@@ -400,34 +433,34 @@ using namespace _462;
 static void print_usage( const char* progname )
 {
     std::cout << "Usage: " << progname << " [-r] [-d width height] input_scene [output_file]\n"
-        "\n" \
-        "Options:\n" \
-        "\n" \
-        "\t-r:\n" \
-        "\t\tRaytraces the scene and saves to the output file without\n" \
-        "\t\tloading a window or creating an opengl context.\n" \
-        "\t-d width height\n" \
-        "\t\tThe dimensions of image to raytrace (and window if using\n" \
-        "\t\tand opengl context. Defaults to width=800, height=600.\n" \
-        "\tinput_scene:\n" \
-        "\t\tThe scene file to load and raytrace.\n" \
-        "\toutput_file:\n" \
-        "\t\tThe output file in which to write the rendered images.\n" \
-        "\t\tIf not specified, default timestamped filenames are used.\n" \
-        "\n" \
-        "Instructions:\n" \
-        "\n" \
-        "\tPress 'r' to raytrace the scene. Press 'r' again to go back to\n" \
-        "\tgo back to OpenGL rendering. Press 'f' to dump the most recently\n" \
-        "\traytraced image to the output file.\n" \
-        "\n" \
-        "\tUse the mouse and 'w', 'a', 's', 'd', 'q', and 'e' to move the\n" \
-        "\tcamera around. The keys translate the camera, and left and right\n" \
-        "\tmouse buttons rotate the camera.\n" \
-        "\n" \
-        "\tIf not using windowed mode (i.e., -r was specified), then output\n" \
-        "\timage will be automatically generated and the program will exit.\n" \
-        "\n";
+              "\n" \
+              "Options:\n" \
+              "\n" \
+              "\t-r:\n" \
+              "\t\tRaytraces the scene and saves to the output file without\n" \
+              "\t\tloading a window or creating an opengl context.\n" \
+              "\t-d width height\n" \
+              "\t\tThe dimensions of image to raytrace (and window if using\n" \
+              "\t\tand opengl context. Defaults to width=800, height=600.\n" \
+              "\tinput_scene:\n" \
+              "\t\tThe scene file to load and raytrace.\n" \
+              "\toutput_file:\n" \
+              "\t\tThe output file in which to write the rendered images.\n" \
+              "\t\tIf not specified, default timestamped filenames are used.\n" \
+              "\n" \
+              "Instructions:\n" \
+              "\n" \
+              "\tPress 'r' to raytrace the scene. Press 'r' again to go back to\n" \
+              "\tgo back to OpenGL rendering. Press 'f' to dump the most recently\n" \
+              "\traytraced image to the output file.\n" \
+              "\n" \
+              "\tUse the mouse and 'w', 'a', 's', 'd', 'q', and 'e' to move the\n" \
+              "\tcamera around. The keys translate the camera, and left and right\n" \
+              "\tmouse buttons rotate the camera.\n" \
+              "\n" \
+              "\tIf not using windowed mode (i.e., -r was specified), then output\n" \
+              "\timage will be automatically generated and the program will exit.\n" \
+              "\n";
 }
 
 
@@ -438,15 +471,19 @@ static bool parse_args( Options* opt, int argc, char* argv[] )
 {
     int input_index = 1;
 
-    if ( argc < 2 ) {
+    if ( argc < 2 )
+    {
         print_usage( argv[0] );
         return false;
     }
 
-    if ( strcmp( argv[1], "-r" ) == 0 ) {
+    if ( strcmp( argv[1], "-r" ) == 0 )
+    {
         opt->open_window = false;
         ++input_index;
-    } else {
+    }
+    else
+    {
         opt->open_window = true;
     }
 
@@ -457,14 +494,17 @@ static bool parse_args( Options* opt, int argc, char* argv[] )
     }
 
 
-    if ( argc <= input_index ) {
+    if ( argc <= input_index )
+    {
         print_usage( argv[0] );
         return false;
     }
 
     // check if it's a -d, if so then get window dimensions
-    if ( strcmp( argv[input_index], "-d" ) == 0 ) {
-        if ( argc <= input_index + 3 ) {
+    if ( strcmp( argv[input_index], "-d" ) == 0 )
+    {
+        if ( argc <= input_index + 3 )
+        {
             print_usage( argv[0] );
             return false;
         }
@@ -475,26 +515,33 @@ static bool parse_args( Options* opt, int argc, char* argv[] )
         sscanf( argv[input_index + 1], "%d", &opt->width );
         sscanf( argv[input_index + 2], "%d", &opt->height );
         // check for valid width/height
-        if ( opt->width < 1 || opt->height < 1 ) {
+        if ( opt->width < 1 || opt->height < 1 )
+        {
             std::cout << "Invalid window dimensions\n";
             return false;
         }
 
         input_index += 3;
-    } else {
+    }
+    else
+    {
         opt->width = DEFAULT_WIDTH;
         opt->height = DEFAULT_HEIGHT;
     }
 
     opt->input_filename = argv[input_index];
 
-    if ( argc > input_index + 1 ) {
+    if ( argc > input_index + 1 )
+    {
         opt->output_filename = argv[input_index + 1];
-    } else {
+    }
+    else
+    {
         opt->output_filename = 0;
     }
 
-    if ( argc > input_index + 2 ) {
+    if ( argc > input_index + 2 )
+    {
         std::cout << "Too many arguments.\n";
         return false;
     }
@@ -518,31 +565,37 @@ int main( int argc, char* argv[] )
 
     make_normal_matrix( &mat, trn );
 
-    if ( !parse_args( &opt, argc, argv ) ) {
+    if ( !parse_args( &opt, argc, argv ) )
+    {
         return 1;
     }
 
     RaytracerApplication app( opt );
 
     // load the given scene
-    if ( !load_scene( &app.scene, opt.input_filename ) ) {
+    if ( !load_scene( &app.scene, opt.input_filename ) )
+    {
         std::cout << "Error loading scene " << opt.input_filename << ". Aborting.\n";
         return 1;
     }
 
     // either launch a window or do a full raytrace without one, depending on the option
-    if ( opt.open_window ) {
+    if ( opt.open_window )
+    {
 
         real_t fps = 30.0;
         const char* title = "15462 Project 2 - Raytracer";
         // start a new application
         return Application::start_application( &app, opt.width, opt.height, fps, title );
 
-    } else {
+    }
+    else
+    {
 
         app.initialize();
         app.toggle_raytracing( opt.width, opt.height );
-        if ( !app.raytracing ) {
+        if ( !app.raytracing )
+        {
             return 1; // some error occurred
         }
         assert( app.buffer );

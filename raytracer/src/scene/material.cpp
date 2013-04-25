@@ -1,7 +1,8 @@
 #include "scene/material.hpp"
 #include "application/imageio.hpp"
 
-namespace _462 {
+namespace _462
+{
 
 Material::Material():
     ambient( Color3::White ),
@@ -18,9 +19,11 @@ Material::Material():
 
 Material::~Material()
 {
-    if ( tex_data ) {
+    if ( tex_data )
+    {
         free( tex_data );
-        if ( tex_handle ) {
+        if ( tex_handle )
+        {
             glDeleteTextures( 1, &tex_handle );
         }
     }
@@ -29,7 +32,8 @@ Material::~Material()
 bool Material::load()
 {
     // if data has already been loaded, clear old data
-    if ( tex_data ) {
+    if ( tex_data )
+    {
         free( tex_data );
         tex_data = 0;
     }
@@ -42,7 +46,8 @@ bool Material::load()
 
     // allocates data with malloc
     tex_data = imageio_load_image( texture_filename.c_str(), &tex_width, &tex_height );
-    if ( !tex_data ) {
+    if ( !tex_data )
+    {
         std::cerr << "Cannot load texture file " << texture_filename << std::endl;
         return false;
     }
@@ -74,19 +79,22 @@ bool Material::create_gl_data()
     if ( texture_filename.empty() )
         return true;
 
-    if ( !tex_data ) {
+    if ( !tex_data )
+    {
         return false;
     }
 
     // clean up old texture
-    if ( tex_handle ) {
+    if ( tex_handle )
+    {
         glDeleteTextures( 1, &tex_handle );
     }
 
     assert( tex_width > 0 && tex_height > 0 );
 
     glGenTextures( 1, &tex_handle );
-    if ( !tex_handle ) {
+    if ( !tex_handle )
+    {
         return false;
     }
 

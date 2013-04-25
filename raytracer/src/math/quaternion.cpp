@@ -10,7 +10,8 @@
 
 #include "math/matrix.hpp"
 
-namespace _462 {
+namespace _462
+{
 
 const Quaternion Quaternion::Zero( 0.0, 0.0, 0.0, 0.0 );
 
@@ -47,7 +48,8 @@ Quaternion::Quaternion( const Matrix4& mat )
     real_t trace = mat._m[0][0] + mat._m[1][1] + mat._m[2][2];
     real_t root;
 
-    if ( trace > 0.0 ) {
+    if ( trace > 0.0 )
+    {
         // |w| > 1/2, may as well choose w > 1/2
         root = sqrt( trace + 1.0 );  // 2w
         w = 0.5 * root;
@@ -55,7 +57,9 @@ Quaternion::Quaternion( const Matrix4& mat )
         x = ( mat._m[2][1] - mat._m[1][2] ) * root;
         y = ( mat._m[0][2] - mat._m[2][0] ) * root;
         z = ( mat._m[1][0] - mat._m[0][1] ) * root;
-    } else {
+    }
+    else
+    {
         // |w| <= 1/2
         static size_t next[3] = { 1, 2, 0 };
         size_t i = 0;
@@ -78,11 +82,11 @@ Quaternion::Quaternion( const Matrix4& mat )
 Quaternion Quaternion::operator*( const Quaternion& rhs ) const
 {
     return Quaternion(
-       w * rhs.w - x * rhs.x - y * rhs.y - z * rhs.z,
-       w * rhs.x + x * rhs.w + y * rhs.z - z * rhs.y,
-       w * rhs.y + y * rhs.w + z * rhs.x - x * rhs.z,
-       w * rhs.z + z * rhs.w + x * rhs.y - y * rhs.x
-    );
+               w * rhs.w - x * rhs.x - y * rhs.y - z * rhs.z,
+               w * rhs.x + x * rhs.w + y * rhs.z - z * rhs.y,
+               w * rhs.y + y * rhs.w + z * rhs.x - x * rhs.z,
+               w * rhs.z + z * rhs.w + x * rhs.y - y * rhs.x
+           );
 }
 
 Vector3 Quaternion::operator*( const Vector3& v ) const
@@ -102,13 +106,16 @@ void Quaternion::to_axis_angle( Vector3* axis, real_t* angle ) const
     // The quaternion representing the rotation is
     // q = cos(A/2)+sin(A/2)*(x*i+y*j+z*k)
     real_t norm = x * x + y * y + z * z;
-    if ( norm > 0.0 ) {
+    if ( norm > 0.0 )
+    {
         *angle = 2.0 * acos( w );
         real_t inverse_length = 1 / sqrt( norm );
         axis->x = x * inverse_length;
         axis->y = y * inverse_length;
         axis->z = z * inverse_length;
-    } else {
+    }
+    else
+    {
         // angle is 0 (mod 2*pi), so any axis will do
         *angle = 0.0;
         *axis = Vector3::UnitX;

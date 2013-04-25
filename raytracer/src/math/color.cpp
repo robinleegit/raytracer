@@ -7,7 +7,8 @@
 
 #include "math/color.hpp"
 
-namespace _462 {
+namespace _462
+{
 
 const Color3 Color3::Black = Color3( 0.0, 0.0, 0.0 );
 const Color3 Color3::White = Color3( 1.0, 1.0, 1.0 );
@@ -45,10 +46,10 @@ void Color3::to_array( float arr[DIM] ) const
 Color3 clamp( const Color3& c, real_t min, real_t max )
 {
     return Color3(
-        clamp( c.r, min, max ),
-        clamp( c.g, min, max ),
-        clamp( c.b, min, max )
-    );
+               clamp( c.r, min, max ),
+               clamp( c.g, min, max ),
+               clamp( c.b, min, max )
+           );
 }
 
 std::ostream& operator<<( std::ostream& os, const Color3& c )

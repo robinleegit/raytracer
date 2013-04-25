@@ -18,7 +18,8 @@
 #include <cstring>
 #include <exception>
 
-namespace _462 {
+namespace _462
+{
 
 struct StrCompare
 {
@@ -70,24 +71,29 @@ static const char STR_MESH[] = "mesh";
 static void print_error_header( const TiXmlElement* base )
 {
     std::cout << "ERROR, " << base->Row() << ":" << base->Column() << "; "
-        << "in " << base->Value() << ", ";
+              << "in " << base->Value() << ", ";
 }
 
 static const TiXmlElement* get_unique_child( const TiXmlElement* parent, bool required, const char* name )
 {
     const TiXmlElement* elem = parent->FirstChildElement( name );
 
-    if ( !elem ) {
-        if ( required ) {
+    if ( !elem )
+    {
+        if ( required )
+        {
             print_error_header( parent );
             std::cout << "no '" << name << "' defined.\n";
             throw std::exception();
-        } else {
+        }
+        else
+        {
             return 0;
         }
     }
 
-    if ( elem->NextSiblingElement( name ) ) {
+    if ( elem->NextSiblingElement( name ) )
+    {
         print_error_header( elem );
         std::cout << "'" << name << "' multiply defined.\n";
         throw std::exception();
@@ -99,11 +105,14 @@ static const TiXmlElement* get_unique_child( const TiXmlElement* parent, bool re
 static void parse_attrib_double( const TiXmlElement* elem, bool required, const char* name, double* val )
 {
     int rv = elem->QueryDoubleAttribute( name, val );
-    if ( rv == TIXML_WRONG_TYPE ) {
+    if ( rv == TIXML_WRONG_TYPE )
+    {
         print_error_header( elem );
         std::cout << "error parsing '" << name << "'.\n";
         throw std::exception();
-    } else if ( required && rv == TIXML_NO_ATTRIBUTE ) {
+    }
+    else if ( required && rv == TIXML_NO_ATTRIBUTE )
+    {
         print_error_header( elem );
         std::cout << "missing '" << name << "'.\n";
         throw std::exception();
@@ -113,11 +122,14 @@ static void parse_attrib_double( const TiXmlElement* elem, bool required, const 
 static void parse_attrib_string( const TiXmlElement* elem, bool required, const char* name, const char** val )
 {
     const char* att = elem->Attribute( name );
-    if ( !att && required ) {
+    if ( !att && required )
+    {
         print_error_header( elem );
         std::cout << "missing '" << name << "'.\n";
         throw std::exception();
-    } else if ( att ) {
+    }
+    else if ( att )
+    {
         *val = att;
     }
 }
@@ -126,7 +138,8 @@ static void parse_attrib_string( const TiXmlElement* elem, bool required, const 
 {
     const char* att = 0;
     parse_attrib_string( elem, required, name, &att );
-    if ( att ) {
+    if ( att )
+    {
         *val = att;
     }
 }
@@ -213,7 +226,8 @@ static void parse_lookup_data( const std::map< const char*, T, StrCompare > tmap
 
     parse_attrib_string( elem, true, name, &att );
     iter = tmap.find( att );
-    if ( iter == tmap.end() ) {
+    if ( iter == tmap.end() )
+    {
         print_error_header( elem );
         std::cout << "No such " << name << " '" << att << "'.\n";
         throw std::exception();
@@ -288,8 +302,10 @@ static void parse_geom_triangle( const MaterialMap& matmap, const TriVertMap& tv
 
     const TiXmlElement* child = elem->FirstChildElement( STR_VERTEX );
     size_t count = 0;
-    while ( child ) {
-        if ( count > 2 ) {
+    while ( child )
+    {
+        if ( count > 2 )
+        {
             print_error_header( child );
             std::cout << "To many vertices for triangle.\n";
             throw std::exception();
@@ -301,7 +317,8 @@ static void parse_geom_triangle( const MaterialMap& matmap, const TriVertMap& tv
         count++;
     }
 
-    if ( count < 2 ) {
+    if ( count < 2 )
+    {
         print_error_header( elem );
         std::cout << "To few vertices for triangle.\n";
         throw std::exception();
@@ -317,7 +334,8 @@ static void parse_geom_model( const MaterialMap& matmap, const MeshMap& meshmap,
 
 static void check_mem( void* ptr )
 {
-    if ( !ptr ) {
+    if ( !ptr )
+    {
         std::cout << "Error: ran out of memory loading scene.\n";
         throw std::exception();
     }
@@ -336,16 +354,18 @@ bool load_scene( Scene* scene, const char* filename )
 
     // load the document
 
-    if ( !doc.LoadFile() ) {
+    if ( !doc.LoadFile() )
+    {
         std::cout << "ERROR, " << doc.ErrorRow() << ":" << doc.ErrorCol() << "; "
-            << "parse error: " << doc.ErrorDesc() << "\n";
+                  << "parse error: " << doc.ErrorDesc() << "\n";
         return false;
     }
 
     // check for root element
 
     root = doc.RootElement();
-    if ( !root ) {
+    if ( !root )
+    {
         std::cout << "No root element.\n";
         return false;
     }
@@ -354,7 +374,8 @@ bool load_scene( Scene* scene, const char* filename )
 
     scene->reset();
 
-    try {
+    try
+    {
         // parse the camera
         elem = get_unique_child( root, true, STR_CAMERA );
         parse_camera( elem, &scene->camera );
@@ -367,7 +388,8 @@ bool load_scene( Scene* scene, const char* filename )
 
         // parse the lights
         elem = root->FirstChildElement( STR_PLIGHT );
-        while ( elem ) {
+        while ( elem )
+        {
             PointLight pl;
             parse_point_light( elem, &pl );
             scene->add_light( pl );
@@ -376,7 +398,8 @@ bool load_scene( Scene* scene, const char* filename )
 
         // parse the materials
         elem = root->FirstChildElement( STR_MATERIAL );
-        while ( elem ) {
+        while ( elem )
+        {
             Material* mat = new Material();
             check_mem( mat );
             scene->add_material( mat );
@@ -385,7 +408,8 @@ bool load_scene( Scene* scene, const char* filename )
             // place each material in map by it's name, so we can associate geometries
             // with them when loading geometries
             // check for repeat name
-            if ( !materials.insert( std::make_pair( name, mat ) ).second ) {
+            if ( !materials.insert( std::make_pair( name, mat ) ).second )
+            {
                 print_error_header( elem );
                 std::cout << "Material '" << name << "' multiply defined.\n";
                 throw std::exception();
@@ -395,7 +419,8 @@ bool load_scene( Scene* scene, const char* filename )
 
         // parse the meshes
         elem = root->FirstChildElement( STR_MESH );
-        while ( elem ) {
+        while ( elem )
+        {
             Mesh* mesh = new Mesh();
             check_mem( mesh );
             scene->add_mesh( mesh );
@@ -403,7 +428,8 @@ bool load_scene( Scene* scene, const char* filename )
             assert( name );
             // place each mesh in map by it's name, so we can associate geometries
             // with them when loading geometries
-            if ( !meshes.insert( std::make_pair( name, mesh ) ).second ) {
+            if ( !meshes.insert( std::make_pair( name, mesh ) ).second )
+            {
                 print_error_header( elem );
                 std::cout << "Mesh '" << name << "' multiply defined.\n";
                 throw std::exception();
@@ -413,13 +439,15 @@ bool load_scene( Scene* scene, const char* filename )
 
         // parse vertices (used by triangles)
         elem = root->FirstChildElement( STR_VERTEX );
-        while ( elem ) {
+        while ( elem )
+        {
             Triangle::Vertex v;
             const char* name = parse_triangle_vertex( materials, elem, &v );
             assert( name );
             // place each vertex in map by it's name, so we can associate triangles
             // with them when loading geometries
-            if ( !triverts.insert( std::make_pair( name, v ) ).second ) {
+            if ( !triverts.insert( std::make_pair( name, v ) ).second )
+            {
                 print_error_header( elem );
                 std::cout << "Triangle vertex '" << name << "' multiply defined.\n";
                 throw std::exception();
@@ -431,7 +459,8 @@ bool load_scene( Scene* scene, const char* filename )
 
         // spheres
         elem = root->FirstChildElement( STR_SPHERE );
-        while ( elem ) {
+        while ( elem )
+        {
             Sphere* geom = new Sphere();
             check_mem( geom );
             scene->add_geometry( geom );
@@ -441,7 +470,8 @@ bool load_scene( Scene* scene, const char* filename )
 
         // triangles
         elem = root->FirstChildElement( STR_TRIANGLE );
-        while ( elem ) {
+        while ( elem )
+        {
             Triangle* geom = new Triangle();
             check_mem( geom );
             scene->add_geometry( geom );
@@ -451,7 +481,8 @@ bool load_scene( Scene* scene, const char* filename )
 
         // models
         elem = root->FirstChildElement( STR_MODEL );
-        while ( elem ) {
+        while ( elem )
+        {
             Model* geom = new Model();
             check_mem( geom );
             scene->add_geometry( geom );
@@ -461,11 +492,15 @@ bool load_scene( Scene* scene, const char* filename )
 
         // TODO add you own geometries here
 
-    } catch ( std::bad_alloc const& ) {
+    }
+    catch ( std::bad_alloc const& )
+    {
         std::cout << "Out of memory error while loading scene\n.";
         scene->reset();
         return false;
-    } catch ( ... ) {
+    }
+    catch ( ... )
+    {
         scene->reset();
         return false;
     }

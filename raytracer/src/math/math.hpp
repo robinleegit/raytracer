@@ -12,7 +12,8 @@
 #include <algorithm>
 #include <cmath>
 
-namespace _462 {
+namespace _462
+{
 
 // floating point precision set by this typedef
 typedef double real_t;

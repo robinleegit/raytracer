@@ -29,7 +29,8 @@
 
 #include <cstdlib>
 
-namespace _462 {
+namespace _462
+{
 
 // Sets tbe width and height to the appropriate values and mallocs
 // a char *buffer loading up the values in row-major, RGBA format.

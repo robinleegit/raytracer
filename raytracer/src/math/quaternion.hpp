@@ -12,7 +12,8 @@
 #include "math/math.hpp"
 #include "math/vector.hpp"
 
-namespace _462 {
+namespace _462
+{
 
 class Matrix3;
 class Matrix4;
@@ -82,11 +83,13 @@ public:
      */
     Vector3 operator*( const Vector3& rhs ) const;
 
-    Quaternion operator*( real_t s ) const {
+    Quaternion operator*( real_t s ) const
+    {
         return Quaternion( w * s, x * s, y * s, z * s );
     }
 
-    Quaternion& operator*=( real_t s ) {
+    Quaternion& operator*=( real_t s )
+    {
         w *= s;
         x *= s;
         y *= s;
@@ -94,12 +97,14 @@ public:
         return *this;
     }
 
-    bool operator==( const Quaternion& rhs ) const {
+    bool operator==( const Quaternion& rhs ) const
+    {
         return rhs.x == x && rhs.y == y &&
                rhs.z == z && rhs.w == w;
     }
 
-    bool operator!=( const Quaternion& rhs ) const {
+    bool operator!=( const Quaternion& rhs ) const
+    {
         return !operator==( rhs );
     }
 
@@ -125,11 +130,13 @@ public:
     void to_axes( Vector3 axes[3] ) const;
 };
 
-inline real_t norm( const Quaternion& q ) {
+inline real_t norm( const Quaternion& q )
+{
     return q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w;
 }
 
-inline Quaternion operator*( real_t s, const Quaternion& rhs ) {
+inline Quaternion operator*( real_t s, const Quaternion& rhs )
+{
     return rhs * s;
 }
 
