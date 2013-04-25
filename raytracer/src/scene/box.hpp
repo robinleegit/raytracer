@@ -39,6 +39,7 @@ public:
     }
     Box(const Mesh* mesh, std::vector<int>& indices) {
         MeshVertex v;
+        MeshTriangle t;
 
         bool binit = false;
         Vector3 bbox_min, bbox_max;
@@ -46,24 +47,30 @@ public:
         {
             int idx = indices[i];
 
-            v = mesh->get_vertices()[idx];
+            t = mesh->get_triangles()[idx];
 
-            if (v.position.x > bbox_max.x || !binit)
-                bbox_max.x = v.position.x;
-            if (v.position.x < bbox_min.x || !binit)
-                bbox_min.x = v.position.x;
+            for (size_t j = 0; j < 3; j++) 
+            {
+                int vidx = t.vertices[j];
+                v = mesh->get_vertices()[vidx];
 
-            if (v.position.y > bbox_max.y || !binit)
-                bbox_max.y = v.position.y;
-            if (v.position.y < bbox_min.y || !binit)
-                bbox_min.y = v.position.y;
+                if (v.position.x > bbox_max.x || !binit)
+                    bbox_max.x = v.position.x;
+                if (v.position.x < bbox_min.x || !binit)
+                    bbox_min.x = v.position.x;
 
-            if (v.position.z > bbox_max.z || !binit)
-                bbox_max.z = v.position.z;
-            if (v.position.z < bbox_min.z || !binit)
-                bbox_min.z = v.position.z;
+                if (v.position.y > bbox_max.y || !binit)
+                    bbox_max.y = v.position.y;
+                if (v.position.y < bbox_min.y || !binit)
+                    bbox_min.y = v.position.y;
 
-            binit = true;
+                if (v.position.z > bbox_max.z || !binit)
+                    bbox_max.z = v.position.z;
+                if (v.position.z < bbox_min.z || !binit)
+                    bbox_min.z = v.position.z;
+
+                binit = true;
+            }
         }
 
         min_corner = bbox_min;

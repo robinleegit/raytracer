@@ -18,17 +18,15 @@ BvhNode::BvhNode(const Mesh* _mesh, vector<int>& _indices)
     bbox = Box(_mesh, _indices);
     cout << "min, max = " << bbox.min_corner << ", " << bbox.max_corner << endl;
 
-    // Make a leaf if there are few enough triangles
-    if (_indices.size() < BvhNode::leaf_size)
+    cout << "Leaf node" << endl;
+    for (int i = 0; i < _indices.size(); i++) 
     {
-        cout << "Leaf node" << endl;
-        for (int i = 0; i < _indices.size(); i++) 
-        {
-            indices.push_back(_indices[i]);
-            cout << "adding index " << i << endl;
-        }
+        indices.push_back(_indices[i]);
+        cout << "adding index " << i << endl;
     }
-    else
+
+    // Make a leaf if there are few enough triangles
+    if (_indices.size() >= BvhNode::leaf_size)
     {
         cout << "Not a leaf node" << endl;
         // For now just arbitrarily split into two lists of the same size
@@ -38,10 +36,12 @@ BvhNode::BvhNode(const Mesh* _mesh, vector<int>& _indices)
         {
             if (i < k)
             {
+                cout << "left: " << _indices[i] << endl;
                 left_indices.push_back(_indices[i]);
             }
             else
             {
+                cout << "right: " << _indices[i] << endl;
                 right_indices.push_back(_indices[i]);
             }
         }
