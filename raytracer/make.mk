@@ -25,12 +25,12 @@ CURR_DIR = $(shell pwd)
 CXX = clang++
 CXXFLAGS += -Wall -ansi -pedantic -I"$(CURR_DIR)/include" -I"$(CURR_DIR)/$(SRC_DIR)"
 
-LDFLAGS = -lSDLmain -lSDL -lpng -lboost_thread-mt -lboost_system-mt
+LDFLAGS = -lSDLmain -lSDL -lpng 
 
 ifeq ($(UNAME),Darwin)
-LDFLAGS += -L/usr/local/Cellar/libpng12/1.2.50/lib -framework OpenGL -framework GLUT
+LDFLAGS += -L/usr/local/Cellar/libpng12/1.2.50/lib -framework OpenGL -framework GLUT -lboost_thread-mt -lboost_system-mt
 else
-LDFLAGS += -lGL -lGLU
+LDFLAGS += -lGL -lGLU -lboost_thread -lboost_system
 endif
 
 # object directories, mode flags
