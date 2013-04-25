@@ -13,6 +13,8 @@
 #include <GLUT/glut.h>
 #endif
 
+using namespace std;
+
 namespace _462
 {
 
@@ -48,6 +50,8 @@ struct Options
     const char* output_filename;
     // window dimensions
     int width, height;
+    // number of threads
+    int numthreads;
 };
 
 bool extras = false;
@@ -184,7 +188,14 @@ void RaytracerApplication::update( real_t delta_time )
         if ( !raytrace_finished )
         {
             assert( buffer );
-            raytrace_finished = raytracer.raytrace( buffer, &delta_time, extras );
+#if 0
+            for (int i = 1; i <= boost::thread::hardware_concurrency(); i++)
+            {
+                cout << "Running with " << i << " threads" << endl;
+                raytrace_finished = raytracer.raytrace( buffer, &delta_time, extras, i );
+            }
+#endif
+            raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras, boost::thread::hardware_concurrency());
         }
     }
     else
@@ -493,7 +504,6 @@ static bool parse_args( Options* opt, int argc, char* argv[] )
         ++input_index;
     }
 
-
     if ( argc <= input_index )
     {
         print_usage( argv[0] );
@@ -529,7 +539,7 @@ static bool parse_args( Options* opt, int argc, char* argv[] )
         opt->height = DEFAULT_HEIGHT;
     }
 
-    opt->input_filename = argv[input_index];
+    opt->input_filename = argv[input_index++];
 
     if ( argc > input_index + 1 )
     {
@@ -600,7 +610,7 @@ int main( int argc, char* argv[] )
         }
         assert( app.buffer );
         // raytrace until done
-        app.raytracer.raytrace( app.buffer, 0, extras );
+        app.raytracer.raytrace( app.buffer, 0, extras, 8 );
         // output result
         app.output_image();
         return 0;

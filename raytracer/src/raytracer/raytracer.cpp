@@ -7,6 +7,9 @@
 #include <math.h>
 #include <algorithm>
 
+#include "tsqueue.hpp"
+#include "CycleTimer.hpp"
+
 using namespace std;
 
 namespace _462
@@ -32,7 +35,6 @@ bool Raytracer::initialize(Scene* scene0, size_t width0, size_t height0)
     this->width = width0;
     this->height = height0;
 
-    current_row = 0;
     size_t num_geometries = scene->num_geometries();
 
     // invert scene transformation matrices
@@ -310,6 +312,26 @@ bool Raytracer::refract(Vector3 d, Vector3 normal, float n, Vector3 *t)
     return true;
 }
 
+void Raytracer::trace_pixel_worker(tsqueue<Int2> *pixel_queue, unsigned char *buffer)
+{
+    Vector3 start_e = Vector3(0.0, 0.0, 0.0);
+    Vector3 start_ray = Vector3(0.0, 0.0, 0.0);
+
+    while (true)
+    {
+        bool empty;
+        Int2 pixel = pixel_queue->Pop(empty);
+
+        if (empty)
+        {
+            break;
+        }
+
+        Color3 color = trace_pixel(scene, pixel.x, pixel.y, width, height, 0, start_e, start_ray, 1.0, false);
+        color.to_array( &buffer[4 * ( pixel.y * width + pixel.x )] );
+    }
+}
+
 /**
  * Raytraces some portion of the scene. Should raytrace for about
  * max_time duration and then return, even if the raytrace is not copmlete.
@@ -322,72 +344,42 @@ bool Raytracer::refract(Vector3 d, Vector3 normal, float n, Vector3 *t)
  * @return true if the raytrace is complete, false if there is more
  *  work to be done.
  */
-bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, bool extras)
+bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, bool extras, int numthreads)
 {
-    static const size_t PRINT_INTERVAL = 64;
+    boost::thread *thread = new boost::thread[numthreads];
+    tsqueue<Int2> pixel_queue;
 
-    // the time in milliseconds that we should stop
-    unsigned int end_time = 0;
-    Vector3 start_e = Vector3(0.0, 0.0, 0.0);
-    Vector3 start_ray = Vector3(0.0, 0.0, 0.0);
-
-    if ( max_time )
+    double tot_start = CycleTimer::currentSeconds();
+    for (size_t y = 0; y < height; ++y)
     {
-        // convert duration to milliseconds
-        unsigned int duration = (unsigned int) ( *max_time * 1000 );
-        end_time = SDL_GetTicks() + duration;
-    }
-
-    // until time is up, run the raytrace. we render an entire row at once
-    // for simplicity and efficiency.
-    int n = 4;
-    Color3 c = Color3::Black;
-    Color3 color;
-    double r;
-    srand((unsigned)time(NULL));
-
-    double start = CycleTimer::currentSeconds();
-
-    for ( current_row = 0; current_row < height; ++current_row )
-    {
-
-        if ( current_row % PRINT_INTERVAL == 0 )
+        for (size_t x = 0; x < width; ++x )
         {
-            printf( "Raytracing (row %lu)...\n", current_row );
-        }
-
-        for ( size_t x = 0; x < width; ++x )
-        {
-            // trace a pixel
-
-            if (extras)
-            {
-                // anti-aliasing
-                c = Color3::Black;
-
-                for (int p = -1 * (n / 2); p < n / 2; p++)
-                {
-                    for (int q = -1 * (n / 2); q < n / 2; q++)
-                    {
-                        r = (double) rand() / (double) RAND_MAX - 0.5;
-                        c += trace_pixel(scene, x + (p + r) / n, current_row + (q + r) / n,
-                                         width, height, 0, start_e, start_ray, 1.0, true);
-                    }
-                }
-
-                color = c * (1.0 / pow((float)n, 2));
-            }
-            else
-            {
-                color = trace_pixel(scene, x, current_row,
-                                    width, height, 0, start_e, start_ray, 1.0, false);
-            }
-            // write the result to the buffer, always use 1.0 as the alpha
-            color.to_array( &buffer[4 * ( current_row * width + x )] );
+            Int2 tmp(x, y);
+            pixel_queue.Push(tmp);
         }
     }
+    double push_duration = CycleTimer::currentSeconds() - tot_start;
 
-    cout << "Total time: " << (CycleTimer::currentSeconds()) - start << endl;
+    double thread_start = CycleTimer::currentSeconds();
+    for (int i = 0; i < numthreads; i++)
+    {
+        //cout << "Launching thread " << i << endl;
+        thread[i] = boost::thread(&Raytracer::trace_pixel_worker, this, &pixel_queue, buffer);
+    }
+
+    for (int i = 0; i < numthreads; i++)
+    {
+        //cout << "Joining thread " << i << endl;
+        thread[i].join();
+    }
+    double thread_duration = CycleTimer::currentSeconds() - thread_start;
+    double tot_duration = CycleTimer::currentSeconds() - tot_start;
+
+    cout << numthreads << " Total time:    " << tot_duration    << endl
+         << numthreads << " Push time:     " << push_duration   << endl
+         << numthreads << " Thread time:   " << thread_duration << endl;
+
+    delete [] thread;
 
     return true;
 }

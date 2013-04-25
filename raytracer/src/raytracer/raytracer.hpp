@@ -3,9 +3,21 @@
 
 #include "math/color.hpp"
 #include "scene/scene.hpp"
+#include "tsqueue.hpp"
 
 namespace _462
 {
+
+struct Int2
+{
+    int x, y;
+    Int2()
+    {
+        x = 0;
+        y = 0;
+    }
+    Int2(int _x, int _y) : x(_x), y(_y) { }
+};
 
 class Scene;
 
@@ -23,7 +35,9 @@ public:
                        size_t height, int recursions, Vector3 start_e, Vector3 start_ray,
                        float refractive, bool extras);
 
-    bool raytrace(unsigned char* buffer, real_t* max_time, bool extras);
+    void trace_pixel_worker(tsqueue<Int2> *pixel_queue, unsigned char *buffer);
+
+    bool raytrace(unsigned char* buffer, real_t* max_time, bool extras, int numthreads);
 
     Vector3 get_viewing_ray(Vector3 e, size_t x, size_t y, size_t width, size_t height);
 
@@ -40,9 +54,6 @@ private:
 
     // the dimensions of the image to trace
     size_t width, height;
-
-    // the next row to raytrace
-    size_t current_row;
 
 };
 
