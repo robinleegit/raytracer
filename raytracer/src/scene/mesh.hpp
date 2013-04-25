@@ -5,7 +5,8 @@
 #include <vector>
 #include <cassert>
 
-namespace _462 {
+namespace _462
+{
 
 struct MeshVertex
 {

@@ -11,7 +11,8 @@
 #include "math/math.hpp"
 #include <SDL/SDL_events.h>
 
-namespace _462 {
+namespace _462
+{
 
 /**
  * A windowed application.

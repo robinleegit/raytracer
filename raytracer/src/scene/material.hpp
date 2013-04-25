@@ -6,7 +6,8 @@
 #include "application/opengl.hpp"
 #include <string>
 
-namespace _462 {
+namespace _462
+{
 
 class Material
 {

@@ -5,11 +5,17 @@
 #include "scene/scene.hpp"
 #include "tsqueue.hpp"
 
-namespace _462 {
+namespace _462
+{
 
-struct Int2 {
+struct Int2
+{
     int x, y;
-    Int2() { x = 0; y = 0; }
+    Int2()
+    {
+        x = 0;
+        y = 0;
+    }
     Int2(int _x, int _y) : x(_x), y(_y) { }
 };
 
@@ -26,8 +32,8 @@ public:
     bool initialize( Scene* scene, size_t width, size_t height );
 
     Color3 trace_pixel(const Scene* scene, size_t x, size_t y, size_t width,
-            size_t height, int recursions, Vector3 start_e, Vector3 start_ray,
-            float refractive, bool extras);
+                       size_t height, int recursions, Vector3 start_e, Vector3 start_ray,
+                       float refractive, bool extras);
 
     void trace_pixel_worker(tsqueue<Int2> *pixel_queue, unsigned char *buffer);
 
@@ -36,7 +42,7 @@ public:
     Vector3 get_viewing_ray(Vector3 e, size_t x, size_t y, size_t width, size_t height);
 
     Color3 get_diffuse(Vector3 intersection_point, Vector3 min_normal,
-            Color3 min_diffuse, float eps);
+                       Color3 min_diffuse, float eps);
 
     bool refract(Vector3 d, Vector3 normal, float n, Vector3 *t);
 

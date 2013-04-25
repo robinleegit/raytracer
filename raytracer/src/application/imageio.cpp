@@ -32,7 +32,8 @@
 #include <png.h>
 #include <cassert>
 
-namespace _462 {
+namespace _462
+{
 
 // ***** generic internal functions ***** //
 
@@ -72,27 +73,31 @@ static unsigned char* _load_image_RGBA_png(const char *fileName, int *width, int
 
     // try to create the loading structures
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0,
-      0);
-    if (!png_ptr) {
+                          0);
+    if (!png_ptr)
+    {
         fclose(fp);
-    return _load_img_error(width, height);
+        return _load_img_error(width, height);
     }
 
     png_infop info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr) {
+    if (!info_ptr)
+    {
         png_destroy_read_struct(&png_ptr, (png_infopp) 0, (png_infopp) 0);
         fclose(fp);
         return _load_img_error(width, height);
     }
 
     png_infop end_info = png_create_info_struct(png_ptr);
-    if (!end_info) {
+    if (!end_info)
+    {
         png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)0);
         fclose(fp);
         return _load_img_error(width, height);
     }
 
-    if (setjmp(png_jmpbuf(png_ptr))) {
+    if (setjmp(png_jmpbuf(png_ptr)))
+    {
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
         fclose(fp);
         return _load_img_error(width, height);
@@ -115,7 +120,7 @@ static unsigned char* _load_image_RGBA_png(const char *fileName, int *width, int
     if (color_type != PNG_COLOR_TYPE_RGBA)
         png_set_expand(png_ptr);
     if (color_type == PNG_COLOR_TYPE_GRAY ||
-      color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+            color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
         png_set_gray_to_rgb(png_ptr);
     if (bit_depth < 8)
         png_set_packing(png_ptr);
@@ -126,7 +131,8 @@ static unsigned char* _load_image_RGBA_png(const char *fileName, int *width, int
     png_read_update_info(png_ptr, info_ptr);
 
     // make sure we're actually in rgba mode
-    if ((int)png_get_rowbytes(png_ptr, info_ptr) != ((*width) * 4)) {
+    if ((int)png_get_rowbytes(png_ptr, info_ptr) != ((*width) * 4))
+    {
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
         fclose(fp);
         return _load_img_error(width, height);
@@ -135,9 +141,10 @@ static unsigned char* _load_image_RGBA_png(const char *fileName, int *width, int
     // finally, read the file
     unsigned char *buffer = (unsigned char *) malloc((*width) * (*height) * 4);
     png_bytep *row_pointers = new png_bytep[*height];
-    for (int y = 0 ; y < (*height) ; y++) {
+    for (int y = 0 ; y < (*height) ; y++)
+    {
         row_pointers[y] = (png_byte *) (buffer + ((*height) - 1 - y) *
-          (*width) * 4);
+                                        (*width) * 4);
     }
     png_read_rows(png_ptr, row_pointers, 0, (long unsigned int) (*height));
 
@@ -148,7 +155,7 @@ static unsigned char* _load_image_RGBA_png(const char *fileName, int *width, int
 }
 
 static bool _save_image_RGBA_png(const char *fileName, unsigned char *buffer,
-  int width, int height)
+                                 int width, int height)
 {
     // open the file
     FILE *fp = fopen(fileName, "wb");
@@ -157,20 +164,23 @@ static bool _save_image_RGBA_png(const char *fileName, unsigned char *buffer,
 
     // create the needed data structures
     png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0,
-      0);
-    if (!png_ptr) {
+                          0);
+    if (!png_ptr)
+    {
         fclose(fp);
         return false;
     }
     png_infop info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr) {
+    if (!info_ptr)
+    {
         fclose(fp);
         png_destroy_write_struct(&png_ptr, (png_infopp) 0);
         return false;
     }
 
     // do the setjmp thingy
-    if (setjmp(png_jmpbuf(png_ptr))) {
+    if (setjmp(png_jmpbuf(png_ptr)))
+    {
         png_destroy_write_struct(&png_ptr, &info_ptr);
         fclose(fp);
         return false;
@@ -181,7 +191,7 @@ static bool _save_image_RGBA_png(const char *fileName, unsigned char *buffer,
 
     // write the header
     png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB_ALPHA,
-      PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+                 PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     png_write_info(png_ptr, info_ptr);
     png_set_flush(png_ptr, 10);
 

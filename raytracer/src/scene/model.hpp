@@ -4,7 +4,8 @@
 #include "scene/scene.hpp"
 #include "scene/mesh.hpp"
 
-namespace _462 {
+namespace _462
+{
 
 /**
  * A mesh of triangles.

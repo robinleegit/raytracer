@@ -11,11 +11,12 @@
 
 #include <cstring>
 
-namespace _462 {
+namespace _462
+{
 
 const Matrix3 Matrix3::Identity = Matrix3( 1, 0, 0,
-                                           0, 1, 0,
-                                           0, 0, 1 );
+                                  0, 1, 0,
+                                  0, 0, 1 );
 
 const Matrix3 Matrix3::Zero = Matrix3( 0, 0, 0,
                                        0, 0, 0,
@@ -180,9 +181,9 @@ void inverse( Matrix3* rv, const Matrix3& m )
 }
 
 const Matrix4 Matrix4::Identity = Matrix4( 1, 0, 0, 0,
-                                           0, 1, 0, 0,
-                                           0, 0, 1, 0,
-                                           0, 0 , 0, 1 );
+                                  0, 1, 0, 0,
+                                  0, 0, 1, 0,
+                                  0, 0 , 0, 1 );
 
 const Matrix4 Matrix4::Zero = Matrix4( 0, 0, 0, 0,
                                        0, 0, 0, 0,
@@ -325,19 +326,19 @@ bool Matrix4::operator!=( const Matrix4& rhs ) const
 static void make_translation_matrix( Matrix4* mat, const Vector3& pos )
 {
     *mat = Matrix4(
-        1.0, 0.0, 0.0, pos.x,
-        0.0, 1.0, 0.0, pos.y,
-        0.0, 0.0, 1.0, pos.z,
-        0.0, 0.0, 0.0, 1.0 );
+               1.0, 0.0, 0.0, pos.x,
+               0.0, 1.0, 0.0, pos.y,
+               0.0, 0.0, 1.0, pos.z,
+               0.0, 0.0, 0.0, 1.0 );
 }
 
 static void make_scaling_matrix( Matrix4* mat, const Vector3& scl )
 {
     *mat = Matrix4(
-        scl.x, 0.0,   0.0,   0.0,
-        0.0,   scl.y, 0.0,   0.0,
-        0.0,   0.0,   scl.z, 0.0,
-        0.0,   0.0,   0.0,   1.0 );
+               scl.x, 0.0,   0.0,   0.0,
+               0.0,   scl.y, 0.0,   0.0,
+               0.0,   0.0,   scl.z, 0.0,
+               0.0,   0.0,   0.0,   1.0 );
 }
 
 

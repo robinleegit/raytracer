@@ -7,7 +7,8 @@
 #include <sstream>
 #include <map>
 
-namespace _462 {
+namespace _462
+{
 
 struct TriIndex
 {
@@ -15,14 +16,21 @@ struct TriIndex
     int normal;
     int tcoord;
 
-    bool operator<( const TriIndex& rhs ) const {
-        if ( vertex == rhs.vertex ) {
-            if ( normal == rhs.normal ) {
+    bool operator<( const TriIndex& rhs ) const
+    {
+        if ( vertex == rhs.vertex )
+        {
+            if ( normal == rhs.normal )
+            {
                 return tcoord < rhs.tcoord;
-            } else {
+            }
+            else
+            {
                 return normal < rhs.normal;
             }
-        } else {
+        }
+        else
+        {
             return vertex < rhs.vertex;
         }
     }
@@ -84,7 +92,8 @@ bool Mesh::load()
     typedef std::map< TriIndex, unsigned int > VertexMap;
     VertexMap vertex_map;
 
-    if ( !file.is_open() ) {
+    if ( !file.is_open() )
+    {
         std::cout << "Error opening file '" << filename << "' for mesh loading.\n";
         return false;
     }
@@ -95,46 +104,57 @@ bool Mesh::load()
         stream >> token;
         line_num++;
 
-        if ( token == "v" ) {
+        if ( token == "v" )
+        {
 
             Vector3 position;
             stream >> position.x >> position.y >> position.z;
 
-            if ( stream.fail() ) {
+            if ( stream.fail() )
+            {
                 std::cerr << "position syntax error on line " << line_num << std::endl;
                 return false;
             }
 
             position_list.push_back( position );
 
-        } else if ( token == "vn" ) {
+        }
+        else if ( token == "vn" )
+        {
             Vector3 normal;
             stream >> normal.x >> normal.y >> normal.z;
 
-            if( stream.fail() ) {
+            if( stream.fail() )
+            {
                 std::cerr << "normal syntax error on line " << line_num << std::endl;
                 return false;
             }
             normal_list.push_back( normal );
 
-        } else if ( token == "vt" ) {
+        }
+        else if ( token == "vt" )
+        {
 
             Vector2 uv;
             stream >> uv.x >> uv.y;
 
-            if ( stream.fail() ) {
+            if ( stream.fail() )
+            {
                 std::cerr << "uv syntax error on line " << line_num << std::endl;
                 return false;
             }
 
             uv_list.push_back( uv );
 
-        } else if ( token == "f" ) {
+        }
+        else if ( token == "f" )
+        {
 
             std::vector< std::string > face_tokens;
             std::string vert;
 
-            while ( true ) {
+            while ( true )
+            {
                 stream >> vert;
                 if( stream.fail() )
                     break;
@@ -142,21 +162,30 @@ bool Mesh::load()
             }
 
             // if it's the first time parsing a face, figure out the face format
-            if ( face_list.size() == 0 ) {
+            if ( face_list.size() == 0 )
+            {
                 std::string token = face_tokens[0];
 
-                if ( token.find( "//" ) != std::string::npos ) {
+                if ( token.find( "//" ) != std::string::npos )
+                {
                     format = VERTEX_NORMAL;
                     has_normals = true;
-                } else if ( token.find( '/' ) == std::string::npos ) {
+                }
+                else if ( token.find( '/' ) == std::string::npos )
+                {
                     format = VERTEX_ONLY;
-                } else {
+                }
+                else
+                {
                     size_t p1 = token.find( '/' );
                     size_t p2 = token.rfind( '/' );
-                    if ( p1 == p2 ) {
+                    if ( p1 == p2 )
+                    {
                         format = VERTEX_UV;
                         has_tcoords = true;
-                    } else {
+                    }
+                    else
+                    {
                         format = VERTEX_UV_NORMAL;
                         has_normals = true;
                         has_tcoords = true;
@@ -167,13 +196,15 @@ bool Mesh::load()
             size_t num_vertex;
             num_vertex = face_tokens.size();
 
-            if ( num_vertex > 4 || num_vertex < 3 ) {
+            if ( num_vertex > 4 || num_vertex < 3 )
+            {
                 std::cerr << "Syntax error at line " << line_num
                           << ", face has incorrect number of vertices" << std::endl;
                 return false;
             }
 
-            for ( size_t i = 0; i < num_vertex; ++i ) {
+            for ( size_t i = 0; i < num_vertex; ++i )
+            {
                 switch ( format )
                 {
                 case VERTEX_ONLY:
@@ -215,7 +246,8 @@ bool Mesh::load()
                 }
             }
 
-            for ( size_t i = 0; i < num_vertex; ++i ) {
+            for ( size_t i = 0; i < num_vertex; ++i )
+            {
                 tri[i].vertex--;
                 tri[i].normal--;
                 tri[i].tcoord--;
@@ -224,14 +256,19 @@ bool Mesh::load()
             Face f1 = { { tri[0], tri[1], tri[2] } };
             face_list.push_back( f1 );
 
-            if ( num_vertex == 4 ) {
+            if ( num_vertex == 4 )
+            {
                 Face f2 = { { tri[2], tri[3], tri[0] } };
                 face_list.push_back( f2 );
             }
 
-        } else if ( token == " " ) {
+        }
+        else if ( token == " " )
+        {
 
-        } else {
+        }
+        else
+        {
             //std::cerr << "Unknown token on line " << line_num << std::endl;
         }
 
@@ -245,9 +282,11 @@ bool Mesh::load()
     size_t num_normal = normal_list.size();
     size_t num_tcoord = uv_list.size();
 
-    for (size_t i = 0; i < face_list.size(); ++i) {
+    for (size_t i = 0; i < face_list.size(); ++i)
+    {
         Face& face = face_list[i];
-        for (int j = 0; j < 3; ++j) {
+        for (int j = 0; j < 3; ++j)
+        {
             int vidx = face.v[j].vertex;
             int nidx = face.v[j].normal;
             int tidx = face.v[j].tcoord;
@@ -281,25 +320,25 @@ bool Mesh::load()
             c5 = tidx < -1;
             c6 = tidx >= (int)num_tcoord;
             if (vidx <  0 ||
-                vidx >= (int)num_vertex || 
-                nidx < -1 ||
-                nidx >= (int)num_normal ||
-                tidx < -1 ||
-                tidx >= (int)num_tcoord )
+                    vidx >= (int)num_vertex ||
+                    nidx < -1 ||
+                    nidx >= (int)num_normal ||
+                    tidx < -1 ||
+                    tidx >= (int)num_tcoord )
             {
-                std::cout 
-                     << c1 << " "
-                     << c2 << " "
-                     << c3 << " "
-                     << c4 << " "
-                     << c5 << " "
-                     << c6 << "    "
-                     << vidx << " " 
-                     << nidx << " " 
-                     << tidx << "    "
-                     << num_vertex << " " 
-                     << num_normal << " " 
-                     << num_tcoord << std::endl;
+                std::cout
+                        << c1 << " "
+                        << c2 << " "
+                        << c3 << " "
+                        << c4 << " "
+                        << c5 << " "
+                        << c6 << "    "
+                        << vidx << " "
+                        << nidx << " "
+                        << tidx << "    "
+                        << num_vertex << " "
+                        << num_normal << " "
+                        << num_tcoord << std::endl;
                 //std::cout << "Invalid index in face " << i << ".\n";
             }
         }
@@ -313,14 +352,17 @@ bool Mesh::load()
     // current vertex index, for creating new vertices
     unsigned int vert_idx_counter = 0;
 
-    for ( size_t i = 0; i < face_list.size(); ++i ) {
+    for ( size_t i = 0; i < face_list.size(); ++i )
+    {
         const Face& face = face_list[i];
         MeshTriangle tri;
-        for ( size_t j = 0; j < 3; ++j ) {
+        for ( size_t j = 0; j < 3; ++j )
+        {
             // two vertices are only actually the same one if the vertex,
             // normal, and tcoord are all the same. use the map to check this.
             std::pair< VertexMap::iterator, bool > rv = vertex_map.insert( std::make_pair( face.v[j], vert_idx_counter ) );
-            if ( rv.second ) {
+            if ( rv.second )
+            {
                 MeshVertex v;
                 v.position = position_list[face.v[j].vertex];
                 int nidx = face.v[j].normal;
@@ -376,31 +418,38 @@ bool Mesh::are_tex_coords_valid() const
 bool Mesh::create_gl_data()
 {
     // if no vertices, nothing to do
-    if ( vertices.empty() || triangles.empty() ) {
+    if ( vertices.empty() || triangles.empty() )
+    {
         return false;
     }
 
     // compute normals if needed
-    if ( !has_normals ) {
+    if ( !has_normals )
+    {
         // first zero out
-        for ( size_t i = 0; i < vertices.size(); ++i ) {
+        for ( size_t i = 0; i < vertices.size(); ++i )
+        {
             vertices[i].normal = Vector3::Zero;
         }
 
         // then sum in all triangle normals
-        for ( size_t i = 0; i < triangles.size(); ++i ) {
+        for ( size_t i = 0; i < triangles.size(); ++i )
+        {
             Vector3 pos[3];
-            for ( size_t j = 0; j < 3; ++j ) {
+            for ( size_t j = 0; j < 3; ++j )
+            {
                 pos[j] = vertices[triangles[i].vertices[j]].position;
             }
             Vector3 normal = normalize( cross( pos[1] - pos[0], pos[2] - pos[0] ) );
-            for ( size_t j = 0; j < 3; ++j ) {
+            for ( size_t j = 0; j < 3; ++j )
+            {
                 vertices[triangles[i].vertices[j]].normal += normal;
             }
         }
 
         // then normalize
-        for ( size_t i = 0; i < vertices.size(); ++i ) {
+        for ( size_t i = 0; i < vertices.size(); ++i )
+        {
             vertices[i].normal = normalize( vertices[i].normal );
         }
 
@@ -410,7 +459,8 @@ bool Mesh::create_gl_data()
     // build vertex data
     vertex_data.resize( vertices.size() * VERTEX_SIZE );
     float* vertex = &vertex_data[0];
-    for ( size_t i = 0; i < vertices.size(); ++i ) {
+    for ( size_t i = 0; i < vertices.size(); ++i )
+    {
         vertices[i].tex_coord.to_array( vertex + 0 );
         vertices[i].normal.to_array( vertex + 2 );
         vertices[i].position.to_array( vertex + 5 );
@@ -420,7 +470,8 @@ bool Mesh::create_gl_data()
     index_data.resize( triangles.size() * 3 );
     unsigned int* index = &index_data[0];
 
-    for ( size_t i = 0; i < triangles.size(); ++i ) {
+    for ( size_t i = 0; i < triangles.size(); ++i )
+    {
         index[0] = triangles[i].vertices[0];
         index[1] = triangles[i].vertices[1];
         index[2] = triangles[i].vertices[2];

@@ -10,18 +10,19 @@
 #include <string>
 #include <vector>
 
-namespace _462 {
+namespace _462
+{
 
-    struct SceneInfo
-    {
-        float i_time;
-        Vector3 i_normal;
-        Color3 i_ambient;
-        Color3 i_diffuse;
-        Color3 i_specular;
-        Color3 i_texture;
-        real_t i_refractive;
-    };
+struct SceneInfo
+{
+    float i_time;
+    Vector3 i_normal;
+    Color3 i_ambient;
+    Color3 i_diffuse;
+    Color3 i_specular;
+    Color3 i_texture;
+    real_t i_refractive;
+};
 
 class Geometry
 {

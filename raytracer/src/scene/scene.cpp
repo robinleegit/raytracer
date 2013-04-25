@@ -1,6 +1,7 @@
 #include "scene/scene.hpp"
 
-namespace _462 {
+namespace _462
+{
 
 
 Geometry::Geometry():
@@ -77,13 +78,16 @@ size_t Scene::num_meshes() const
 
 void Scene::reset()
 {
-    for ( GeometryList::iterator i = geometries.begin(); i != geometries.end(); ++i ) {
+    for ( GeometryList::iterator i = geometries.begin(); i != geometries.end(); ++i )
+    {
         delete *i;
     }
-    for ( MaterialList::iterator i = materials.begin(); i != materials.end(); ++i ) {
+    for ( MaterialList::iterator i = materials.begin(); i != materials.end(); ++i )
+    {
         delete *i;
     }
-    for ( MeshList::iterator i = meshes.begin(); i != meshes.end(); ++i ) {
+    for ( MeshList::iterator i = meshes.begin(); i != meshes.end(); ++i )
+    {
         delete *i;
     }
 

@@ -13,7 +13,8 @@
 #include "math/vector.hpp"
 #include <cassert>
 
-namespace _462 {
+namespace _462
+{
 
 /*
 This file defines 2 matrix classes: 3x3 and 4x4.
@@ -60,7 +61,8 @@ public:
     /**
      * The values of this matrix. Named as both a 1d array and a 2d array.
      */
-    union {
+    union
+    {
         real_t m[SIZE];
         real_t _m[DIM][DIM]; // _m[column][row]
     };
@@ -107,7 +109,8 @@ public:
     /**
      * Matrix3(i,j) gives the element at the ith column and jth row.
      */
-    const real_t& operator()( int col, int row ) const {
+    const real_t& operator()( int col, int row ) const
+    {
         assert( col >= 0 && col < DIM && row >= 0 && row < DIM );
         return _m[col][row];
     }
@@ -115,7 +118,8 @@ public:
     /**
      * Matrix3(i,j) gives the element at the ith column and jth row.
      */
-    real_t& operator()( int col, int row ) {
+    real_t& operator()( int col, int row )
+    {
         assert( col >= 0 && col < DIM && row >= 0 && row < DIM );
         return _m[col][row];
     }
@@ -127,7 +131,8 @@ void transpose( Matrix3* rv, const Matrix3& m );
 // computes the inverse of a matrix
 void inverse( Matrix3* rv, const Matrix3& m );
 
-inline Matrix3 operator*( real_t r, const Matrix3& m ) {
+inline Matrix3 operator*( real_t r, const Matrix3& m )
+{
     return m * r;
 }
 
@@ -170,7 +175,8 @@ public:
     /**
      * The values of this matrix. Named as both a 1d array and a 2d array.
      */
-    union {
+    union
+    {
         real_t m[SIZE];
         real_t _m[DIM][DIM]; // _m[column][row]
     };
@@ -218,7 +224,8 @@ public:
     /**
      * Matrix4(i,j) gives the element at the ith column and jth row.
      */
-    const real_t& operator()( int col, int row ) const {
+    const real_t& operator()( int col, int row ) const
+    {
         assert( col >= 0 && col < DIM && row >= 0 && row < DIM );
         return _m[col][row];
     }
@@ -226,7 +233,8 @@ public:
     /**
      * Matrix4(i,j) gives the element at the ith column and jth row.
      */
-    real_t& operator()( int col, int row ) {
+    real_t& operator()( int col, int row )
+    {
         assert( col >= 0 && col < DIM && row >= 0 && row < DIM );
         return _m[col][row];
     }
@@ -236,7 +244,8 @@ public:
      * That is, returns the projection of (x,y,z,1) transformed
      * by the matrix.
      */
-    Vector3 transform_point( const Vector3& v ) const {
+    Vector3 transform_point( const Vector3& v ) const
+    {
         return project( *this *  Vector4( v, 1 ) );
     }
 
@@ -245,12 +254,14 @@ public:
      * That is, returns the projection of (x,y,z,0) transformed
      * by the matrix.
      */
-    Vector3 transform_vector( const Vector3& v ) const {
+    Vector3 transform_vector( const Vector3& v ) const
+    {
         return (*this * Vector4( v, 0 ) ).xyz();
     }
 };
 
-inline Matrix4 operator*( real_t r, const Matrix4& m ) {
+inline Matrix4 operator*( real_t r, const Matrix4& m )
+{
     return m * r;
 }
 

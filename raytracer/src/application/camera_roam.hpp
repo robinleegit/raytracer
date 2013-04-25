@@ -11,7 +11,8 @@
 #include "application/application.hpp"
 #include "math/camera.hpp"
 
-namespace _462 {
+namespace _462
+{
 
 class CameraRoamControl
 {

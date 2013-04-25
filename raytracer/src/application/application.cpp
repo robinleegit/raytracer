@@ -13,7 +13,8 @@
 #include <cstdlib>
 #include <iostream>
 
-namespace _462 {
+namespace _462
+{
 
 struct LoopData
 {
@@ -53,9 +54,12 @@ void Application::take_screenshot()
     get_dimension( &width, &height );
     imageio_gen_name( filename, MAX_LEN );
 
-    if ( imageio_save_screenshot( filename, width, height ) ) {
+    if ( imageio_save_screenshot( filename, width, height ) )
+    {
         std::cout << "Saved image to '" << filename << "'.\n";
-    } else {
+    }
+    else
+    {
         std::cout << "Error saving raytraced image to '" << filename << "'.\n";
     }
 }
@@ -75,14 +79,16 @@ static bool initialize_window( int width, int height, const char* title )
     SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
     // create the window
-    if ( SDL_SetVideoMode( width, height, bits_per_pixel, flags ) == 0 ) {
+    if ( SDL_SetVideoMode( width, height, bits_per_pixel, flags ) == 0 )
+    {
         std::cout << "Error initializing SDL surface: " << SDL_GetError() << ", aborting initialization." << std::endl;
         return false;
     }
 
 #ifdef _462_USING_GLEW
     GLenum error = glewInit();
-    if ( error != GLEW_OK ) {
+    if ( error != GLEW_OK )
+    {
         std::cerr << "GLEW failed to initialize.";
         return false;
     }
@@ -99,7 +105,8 @@ static void process_events( Application* app )
     assert( app );
 
     SDL_Event event;
-    while ( SDL_PeepEvents( &event, 1, SDL_GETEVENT, SDL_ALLEVENTS ) ) {
+    while ( SDL_PeepEvents( &event, 1, SDL_GETEVENT, SDL_ALLEVENTS ) )
+    {
         switch ( event.type )
         {
         case SDL_QUIT:
@@ -107,7 +114,8 @@ static void process_events( Application* app )
             break;
 
         case SDL_KEYDOWN:
-            if ( event.key.keysym.sym == SDLK_ESCAPE ) {
+            if ( event.key.keysym.sym == SDLK_ESCAPE )
+            {
                 app->end_main_loop();
             }
             break;
@@ -129,7 +137,8 @@ static void loop_update_func( LoopData* data, bool is_skip )
     process_events( data->app );
     data->app->update( 1.0 / data->fps );
     // only render if not skipping this frame
-    if ( !is_skip ) {
+    if ( !is_skip )
+    {
         data->app->render();
         // flush so the code doesn't have to remember to
         glFlush();
@@ -166,26 +175,31 @@ static void run_main_loop(loop_func update_fn, LoopData* data, real_t ups )
     int frame_rate_counter = 0;
     int total_frame_time = 0;
 
-    while ( *data->running ) {
+    while ( *data->running )
+    {
         int start_time = SDL_GetTicks();
 
         // update, only if we are not too far behind, or if we've skipped too many frames
-        if ( lag_time < period || num_skips >= MAX_SKIPS ) {
+        if ( lag_time < period || num_skips >= MAX_SKIPS )
+        {
             // update
             update_fn( data, false );
             num_skips = 0;
             frame_rate_counter++;
-        } else {
+        }
+        else
+        {
             update_fn( data, true );
             num_skips++;
         }
 
-        if ( frame_rate_counter == FRAME_RATE_PRINT_TIME ) {
+        if ( frame_rate_counter == FRAME_RATE_PRINT_TIME )
+        {
             int curr_time = SDL_GetTicks();
             printf( "frame rate: %f, avg frame time: %f\n",
-                FRAME_RATE_PRINT_TIME * 1000 / real_t(curr_time - frame_rate_counter_start),
-                real_t(total_frame_time) / FRAME_RATE_PRINT_TIME
-            );
+                    FRAME_RATE_PRINT_TIME * 1000 / real_t(curr_time - frame_rate_counter_start),
+                    real_t(total_frame_time) / FRAME_RATE_PRINT_TIME
+                  );
             frame_rate_counter_start = curr_time;
             frame_rate_counter = 0;
             total_frame_time = 0;
@@ -201,22 +215,27 @@ static void run_main_loop(loop_func update_fn, LoopData* data, real_t ups )
         // always yield at least once to keep system responsive
         SDL_Delay( 1 );
 
-        if ( sleep_time > 0 ) {
+        if ( sleep_time > 0 )
+        {
             // sleep until end of period
-            while ( int(SDL_GetTicks()) < end_time + sleep_time ) {
+            while ( int(SDL_GetTicks()) < end_time + sleep_time )
+            {
                 SDL_Delay( sleep_time - 1 );
             }
             // if we oversleep, add to lag. note this must be nonnegative
             // because of the while loop above
             lag_time = (int)(SDL_GetTicks()) - (end_time + sleep_time);
-        } else {
+        }
+        else
+        {
             // otherwise mark how much we're falling behind
             // sleep time is negative here, so it's like adding the time we went over
             lag_time = -sleep_time;
         }
 
         // cap the lag time to avoid lots of skips
-        if ( lag_time > MAX_LAG_TIME ) {
+        if ( lag_time > MAX_LAG_TIME )
+        {
             lag_time = MAX_LAG_TIME;
         }
     }
@@ -232,7 +251,8 @@ int Application::start_application( Application* app, int width, int height, rea
         return -2;
 
     // init SDL
-    if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER ) == -1 ) {
+    if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER ) == -1 )
+    {
         std::cout << "Error initializing SDL" << std::endl;
         return -1;
     }
@@ -256,7 +276,7 @@ int Application::start_application( Application* app, int width, int height, rea
     return 0;
 
 
-  FAIL:
+FAIL:
     std::cerr << "Failed to start applcation, aborting.\n";
     return -1;
 }

@@ -12,7 +12,8 @@
 #include <iostream>
 #include <cassert>
 
-namespace _462 {
+namespace _462
+{
 
 /**
  * An RGB color.
@@ -55,51 +56,60 @@ public:
 
     // also uses default copy and assignment
 
-    Color3 operator+( const Color3& rhs ) const {
+    Color3 operator+( const Color3& rhs ) const
+    {
         return Color3( r + rhs.r, g + rhs.g, b + rhs.b );
     }
 
-    Color3& operator+=( const Color3& rhs ) {
+    Color3& operator+=( const Color3& rhs )
+    {
         r += rhs.r;
         g += rhs.g;
         b += rhs.b;
         return *this;
     }
 
-    Color3 operator*( const Color3& rhs ) const {
+    Color3 operator*( const Color3& rhs ) const
+    {
         return Color3( r * rhs.r, g * rhs.g, b * rhs.b );
     }
 
-    Color3& operator*=( const Color3& rhs ) {
+    Color3& operator*=( const Color3& rhs )
+    {
         r *= rhs.r;
         g *= rhs.g;
         b *= rhs.b;
         return *this;
     }
 
-    Color3 operator*( real_t s ) const {
+    Color3 operator*( real_t s ) const
+    {
         return Color3( r * s, g * s, b * s );
     }
 
-    Color3& operator*=( real_t s ) {
+    Color3& operator*=( real_t s )
+    {
         r *= s;
         g *= s;
         b *= s;
         return *this;
     }
 
-    bool operator==( const Color3& rhs ) const {
+    bool operator==( const Color3& rhs ) const
+    {
         return r == rhs.r && g == rhs.g && b == rhs.b;
     }
 
-    bool operator!=( const Color3& rhs ) const {
+    bool operator!=( const Color3& rhs ) const
+    {
         return !operator==( rhs );
     }
 
     /**
      * @remark No bounds checking.
      */
-    const real_t& operator[]( size_t i ) const {
+    const real_t& operator[]( size_t i ) const
+    {
         // assumes all members are in a contiguous block
         assert( i >= 0 && i < DIM );
         return ( &r )[i];
@@ -108,7 +118,8 @@ public:
     /**
      * @remark No bounds checking.
      */
-    real_t& operator[]( size_t i ) {
+    real_t& operator[]( size_t i )
+    {
         // assumes all members are in a contiguous block
         assert( i >= 0 && i < DIM );
         return ( &r )[i];
@@ -125,7 +136,8 @@ public:
     void to_array( float arr[DIM] ) const;
 };
 
-inline Color3 operator*( real_t s, const Color3& c ) {
+inline Color3 operator*( real_t s, const Color3& c )
+{
     return c * s;
 }
 

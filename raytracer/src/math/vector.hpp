@@ -14,7 +14,8 @@
 #include <cmath>
 #include <iostream>
 
-namespace _462 {
+namespace _462
+{
 
 /*
 This file defines 3 different vector classes: 2D, 3D, and 4D.
@@ -81,56 +82,66 @@ public:
 
     // also uses default copy and assignment
 
-    Vector2 operator+( const Vector2& rhs ) const {
+    Vector2 operator+( const Vector2& rhs ) const
+    {
         return Vector2( x + rhs.x, y + rhs.y );
     }
 
-    Vector2& operator+=( const Vector2& rhs ) {
+    Vector2& operator+=( const Vector2& rhs )
+    {
         x += rhs.x;
         y += rhs.y;
         return *this;
     }
 
-    Vector2 operator-( const Vector2& rhs ) const {
+    Vector2 operator-( const Vector2& rhs ) const
+    {
         return Vector2( x - rhs.x, y - rhs.y );
     }
 
-    Vector2& operator-=( const Vector2& rhs ) {
+    Vector2& operator-=( const Vector2& rhs )
+    {
         x -= rhs.x;
         y -= rhs.y;
         return *this;
     }
 
-    Vector2 operator*( real_t s ) const {
+    Vector2 operator*( real_t s ) const
+    {
         return Vector2( x * s, y * s );
     }
 
-    Vector2& operator*=( real_t s ) {
+    Vector2& operator*=( real_t s )
+    {
         x *= s;
         y *= s;
         return *this;
     }
 
-    Vector2 operator/( real_t s ) const {
+    Vector2 operator/( real_t s ) const
+    {
         real_t inv = 1.0 / s;
         return Vector2( x * inv, y * inv );
     }
 
-    Vector2& operator/=( real_t s ) {
+    Vector2& operator/=( real_t s )
+    {
         real_t inv = 1.0 / s;
         x *= inv;
         y *= inv;
         return *this;
     }
 
-    Vector2 operator-() const {
+    Vector2 operator-() const
+    {
         return Vector2( -x, -y );
     }
 
     /**
      * @remark No bounds checking.
      */
-    const real_t& operator[]( size_t i ) const {
+    const real_t& operator[]( size_t i ) const
+    {
         // assumes all members are in a contiguous block
         assert( i >= 0 && i < DIM );
         return ( &x )[i];
@@ -139,21 +150,25 @@ public:
     /**
      * @remark No bounds checking.
      */
-    real_t& operator[]( size_t i ) {
+    real_t& operator[]( size_t i )
+    {
         // assumes all members are in a contiguous block
         assert( i >= 0 && i < DIM );
         return ( &x )[i];
     }
 
-    bool operator==( const Vector2& rhs ) const {
+    bool operator==( const Vector2& rhs ) const
+    {
         return x == rhs.x && y == rhs.y;
     }
 
-    bool operator!=( const Vector2& rhs ) const {
+    bool operator!=( const Vector2& rhs ) const
+    {
         return !operator==( rhs );
     }
 
-    void to_array( float arr[DIM] ) const {
+    void to_array( float arr[DIM] ) const
+    {
         arr[0] = float( x );
         arr[1] = float( y );
     }
@@ -162,42 +177,48 @@ public:
 /**
  * Returns the dot product of two vectors
  */
-inline real_t dot( const Vector2& lhs, const Vector2& rhs ) {
+inline real_t dot( const Vector2& lhs, const Vector2& rhs )
+{
     return lhs.x * rhs.x + lhs.y * rhs.y;
 }
 
 /**
  * Efficiency function: does not require square root operation.
  */
-inline real_t squared_length( const Vector2& v ) {
+inline real_t squared_length( const Vector2& v )
+{
     return v.x * v.x + v.y * v.y;
 }
 
 /**
  * Returns the length of a vector.
  */
-inline real_t length( const Vector2& v ) {
+inline real_t length( const Vector2& v )
+{
     return sqrt( squared_length( v ) );
 }
 
 /**
  * Calculate the positive distance between two vectors.
  */
-inline real_t distance( const Vector2& lhs, const Vector2& rhs ) {
+inline real_t distance( const Vector2& lhs, const Vector2& rhs )
+{
     return length( lhs - rhs );
 }
 
 /**
  * Efficiency function: does not require square root operation.
  */
-inline real_t squared_distance( const Vector2& lhs, const Vector2& rhs ) {
+inline real_t squared_distance( const Vector2& lhs, const Vector2& rhs )
+{
     return squared_length( lhs - rhs );
 }
 
 /**
  * Returns the unit vector pointing in the same direction as this vector.
  */
-inline Vector2 normalize( const Vector2& v ) {
+inline Vector2 normalize( const Vector2& v )
+{
     return v / length( v );
 }
 
@@ -205,31 +226,35 @@ inline Vector2 normalize( const Vector2& v ) {
  * Returns a vector whose elements are the absolute values of all the
  * elements of this vector.
  */
-inline Vector2 vabs( const Vector2& v ) {
+inline Vector2 vabs( const Vector2& v )
+{
     return Vector2( fabs( v.x ), fabs( v.y ) );
 }
 
 /**
  * Returns the element-wise maximum of the two vectors.
  */
-inline Vector2 vmax( const Vector2& lhs, const Vector2& rhs ) {
+inline Vector2 vmax( const Vector2& lhs, const Vector2& rhs )
+{
     return Vector2(
-        std::max( lhs.x, rhs.x ),
-        std::max( lhs.y, rhs.y )
-    );
+               std::max( lhs.x, rhs.x ),
+               std::max( lhs.y, rhs.y )
+           );
 }
 
 /**
  * Returns the element-wise minimum of the two vectors.
  */
-inline Vector2 vmin( const Vector2& lhs, const Vector2& rhs ) {
+inline Vector2 vmin( const Vector2& lhs, const Vector2& rhs )
+{
     return Vector2(
-        std::min( lhs.x, rhs.x ),
-        std::min( lhs.y, rhs.y )
-    );
+               std::min( lhs.x, rhs.x ),
+               std::min( lhs.y, rhs.y )
+           );
 }
 
-inline Vector2 operator*( real_t s, const Vector2& rhs ) {
+inline Vector2 operator*( real_t s, const Vector2& rhs )
+{
     return rhs * s;
 }
 
@@ -305,45 +330,53 @@ public:
 
     // also uses default copy and assignment
 
-    Vector3 operator+( const Vector3& rhs ) const {
+    Vector3 operator+( const Vector3& rhs ) const
+    {
         return Vector3( x + rhs.x, y + rhs.y, z + rhs.z );
     }
 
-    Vector3& operator+=( const Vector3& rhs ) {
+    Vector3& operator+=( const Vector3& rhs )
+    {
         x += rhs.x;
         y += rhs.y;
         z += rhs.z;
         return *this;
     }
 
-    Vector3 operator-( const Vector3& rhs ) const {
+    Vector3 operator-( const Vector3& rhs ) const
+    {
         return Vector3( x - rhs.x, y - rhs.y, z - rhs.z );
     }
 
-    Vector3& operator-=( const Vector3& rhs ) {
+    Vector3& operator-=( const Vector3& rhs )
+    {
         x -= rhs.x;
         y -= rhs.y;
         z -= rhs.z;
         return *this;
     }
 
-    Vector3 operator*( real_t s ) const {
+    Vector3 operator*( real_t s ) const
+    {
         return Vector3( x * s, y * s, z * s );
     }
 
-    Vector3& operator*=( real_t s ) {
+    Vector3& operator*=( real_t s )
+    {
         x *= s;
         y *= s;
         z *= s;
         return *this;
     }
 
-    Vector3 operator/( real_t s ) const {
+    Vector3 operator/( real_t s ) const
+    {
         real_t inv = 1.0 / s;
         return Vector3( x * inv, y * inv, z * inv );
     }
 
-    Vector3& operator/=( real_t s ) {
+    Vector3& operator/=( real_t s )
+    {
         real_t inv = 1.0 / s;
         x *= inv;
         y *= inv;
@@ -351,14 +384,16 @@ public:
         return *this;
     }
 
-    Vector3 operator-() const {
+    Vector3 operator-() const
+    {
         return Vector3( -x, -y, -z );
     }
 
     /**
      * @remark No bounds checking.
      */
-    const real_t& operator[]( size_t i ) const {
+    const real_t& operator[]( size_t i ) const
+    {
         // assumes all members are in a contiguous block
         assert( i >= 0 && i < DIM );
         return ( &x )[i];
@@ -367,21 +402,25 @@ public:
     /**
      * @remark No bounds checking.
      */
-    real_t& operator[]( size_t i ) {
+    real_t& operator[]( size_t i )
+    {
         // assumes all members are in a contiguous block
         assert( i >= 0 && i < DIM );
         return ( &x )[i];
     }
 
-    bool operator==( const Vector3& rhs ) const {
+    bool operator==( const Vector3& rhs ) const
+    {
         return x == rhs.x && y == rhs.y && z == rhs.z;
     }
 
-    bool operator!=( const Vector3& rhs ) const {
+    bool operator!=( const Vector3& rhs ) const
+    {
         return !operator==( rhs );
     }
 
-    void to_array( float arr[DIM] ) const {
+    void to_array( float arr[DIM] ) const
+    {
         arr[0] = float( x );
         arr[1] = float( y );
         arr[2] = float( z );
@@ -391,53 +430,60 @@ public:
 /**
  * Returns the dot product of two vectors
  */
-inline real_t dot( const Vector3& lhs, const Vector3& rhs ) {
+inline real_t dot( const Vector3& lhs, const Vector3& rhs )
+{
     return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
 }
 
 /**
  * Returns the cross product of two vectors
  */
-inline Vector3 cross( const Vector3& lhs, const Vector3& rhs ) {
+inline Vector3 cross( const Vector3& lhs, const Vector3& rhs )
+{
     return Vector3(
-        lhs.y * rhs.z - lhs.z * rhs.y,
-        lhs.z * rhs.x - lhs.x * rhs.z,
-        lhs.x * rhs.y - lhs.y * rhs.x
-    );
+               lhs.y * rhs.z - lhs.z * rhs.y,
+               lhs.z * rhs.x - lhs.x * rhs.z,
+               lhs.x * rhs.y - lhs.y * rhs.x
+           );
 }
 
 /**
  * Efficiency function: does not require square root operation.
  */
-inline real_t squared_length( const Vector3& v ) {
+inline real_t squared_length( const Vector3& v )
+{
     return v.x * v.x + v.y * v.y + v.z * v.z;
 }
 
 /**
  * Returns the length of a vector.
  */
-inline real_t length( const Vector3& v ) {
+inline real_t length( const Vector3& v )
+{
     return sqrt( squared_length( v ) );
 }
 
 /**
  * Calculate the positive distance between two vectors.
  */
-inline real_t distance( const Vector3& lhs, const Vector3& rhs ) {
+inline real_t distance( const Vector3& lhs, const Vector3& rhs )
+{
     return length( lhs - rhs );
 }
 
 /**
  * Efficiency function: does not require square root operation.
  */
-inline real_t squared_distance( const Vector3& lhs, const Vector3& rhs ) {
+inline real_t squared_distance( const Vector3& lhs, const Vector3& rhs )
+{
     return squared_length( lhs - rhs );
 }
 
 /**
  * Returns the unit vector pointing in the same direction as this vector.
  */
-inline Vector3 normalize( const Vector3& v ) {
+inline Vector3 normalize( const Vector3& v )
+{
     return v / length( v );
 }
 
@@ -445,33 +491,37 @@ inline Vector3 normalize( const Vector3& v ) {
  * Returns a vector whose elements are the absolute values of all the
  * elements of this vector.
  */
-inline Vector3 vabs( const Vector3& v ) {
+inline Vector3 vabs( const Vector3& v )
+{
     return Vector3( fabs( v.x ), fabs( v.y ), fabs( v.z ) );
 }
 
 /**
  * Returns the element-wise maximum of the two vectors.
  */
-inline Vector3 vmax( const Vector3& lhs, const Vector3& rhs ) {
+inline Vector3 vmax( const Vector3& lhs, const Vector3& rhs )
+{
     return Vector3(
-        std::max( lhs.x, rhs.x ),
-        std::max( lhs.y, rhs.y ),
-        std::max( lhs.z, rhs.z )
-    );
+               std::max( lhs.x, rhs.x ),
+               std::max( lhs.y, rhs.y ),
+               std::max( lhs.z, rhs.z )
+           );
 }
 
 /**
  * Returns the element-wise minimum of the two vectors.
  */
-inline Vector3 vmin( const Vector3& lhs, const Vector3& rhs ) {
+inline Vector3 vmin( const Vector3& lhs, const Vector3& rhs )
+{
     return Vector3(
-        std::min( lhs.x, rhs.x ),
-        std::min( lhs.y, rhs.y ),
-        std::min( lhs.z, rhs.z )
-    );
+               std::min( lhs.x, rhs.x ),
+               std::min( lhs.y, rhs.y ),
+               std::min( lhs.z, rhs.z )
+           );
 }
 
-inline Vector3 operator*( real_t s, const Vector3& rhs ) {
+inline Vector3 operator*( real_t s, const Vector3& rhs )
+{
     return rhs * s;
 }
 
@@ -546,11 +596,13 @@ public:
 
     // also uses default copy and assignment
 
-    Vector4 operator+( const Vector4& rhs ) const {
+    Vector4 operator+( const Vector4& rhs ) const
+    {
         return Vector4( x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w );
     }
 
-    Vector4& operator+=( const Vector4& rhs ) {
+    Vector4& operator+=( const Vector4& rhs )
+    {
         x += rhs.x;
         y += rhs.y;
         z += rhs.z;
@@ -558,11 +610,13 @@ public:
         return *this;
     }
 
-    Vector4 operator-( const Vector4& rhs ) const {
+    Vector4 operator-( const Vector4& rhs ) const
+    {
         return Vector4( x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w );
     }
 
-    Vector4& operator-=( const Vector4& rhs ) {
+    Vector4& operator-=( const Vector4& rhs )
+    {
         x -= rhs.x;
         y -= rhs.y;
         z -= rhs.z;
@@ -570,11 +624,13 @@ public:
         return *this;
     }
 
-    Vector4 operator*( real_t s ) const {
+    Vector4 operator*( real_t s ) const
+    {
         return Vector4( x * s, y * s, z * s, w * s );
     }
 
-    Vector4& operator*=( real_t s ) {
+    Vector4& operator*=( real_t s )
+    {
         x *= s;
         y *= s;
         z *= s;
@@ -582,12 +638,14 @@ public:
         return *this;
     }
 
-    Vector4 operator/( real_t s ) const {
+    Vector4 operator/( real_t s ) const
+    {
         real_t inv = 1.0 / s;
         return Vector4( x * inv, y * inv, z * inv, w * inv );
     }
 
-    Vector4& operator/=( real_t s ) {
+    Vector4& operator/=( real_t s )
+    {
         real_t inv = 1.0 / s;
         x *= inv;
         y *= inv;
@@ -596,14 +654,16 @@ public:
         return *this;
     }
 
-    Vector4 operator-() const {
+    Vector4 operator-() const
+    {
         return Vector4( -x, -y, -z, -w );
     }
 
     /**
      * @remark No bounds checking.
      */
-    const real_t& operator[]( size_t i ) const {
+    const real_t& operator[]( size_t i ) const
+    {
         // assumes all members are in a contiguous block
         assert( i >= 0 && i < DIM );
         return ( &x )[i];
@@ -612,28 +672,33 @@ public:
     /**
      * @remark No bounds checking.
      */
-    real_t& operator[]( size_t i ) {
+    real_t& operator[]( size_t i )
+    {
         // assumes all members are in a contiguous block
         assert( i >= 0 && i < DIM );
         return ( &x )[i];
     }
 
-    bool operator==( const Vector4& rhs ) const {
+    bool operator==( const Vector4& rhs ) const
+    {
         return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w;
     }
 
-    bool operator!=( const Vector4& rhs ) const {
+    bool operator!=( const Vector4& rhs ) const
+    {
         return !operator==( rhs );
     }
 
     /**
      * Returns the first three components, ignoring the fourth
      */
-    Vector3 xyz() const {
+    Vector3 xyz() const
+    {
         return Vector3( x, y, z );
     }
 
-    void to_array( float arr[DIM] ) const {
+    void to_array( float arr[DIM] ) const
+    {
         arr[0] = float( x );
         arr[1] = float( y );
         arr[2] = float( z );
@@ -645,7 +710,8 @@ public:
  * Returns the 3d vector corresponding to this 4d vector.
  * @remark If w==0, returns (x,y,z).
  */
-inline Vector3 project( const Vector4& v ) {
+inline Vector3 project( const Vector4& v )
+{
     real_t winv = v.w == 0.0 ? 1.0 : 1.0 / v.w;
     return Vector3( v.x * winv, v.y * winv, v.z * winv );
 }
@@ -653,42 +719,48 @@ inline Vector3 project( const Vector4& v ) {
 /**
  * Returns the dot product of two vectors
  */
-inline real_t dot( const Vector4& lhs, const Vector4& rhs ) {
+inline real_t dot( const Vector4& lhs, const Vector4& rhs )
+{
     return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w;
 }
 
 /**
  * Efficiency function: does not require square root operation.
  */
-inline real_t squared_length( const Vector4& v ) {
+inline real_t squared_length( const Vector4& v )
+{
     return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
 }
 
 /**
  * Returns the length of a vector.
  */
-inline real_t length( const Vector4& v ) {
+inline real_t length( const Vector4& v )
+{
     return sqrt( squared_length( v ) );
 }
 
 /**
  * Calculate the positive distance between two vectors.
  */
-inline real_t distance( const Vector4& lhs, const Vector4& rhs ) {
+inline real_t distance( const Vector4& lhs, const Vector4& rhs )
+{
     return length( lhs - rhs );
 }
 
 /**
  * Efficiency function: does not require square root operation.
  */
-inline real_t squared_distance( const Vector4& lhs, const Vector4& rhs ) {
+inline real_t squared_distance( const Vector4& lhs, const Vector4& rhs )
+{
     return squared_length( lhs - rhs );
 }
 
 /**
  * Returns the unit vector pointing in the same direction as this vector.
  */
-inline Vector4 normalize( const Vector4& v ) {
+inline Vector4 normalize( const Vector4& v )
+{
     return v / length( v );
 }
 
@@ -696,35 +768,39 @@ inline Vector4 normalize( const Vector4& v ) {
  * Returns a vector whose elements are the absolute values of all the
  * elements of this vector.
  */
-inline Vector4 vabs( const Vector4& v ) {
+inline Vector4 vabs( const Vector4& v )
+{
     return Vector4( fabs( v.x ), fabs( v.y ), fabs( v.z ), fabs( v.w ) );
 }
 
 /**
  * Returns the element-wise maximum of the two vectors.
  */
-inline Vector4 vmax( const Vector4& lhs, const Vector4& rhs ) {
+inline Vector4 vmax( const Vector4& lhs, const Vector4& rhs )
+{
     return Vector4(
-        std::max( lhs.x, rhs.x ),
-        std::max( lhs.y, rhs.y ),
-        std::max( lhs.z, rhs.z ),
-        std::max( lhs.w, rhs.w )
-    );
+               std::max( lhs.x, rhs.x ),
+               std::max( lhs.y, rhs.y ),
+               std::max( lhs.z, rhs.z ),
+               std::max( lhs.w, rhs.w )
+           );
 }
 
 /**
  * Returns the element-wise minimum of the two vectors.
  */
-inline Vector4 vmin( const Vector4& lhs, const Vector4& rhs ) {
+inline Vector4 vmin( const Vector4& lhs, const Vector4& rhs )
+{
     return Vector4(
-        std::min( lhs.x, rhs.x ),
-        std::min( lhs.y, rhs.y ),
-        std::min( lhs.z, rhs.z ),
-        std::min( lhs.w, rhs.w )
-    );
+               std::min( lhs.x, rhs.x ),
+               std::min( lhs.y, rhs.y ),
+               std::min( lhs.z, rhs.z ),
+               std::min( lhs.w, rhs.w )
+           );
 }
 
-inline Vector4 operator*( real_t s, const Vector4& rhs ) {
+inline Vector4 operator*( real_t s, const Vector4& rhs )
+{
     return rhs * s;
 }
 

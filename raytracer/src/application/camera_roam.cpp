@@ -9,7 +9,8 @@
 
 #include "application/camera_roam.hpp"
 
-namespace _462 {
+namespace _462
+{
 
 static const real_t DirectionTable[] = { 0.0, 1.0, -1.0 };
 static const real_t TranslationSpeed = 2.0;
@@ -79,7 +80,8 @@ void CameraRoamControl::handle_event( const Application* app, const SDL_Event& e
             break;
         }
 
-        if ( newidx != -1 ) {
+        if ( newidx != -1 )
+        {
             set_dir( event.key.state == SDL_PRESSED, newidx, newdir );
         }
         break;
@@ -101,10 +103,13 @@ void CameraRoamControl::handle_event( const Application* app, const SDL_Event& e
         break;
 
     case SDL_MOUSEMOTION:
-        if ( rotation == RPITCHYAW ) {
+        if ( rotation == RPITCHYAW )
+        {
             camera.yaw( -RotationSpeed * event.motion.xrel );
             camera.pitch( -RotationSpeed * event.motion.yrel );
-        } else if ( rotation == RROLL ) {
+        }
+        else if ( rotation == RROLL )
+        {
             camera.roll( RotationSpeed * event.motion.yrel );
         }
         break;
