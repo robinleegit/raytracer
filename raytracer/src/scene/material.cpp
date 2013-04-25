@@ -1,10 +1,3 @@
-/**
- * @file material.cpp
- * @brief Material class
- *
- * @author Eric Butler (edbutler)
- */
-
 #include "scene/material.hpp"
 #include "application/imageio.hpp"
 

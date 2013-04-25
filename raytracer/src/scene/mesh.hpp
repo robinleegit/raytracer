@@ -1,11 +1,3 @@
-/**
- * @file mesh.hpp
- * @brief Mesh class and OBJ loader.
- *
- * @author Eric Butler (edbutler)
- * @author Zeyang Li (zeyangl)
- */
-
 #ifndef _462_SCENE_MESH_HPP_
 #define _462_SCENE_MESH_HPP_
 

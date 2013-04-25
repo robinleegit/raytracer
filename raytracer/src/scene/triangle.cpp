@@ -1,10 +1,3 @@
-/**
- * @file triangle.cpp
- * @brief Function definitions for the Triangle class.
- *
- * @author Eric Butler (edbutler)
- */
-
 #include "scene/triangle.hpp"
 #include "application/opengl.hpp"
 

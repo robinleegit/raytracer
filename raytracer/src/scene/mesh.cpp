@@ -1,11 +1,3 @@
-/**
- * @file mesh.cpp
- * @brief Mesh class and OBJ loader.
- *
- * @author Eric Butler (edbutler)
- * @author Zeyang Li (zeyangl)
- */
-
 #include "scene/mesh.hpp"
 #include "application/opengl.hpp"
 #include <iostream>

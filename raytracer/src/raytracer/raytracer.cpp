@@ -1,13 +1,3 @@
-/**
- * @file raytacer.cpp
- * @brief Raytracer class
- *
- * Implement these functions for project 2.
- *
- * @author H. Q. Bovik (hqbovik)
- * @bug Unimplemented
- */
-
 #include "raytracer.hpp"
 #include "scene/scene.hpp"
 

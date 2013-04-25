@@ -1,11 +1,3 @@
-/**
- * @file model.cpp
- * @brief Model class
- *
- * @author Eric Butler (edbutler)
- * @author Zeyang Li (zeyangl)
- */
-
 #ifdef __linux
 #include <GL/gl.h>
 #elif __APPLE__
