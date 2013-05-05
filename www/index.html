@@ -12,7 +12,7 @@
 <div style="padding-bottom: 10px;">
 <div class="title smallTitle">CMU 15-418/618 (Spring 2013) Final Project:</div>
 <div class="title" style="width: 900px; padding-bottom: 6px; border-bottom: #000000 2px solid;">
-    Parallel Raytracer
+    Interactive CPU Ray Tracer
 </div>
 </div>
 
@@ -29,20 +29,44 @@
 </div>
 
 <div class="section">Working Schedule</div>
-
 <p>
 <table class="projectSchedule">
+
 <tr>
   <td width="110"><span style="font-weight: bold;">Week</span></td>
   <td width="380"><span style="font-weight: bold;">What We Plan To Do</span></td>
-  <td><span style="font-weight: bold;">What We Actually Did</span></td>
+  <td width="380"><span style="font-weight: bold;">What We Actually Did</span></td>
 </tr>
-<tr><td>Apr 1-7</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-<tr><td>Apr 8-14</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-<tr><td>Apr 15-21</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-<tr><td>Apr 22-28</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-<tr><td>Apr 29-May 5</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-<tr><td>May 6-11</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr>
+    <td>Apr 1-7</td>
+    <td>Choose project; write proposal</td>
+    <td>Chose project, wrote proposal</td>
+</tr>
+<tr>
+    <td>Apr 8-14</td>
+    <td>Read existing literature; get Adam up to speed with Nathan's raytracer; clean up the code base</td>
+    <td>Started to experiment with simple parallelization using boost threads and pixels, did some research on other frameworks (OpenCL, OpenMP)</td>
+</tr>
+<tr>
+    <td>Apr 15-21</td>
+    <td>Achieve a sequential implementation of BVH</td>
+    <td>Read papers</td>
+</tr>
+<tr>
+    <td>Apr 22-28</td>
+    <td>Parallelize BVH construction and traversal; packets</td>
+    <td>BVH almost working</td>
+</tr>
+<tr>
+    <td>Apr 29-May 5*</td>
+    <td>Parallelize BVH construction and traversal; packets</td>
+    <td></td>
+</tr>
+<tr>
+    <td>May 6-11*</td>
+    <td>Async BVH construction/traversal/tracing</td>
+    <td></td>
+</tr>
 </table>
 </p>
 

@@ -1,29 +1,117 @@
 <html>
-<head>
-<title>CMU 15-418/618 Final Project: Checkpoint Writeup</title>
+    <head>
+        <title>CMU 15-418/618 Final Project: Checkpoint Writeup</title>
 
-<link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="stylesheet" type="text/css" href="style.css">
 
-</head>
-<body>
+    </head>
+    <body>
 
-<div class="constrainedWidth">
-  
-<div style="padding-bottom: 10px;">
+        <div class="constrainedWidth">
 
-<div class="title smallTitle">Checkpoint Report:</div>
-<div class="title" style="width: 900px; padding-bottom: 6px; border-bottom: #000000 2px solid;">
-  [PROJECT TITLE HERE]
-</div>
-</div>
+            <div style="padding-bottom: 10px;">
 
-<div style="padding-top: 1em;"><a href="index.html">Main Project Page</a></div>
+                <div class="title smallTitle">Checkpoint Report:</div>
+                <div class="title" style="width: 900px; padding-bottom: 6px; border-bottom: #000000 2px solid;">
+                    Interactive CPU Ray Tracer
+                </div>
+            </div>
 
-<p class="comment">[Your checkpoint writeup goes here.]</p>
+            <div style="padding-top: 1em;"><a href="index.html">Main Project Page</a></div>
+
+            <div class="section">
+                Status update:
+            </div>
+
+            We properly threaded the ray tracing code, got Adam up to speed with the code base, cleaned up some code, and read the most relevant papers.  
+
+            <br/>
+            <br/>
+            We are finalizing the BVH construction (still running into a small bug) which should get the ~45k triangle plane scene from 15462 to render in a few seconds.
+
+            <br/>
+            <br/>
+            We're probably a week behind schedule; however, our time to work on the project will be backloaded because of our other courses ending relatively early, so we think we will get back on track.
+
+            <div class="section">Current Action Items</div>
+
+            <ol>
+                <li><span style="font-weight: bold">Building the BVH in parallel</span>
+                <br/>
+
+                This seems like the biggest technical challenge.  We've read the Wald et al paper on construction of asynchronous BVH trees in parallel (using SAH/BIH?) but could use some guidance here.
+                </li>
+
+                <li><span style="font-weight: bold">Updating the BVH</span>
+                <br/>
+
+                <ul> 
+
+                    <li>For simplicity's sake we might want to just rebuild the entire tree rather than update it incrementally (or lazily), but do it asynchronously.  We were wondering if the GPU could be used for this purpose while the CPU is traversing.</li>
+
+                    <li>In actuality though, we don't really want a GPU - we just want more CPU cores.</li>
+
+                    <li>If we did want to do refitting, we saw scene graphs mentioned several times as candidates for a loose data structure used to determine visibility, but we don't know what they really are.  If we could get an explanation of scene graphs it would be appreciated.</li>
+                </ul>
+                </li>
+
+                <li><span style="font-weight: bold">BVH traversal</span>
+                <br/>
+
+                We can use 8x8 ray packets with early exit frustum testing and active ray indexing.
+                </li>
+
+                <ul>
+                    <li>When do we actually use SIMD?  We're not clear on this.  The papers we read made it sound like active rays are intersected linearly, but noted that SIMD was also used...</li>
+
+                    <li>What happens when rays hit a triangle and a recursive call is made?  There won't be packets anymore, right?</li>
+
+                    <li>Ray reordering? Higher branching factor BVH instead of packets altogether?</li>
+                </ul>
+
+                <li><span style="font-weight: bold">Object loader</span>
+                <br/>
+
+                We downloaded scenes from <a href= http://graphics.cs.williams.edu/data/meshes.xml>here</a> and <a href=http://www.sci.utah.edu/~wald/animrep/>here</a> but the starter code from 15-462 cannot handle the .obj file format they use.  Therefore we may need a new object loader.  Can we get some open source code somewhere?
+                </li>
+
+            </ol>
 
 
+            <div class="section">Later Goals</div>
 
-</div>
+            <ol>
 
-</body>
+                <li><span style="font-weight: bold">Global illumination</span>
+                <br/>
+                <ul>
+
+                    <li>What method to use (path tracing, photon mapping, radiosity)?</li>
+
+                    <li>Is this parallelizable on top of ray traversal?  Could it be done concurrently on the GPU, either while the BVH is being built or while rays are being traversed?</li>
+                </ul>
+                </li>
+
+                <li><span style="font-weight: bold">Animation</span>
+                <br/>
+
+                There seems to be some variance in how animated scenes are encoded.  Some have .obj files for every frame, some for every 10 frames, some use .ply instead, etc.  How do we deal with that?
+
+                Also, loading objects seems expensive - doesn't this bog down the animation?
+                </li>
+
+                <li><span style="font-weight: bold">Getting rid of OpenGL</span>
+                <br/>
+                <ul>
+                    <li>How to do keyboard / camera control?</li>
+                    <li>How to paint pixel data to screen after trace_pixel returns?</li>
+                </ul>
+
+                </li>
+
+            </ol>
+
+        </div>
+
+    </body>
 </html>
