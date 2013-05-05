@@ -11,6 +11,7 @@ namespace _462
 BvhNode::BvhNode(const Mesh* _mesh, vector<int>& _indices)
 {
     cout << "Entered bvh constructor(indices.size()=" << _indices.size() << ")" << endl;
+
     left = NULL;
     right = NULL;
     mesh = _mesh;
