@@ -19,6 +19,16 @@ struct Int2
     Int2(int _x, int _y) : x(_x), y(_y) { }
 };
 
+typedef struct Plane_t
+{
+    // define elements of a Plane
+} Plane;
+
+typedef struct Frustum_t
+{
+    // define top, bottom, left, right, front, back planes
+} Frustum;
+
 class Scene;
 
 class Raytracer
@@ -31,7 +41,7 @@ public:
 
     bool initialize( Scene* scene, size_t width, size_t height );
 
-    Color3 trace_pixel(const Scene* scene, size_t x, size_t y, size_t width,
+    Color3 trace_pixel(const Scene* scene, Int2 pixel, size_t width,
                        size_t height, int recursions, Vector3 start_e, Vector3 start_ray,
                        float refractive, bool extras);
 
@@ -39,7 +49,10 @@ public:
 
     bool raytrace(unsigned char* buffer, real_t* max_time, bool extras, int numthreads);
 
-    Vector3 get_viewing_ray(Vector3 e, size_t x, size_t y, size_t width, size_t height);
+    Vector3 get_viewing_ray(Vector3 e, Int2 pixel, size_t width, size_t height);
+
+    void get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll,
+        Int2 lr, Vector3 e, size_t width, size_t height, Frustum frustum);
 
     Color3 get_diffuse(Vector3 intersection_point, Vector3 min_normal,
                        Color3 min_diffuse, float eps);

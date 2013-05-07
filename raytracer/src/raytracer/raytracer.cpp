@@ -63,8 +63,7 @@ bool Raytracer::initialize(Scene* scene0, size_t width0, size_t height0)
  * Performs a raytrace on the given pixel on the current scene.
  * The pixel is relative to the bottom-left corner of the image.
  * @param scene The scene to trace.
- * @param x The x-coordinate of the pixel to trace.
- * @param y The y-coordinate of the pixel to trace.
+ * @param pixel The x and y screen coordinates of the pixel to trace.
  * @param width The width of the screen in pixels.
  * @param height The height of the screen in pixels.
  * @param recursions The number of times the function has been called.
@@ -74,14 +73,14 @@ bool Raytracer::initialize(Scene* scene0, size_t width0, size_t height0)
  * @param extras Whether to turn extras on
  * @return The color of that pixel in the final image.
  */
-Color3 Raytracer::trace_pixel(const Scene* scene, size_t x, size_t y,
+Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
                               size_t width, size_t height, int recursions, Vector3 start_e,
                               Vector3 start_ray, float refractive, bool extras)
 {
-    assert(0 <= x && x < width);
-    assert(0 <= y && y < height);
+    assert(0 <= pixel.x && pixel.x < width);
+    assert(0 <= pixel.y && pixel.y < height);
 
-    int max_recursion_depth = 10;
+    int max_recursion_depth = 3;
     float eps = 0.0001; // "slop factor"
     Vector3 e;          // origin of our viewing ray
     Vector3 ray;        // viewing ray
@@ -101,7 +100,7 @@ Color3 Raytracer::trace_pixel(const Scene* scene, size_t x, size_t y,
     if (recursions == 0)
     {
         e = scene->camera.get_position();
-        ray = get_viewing_ray(e, x, y, width, height);
+        ray = get_viewing_ray(e, pixel, width, height);
     }
     // otherwise use the ray that's passed in
     else
@@ -159,7 +158,7 @@ Color3 Raytracer::trace_pixel(const Scene* scene, size_t x, size_t y,
             }
 
             return direct + min_texture * min_specular * trace_pixel(scene,
-                    x, y, width, height, recursions + 1, reflection_point,
+                    pixel, width, height, recursions + 1, reflection_point,
                     incident_ray, refractive, extras);
 
         }
@@ -192,7 +191,7 @@ Color3 Raytracer::trace_pixel(const Scene* scene, size_t x, size_t y,
                 // total internal reflection
                 else
                 {
-                    return trace_pixel(scene, x, y, width, height, recursions + 1,
+                    return trace_pixel(scene, pixel, width, height, recursions + 1,
                                        reflection_point, incident_ray, refractive, extras);
                 }
             }
@@ -203,9 +202,9 @@ Color3 Raytracer::trace_pixel(const Scene* scene, size_t x, size_t y,
             Vector3 refraction_point = intersection_point + eps * transmitted_ray;
 
             // return reflected and refracted rays
-            return R * trace_pixel(scene, x, y, width, height, recursions + 1,
+            return R * trace_pixel(scene, pixel, width, height, recursions + 1,
                                    reflection_point, incident_ray, refractive, extras) +
-                   (1 - R) * trace_pixel(scene, x, y, width, height, recursions + 1,
+                   (1 - R) * trace_pixel(scene, pixel, width, height, recursions + 1,
                                          refraction_point, transmitted_ray, min_refractive, extras);
         }
     }
@@ -217,7 +216,7 @@ Color3 Raytracer::trace_pixel(const Scene* scene, size_t x, size_t y,
 }
 
 // calculate direction of initial viewing ray from camera
-Vector3 Raytracer::get_viewing_ray(Vector3 e, size_t x, size_t y, size_t width, size_t height)
+Vector3 Raytracer::get_viewing_ray(Vector3 e, Int2 pixel, size_t width, size_t height)
 {
     Vector3 g = scene->camera.get_direction();
     Vector3 c_u = scene->camera.get_up();
@@ -231,12 +230,32 @@ Vector3 Raytracer::get_viewing_ray(Vector3 e, size_t x, size_t y, size_t width, 
     real_t r = (t * width) / height;
     real_t b = -1.0 * t;
     real_t l = -1.0 * r;
-    real_t u_s = l + (r - l) * (x + 0.5) / width;
-    real_t v_s = b + (t - b) * (y + 0.5) / height;
+    real_t u_s = l + (r - l) * (pixel.x + 0.5) / width;
+    real_t v_s = b + (t - b) * (pixel.y + 0.5) / height;
     Vector3 s_minus_e = u_s * u + v_s * v + w;
 
+    // viewing ray direction
     return normalize(s_minus_e);
 }
+
+// parameters are the four ray origin coordinates on the screen, the camera/eye
+// position, and the dimensions of the screen, and a place to store the 
+// frustum planes
+void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll,
+        Int2 lr, Vector3 e, size_t width, size_t height, Frustum frustum)
+{
+    real_t near = scene->camera.get_near_clip();
+    real_t far = scene->camera.get_far_clip();
+    Vector3 ray_ul = get_viewing_ray(e, ul, width, height);
+    Vector3 ray_ur = get_viewing_ray(e, ur, width, height);
+    Vector3 ray_ll = get_viewing_ray(e, ll, width, height);
+    Vector3 ray_lr = get_viewing_ray(e, lr, width, height);
+
+}
+
+
+
+
 
 // calculate contribution of all lights to diffuse light
 Color3 Raytracer::get_diffuse(Vector3 intersection_point, Vector3 min_normal,
@@ -328,7 +347,7 @@ void Raytracer::trace_pixel_worker(tsqueue<Int2> *pixel_queue, unsigned char *bu
             break;
         }
 
-        Color3 color = trace_pixel(scene, pixel.x, pixel.y, width, height, 0, start_e, start_ray, 1.0, false);
+        Color3 color = trace_pixel(scene, pixel, width, height, 0, start_e, start_ray, 1.0, false);
         color.to_array( &buffer[4 * ( pixel.y * width + pixel.x )] );
     }
 }
