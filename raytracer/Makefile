@@ -27,6 +27,7 @@ SRCS = \
 	scene/sphere.cpp \
 	scene/triangle.cpp \
 	scene/model.cpp \
+	scene/box.cpp \
 	tinyxml/tinyxml.cpp \
 	tinyxml/tinyxmlerror.cpp \
 	tinyxml/tinyxmlparser.cpp \

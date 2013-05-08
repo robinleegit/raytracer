@@ -239,10 +239,10 @@ Vector3 Raytracer::get_viewing_ray(Vector3 e, Int2 pixel, size_t width, size_t h
 }
 
 // parameters are the four ray origin coordinates on the screen, the camera/eye
-// position, and the dimensions of the screen, and a place to store the 
+// position, and the dimensions of the screen, and a place to store the
 // frustum planes
 void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll,
-        Int2 lr, Vector3 e, size_t width, size_t height, Frustum frustum)
+                                    Int2 lr, Vector3 e, size_t width, size_t height, Frustum frustum)
 {
     real_t near = scene->camera.get_near_clip();
     real_t far = scene->camera.get_far_clip();
