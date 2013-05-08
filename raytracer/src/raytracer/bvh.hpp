@@ -11,12 +11,17 @@ namespace _462
 class BvhNode
 {
 public:
+    const Mesh *mesh;
     BvhNode *left, *right;
     Box left_bbox, right_bbox;
     int mid_idx;
-    BvhNode(const Mesh* mesh, int *indices, int start, int end);
+    int start_triangle;
+    int end_triangle;
+
+    BvhNode(const Mesh* _mesh, int *indices, int start, int end);
     ~BvhNode();
-    bool intersect(Vector3 e, Vector3 ray, std::vector<int>& winners);
+    bool intersect(Vector3 e, Vector3 ray, float &min_time, size_t &min_index,
+            float &min_beta, float &min_gamma);
     void print();
 };
 

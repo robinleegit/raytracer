@@ -33,6 +33,7 @@ SRCS = \
 	tinyxml/tinyxmlparser.cpp \
 	raytracer/main.cpp \
 	raytracer/bvh.cpp \
+    raytracer/geom_utils.cpp \
 	raytracer/raytracer.cpp
 
 TARGET = raytracer

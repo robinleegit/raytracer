@@ -2,23 +2,30 @@
 #include <vector>
 #include "raytracer/bvh.hpp"
 #include "scene/model.hpp"
+#include "geom_utils.hpp"
+
+#define LEAF_SIZE 1
 
 using namespace std;
 
 namespace _462
 {
 
-BvhNode::BvhNode(const Mesh *mesh, int *indices, int start, int end)
+BvhNode::BvhNode(const Mesh *_mesh, int *indices, int start, int end)
 {
+    mesh = _mesh;
+
     mid_idx = (start + end) / 2;
     if (mid_idx > 8) {cout << mid_idx << "  ";}
 
     left = NULL;
     right = NULL;
 
-    if (end - start == 1)
+    if (end - start == LEAF_SIZE)
     {
-        // We are a leaf node, so don't need to do anything else
+        // We are a leaf node
+        start_triangle = start;
+        end_triangle = end;
         return;
     }
 
@@ -55,51 +62,51 @@ void BvhNode::print()
     cout << "}";
 }
 
-bool BvhNode::intersect(Vector3 e, Vector3 ray, std::vector<int>& winners)
+bool BvhNode::intersect(Vector3 e, Vector3 ray, float &min_time, size_t &min_index,
+        float &min_beta, float &min_gamma)
 {
+    bool ret = false;
+
     if (!left && !right)
     {
-        winners.push_back(mid_idx);
-        if (mid_idx > 8) {cout << mid_idx << "  ";}
-        return true;
+        unsigned int v0, v1, v2;
+        Vector3 p0, p1, p2;
+
+        for (size_t s = start_triangle; s < end_triangle; s++)
+        {
+            MeshTriangle triangle = mesh->get_triangles()[s];
+            v0 = triangle.vertices[0];
+            v1 = triangle.vertices[1];
+            v2 = triangle.vertices[2];
+            p0 = mesh->get_vertices()[v0].position;
+            p1 = mesh->get_vertices()[v1].position;
+            p2 = mesh->get_vertices()[v2].position;
+
+            if (triangle_intersect(e, ray, p0, p1, p2, min_time, min_gamma, min_beta))
+            {
+                min_index = s;
+                ret = true;
+            }
+        }
+        return ret;
     }
 
-    bool l_inter = left_bbox.intersect(e, ray);
-    bool r_inter = right_bbox.intersect(e, ray);
-
-    if (!l_inter && !r_inter)
+    if (left_bbox.intersect(e, ray))
     {
-        return false;
-    }
-    else if (l_inter && r_inter)
-    {
-        return left->intersect(e, ray, winners) || right->intersect(e, ray, winners);
-    }
-    else if (l_inter)
-    {
-        return left->intersect(e, ray, winners);
-    }
-    else if (r_inter)
-    {
-        return right->intersect(e, ray, winners);
-    }
-    else
-    {
-        // shouldn't ever get here
-        return false;
-    }
-
-    /*
-    if (left_bbox.intersect(e, ray) || left_b)
-    {
-        ret = ret || left->intersect(e, ray, winners);
+        bool l_inter = left->intersect(e, ray, min_time, min_index,
+                min_beta, min_gamma);
+        ret = ret || l_inter;
     }
 
     if (right_bbox.intersect(e, ray))
     {
-        ret = ret || right->intersect(e, ray, winners);
+        bool r_inter = right->intersect(e, ray, min_time, min_index,
+                min_beta, min_gamma);
+        ret = ret || r_inter;
     }
-    */
+
+    return ret;
 }
+
 
 }
