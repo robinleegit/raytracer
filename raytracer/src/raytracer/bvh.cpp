@@ -4,7 +4,7 @@
 #include "scene/model.hpp"
 #include "geom_utils.hpp"
 
-#define LEAF_SIZE 1
+#define LEAF_SIZE 4
 
 using namespace std;
 
@@ -21,7 +21,7 @@ BvhNode::BvhNode(const Mesh *_mesh, int *indices, int start, int end)
     left = NULL;
     right = NULL;
 
-    if (end - start == LEAF_SIZE)
+    if (end - start <= LEAF_SIZE)
     {
         // We are a leaf node
         start_triangle = start;
