@@ -188,14 +188,13 @@ void RaytracerApplication::update( real_t delta_time )
         if ( !raytrace_finished )
         {
             assert( buffer );
-#if 0
-            for (int i = 1; i <= boost::thread::hardware_concurrency(); i++)
-            {
-                cout << "Running with " << i << " threads" << endl;
-                raytrace_finished = raytracer.raytrace( buffer, &delta_time, extras, i );
-            }
-#endif
-            raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras, boost::thread::hardware_concurrency());
+            //for (int i = 1; i <= boost::thread::hardware_concurrency(); i++)
+            //{
+            //    cout << "Running with " << i << " threads" << endl;
+            //    raytrace_finished = raytracer.raytrace( buffer, &delta_time, extras, i );
+            //}
+            //raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras, boost::thread::hardware_concurrency());
+            raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras, 1);
         }
     }
     else
@@ -409,6 +408,19 @@ static void render_scene( const Scene& scene )
         glLightfv( LightConstants[i], GL_POSITION, arr );
     }
     // render each object
+
+    glBegin(GL_LINES);
+    glVertex3f(-10.0, 0.0, 0.0);
+    glVertex3f(10.0, 0.0, 0.0);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex3f(0.0, -10.0, 0.0);
+    glVertex3f(0.0, 10.0, 0.0);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex3f(0.0, 0.0, -10.0);
+    glVertex3f(0.0, 0.0, 10.0);
+    glEnd();
 
     Geometry* const* geometries = scene.get_geometries();
 
