@@ -114,23 +114,15 @@ void Model::make_bounding_volume()
 
     int num_triangles = mesh->num_triangles();
 
-    cout << "num_triangles " << num_triangles << endl;
     int *indices = new int[num_triangles];
 
-    cout << "Assigning indices" << endl;
     for (int i = 0; i < num_triangles; i++)
     {
         indices[i] = i;
     }
 
-    cout << "Creating BVH node " << endl;
     bvh = new BvhNode(mesh, indices, 0, num_triangles);
-    //cout << bvh << endl;
-    bvh->print();
-    cout << endl;
 
-    cout << "min corner: " << bvh->left->left->left_bbox.min_corner << endl;
-    cout << "max corner: " << bvh->left_bbox.max_corner << endl;
     delete indices;
 }
 
