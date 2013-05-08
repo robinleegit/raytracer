@@ -35,6 +35,16 @@ struct Frustum
     Plane right;
     Plane front;
     Plane back;
+
+    Vector3 ntl;
+    Vector3 ntr;
+    Vector3 nbl;
+    Vector3 nbr;
+    Vector3 ftl;
+    Vector3 ftr;
+    Vector3 fbl;
+    Vector3 fbr;
+
 };
 
 class Scene;
@@ -59,8 +69,8 @@ public:
 
     Vector3 get_viewing_ray(Vector3 e, Int2 pixel, size_t width, size_t height);
 
-    void get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll,
-                             Int2 lr, Vector3 e, size_t width, size_t height, Frustum frustum);
+    void get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
+            Vector3 e, size_t width, size_t height, Frustum& frustum); 
 
     Color3 get_diffuse(Vector3 intersection_point, Vector3 min_normal,
                        Color3 min_diffuse, float eps);

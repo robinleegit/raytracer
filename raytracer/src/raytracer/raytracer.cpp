@@ -205,7 +205,7 @@ Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
             // return reflected and refracted rays
             return R * trace_pixel(scene, pixel, width, height, recursions + 1,
                                    reflection_point, incident_ray, refractive, extras) +
-                   (1 - R) * trace_pixel(scene, pixel, width, height, recursions + 1,
+                   (1.0 - R) * trace_pixel(scene, pixel, width, height, recursions + 1,
                                          refraction_point, transmitted_ray, min_refractive, extras);
         }
     }
@@ -242,7 +242,7 @@ Vector3 Raytracer::get_viewing_ray(Vector3 e, Int2 pixel, size_t width, size_t h
 // position, the dimensions of the screen, and a place to store the frustum.
 void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
                                     Vector3 e, size_t width, size_t height,
-                                    Frustum frustum)
+                                    Frustum& frustum)
 {
     real_t near = scene->camera.get_near_clip(); // near plane distance
     real_t far = scene->camera.get_far_clip(); // far plane distance
@@ -258,8 +258,10 @@ void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
 	float h_far = 2.0 * tan(fov / 2.0) * far;
 	float w_far = h_far * aspect;
 
+
     // nc and fc are the centers of the front and back of the frustum;
     // the other points are the corners; "ntl" -> "near top left" etc
+    // TODO wait do we even need the other points?
 	Vector3 nc = e + gaze * near;
 	Vector3 ntl = nc + (up * h_near / 2.0) - (right * w_near / 2.0);
 	Vector3 ntr = nc + (up * h_near / 2.0) + (right * w_near / 2.0);
@@ -270,6 +272,20 @@ void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
 	Vector3 ftr = fc + (up * h_far / 2.0) + (right * w_far / 2.0);
 	Vector3 fbl = fc - (up * h_far / 2.0) - (right * w_far / 2.0);
 	Vector3 fbr = fc - (up * h_far / 2.0) + (right * w_far / 2.0);
+
+    ////////////////////////
+	frustum.ntl = ntl;
+	frustum.ntr = ntr;
+	frustum.nbl = nbl;
+	frustum.nbr = nbr;
+	frustum.ftl = ftl;
+	frustum.ftr = ftr;
+	frustum.fbl = fbl;
+	frustum.fbr = fbr;
+    ///////////////////////
+
+
+
 
     // camera position is a point on top, bottom, left, and right planes
     frustum.front.point = nc;

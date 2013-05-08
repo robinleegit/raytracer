@@ -226,6 +226,7 @@ void RaytracerApplication::render()
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 
+
     if ( raytracing )
     {
         // if raytracing, just display the buffer
@@ -421,7 +422,6 @@ static void render_scene( const Scene& scene )
     glVertex3f(0.0, 0.0, -10.0);
     glVertex3f(0.0, 0.0, 10.0);
     glEnd();
-
     Geometry* const* geometries = scene.get_geometries();
 
     for ( size_t i = 0; i < scene.num_geometries(); ++i )
