@@ -41,14 +41,15 @@ bool Raytracer::initialize(Scene* scene0, size_t width0, size_t height0)
     for (size_t i = 0; i < num_geometries; i++)
     {
         make_inverse_transformation_matrix(&scene->get_geometries()[i]->inverse_transform_matrix,
-                                           scene->get_geometries()[i]->position, scene->get_geometries()[i]->orientation,
-                                           scene->get_geometries()[i]->scale);
+                scene->get_geometries()[i]->position,
+                scene->get_geometries()[i]->orientation,
+                scene->get_geometries()[i]->scale);
         make_transformation_matrix(&scene->get_geometries()[i]->transform_matrix,
-                                   scene->get_geometries()[i]->position,
-                                   scene->get_geometries()[i]->orientation,
-                                   scene->get_geometries()[i]->scale);
+                scene->get_geometries()[i]->position,
+                scene->get_geometries()[i]->orientation,
+                scene->get_geometries()[i]->scale);
         make_normal_matrix(&scene->get_geometries()[i]->normal_matrix,
-                           scene->get_geometries()[i]->transform_matrix);
+                scene->get_geometries()[i]->transform_matrix);
 
         // calculate bounding volume for models
         scene->get_geometries()[i]->make_bounding_volume();
@@ -239,17 +240,18 @@ Vector3 Raytracer::get_viewing_ray(Vector3 e, Int2 pixel, size_t width, size_t h
 }
 
 // parameters are the four ray origin coordinates on the screen, the camera/eye
-// position, and the dimensions of the screen, and a place to store the 
-// frustum planes
+// position, the dimensions of the screen, and a place to store the frustum.
 void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll,
         Int2 lr, Vector3 e, size_t width, size_t height, Frustum frustum)
 {
     real_t near = scene->camera.get_near_clip();
     real_t far = scene->camera.get_far_clip();
+    // work seems like it's being duplicated here... TODO
     Vector3 ray_ul = get_viewing_ray(e, ul, width, height);
     Vector3 ray_ur = get_viewing_ray(e, ur, width, height);
     Vector3 ray_ll = get_viewing_ray(e, ll, width, height);
     Vector3 ray_lr = get_viewing_ray(e, lr, width, height);
+
 
 }
 
