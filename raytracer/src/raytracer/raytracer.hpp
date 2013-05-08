@@ -19,15 +19,15 @@ struct Int2
     Int2(int _x, int _y) : x(_x), y(_y) { }
 };
 
-typedef struct Plane_t
+struct Plane
 {
     // define elements of a Plane
-} Plane;
+};
 
-typedef struct Frustum_t
+struct Frustum
 {
     // define top, bottom, left, right, front, back planes
-} Frustum;
+};
 
 class Scene;
 
