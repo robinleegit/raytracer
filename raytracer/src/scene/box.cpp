@@ -7,7 +7,6 @@ using namespace std;
 namespace _462
 {
 
-
 bool Box::intersect(Vector3 e, Vector3 r) const
 {
     double tmin = -INFINITY, tmax = INFINITY;

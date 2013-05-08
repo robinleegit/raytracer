@@ -16,10 +16,6 @@ BvhNode::BvhNode(const Mesh *_mesh, int *indices, int start, int end)
     mesh = _mesh;
 
     mid_idx = (start + end) / 2;
-    if (mid_idx > 8)
-    {
-        cout << mid_idx << "  ";
-    }
 
     left = NULL;
     right = NULL;
