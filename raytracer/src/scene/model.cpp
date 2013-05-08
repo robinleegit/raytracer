@@ -38,16 +38,20 @@ void Model::render() const
 
 bool Model::intersect(Vector3 e, Vector3 ray, struct SceneInfo *info) const
 {
-    // first check intersection with bounding sphere
+    // first check intersection with bounding box
     Vector3 instance_e = inverse_transform_matrix.transform_point(e);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
     vector<int> winners;
     
     if (!bvh->intersect(instance_e, instance_ray, winners))
+    {
         return false;
+    }
 
-    // if it intersects, loop over all triangles in the mesh and find closest hit, if any
+    if (winners.size() > 1) {cout << winners.size() << "  ";}
+
+    // if it intersects, loop over all triangles in winners and find closest hit, if any
     float min_time = -1.0;
     unsigned int v0, v1, v2;
     float x0, y0, z0, x1, y1, z1, x2, y2, z2;
@@ -261,7 +265,7 @@ void Model::make_bounding_volume()
 
     cout << "Creating BVH node " << endl;
     bvh = new BvhNode(mesh, indices, 0, num_triangles);
-    cout << bvh << endl;
+    //cout << bvh << endl;
     bvh->print();
     cout << endl;
 
