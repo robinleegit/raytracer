@@ -98,82 +98,11 @@ bool Model::shadow_test(Vector3 e, Vector3 ray) const
     Vector3 instance_e = inverse_transform_matrix.transform_point(e);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
-    vector<int> winners;
-    //bvh->intersect(instance_e, instance_ray, winners);
-    for (int i = 0; i < mesh->num_triangles(); i++)
-    {
-        winners.push_back(i);
-    }
-    if (winners.size() == 0)
-        return false;
+    float min_time = INFINITY, min_beta = INFINITY, min_gamma = INFINITY;
+    size_t min_index = 0;
 
-    // if it intersects, loop over all triangles in the mesh and find closest hit, if any
-    unsigned int v0, v1, v2;
-    float x0, y0, z0, x1, y1, z1, x2, y2, z2;
-    float beta, gamma;
-    float t;
-
-    for (size_t s = 0; s < winners.size(); s++)
-    {
-        int win_idx = winners[s];
-        MeshTriangle triangle = mesh->get_triangles()[win_idx];
-        v0 = triangle.vertices[0];
-        v1 = triangle.vertices[1];
-        v2 = triangle.vertices[2];
-        x0 = mesh->get_vertices()[v0].position.x;
-        y0 = mesh->get_vertices()[v0].position.y;
-        z0 = mesh->get_vertices()[v0].position.z;
-        x1 = mesh->get_vertices()[v1].position.x;
-        y1 = mesh->get_vertices()[v1].position.y;
-        z1 = mesh->get_vertices()[v1].position.z;
-        x2 = mesh->get_vertices()[v2].position.x;
-        y2 = mesh->get_vertices()[v2].position.y;
-        z2 = mesh->get_vertices()[v2].position.z;
-
-        float a = x0 - x1;
-        float b = y0 - y1;
-        float c = z0 - z1;
-        float d = x0 - x2;
-        float e0 = y0 - y2;
-        float f = z0 - z2;
-        float g = instance_ray.x;
-        float h = instance_ray.y;
-        float i = instance_ray.z;
-        float j = x0 - instance_e.x;
-        float k = y0 - instance_e.y;
-        float l = z0 - instance_e.z;
-        float ei_minus_hf = e0 * i - h * f;
-        float gf_minus_di = g * f - d * i;
-        float dh_minus_eg = d * h - e0 * g;
-        float ak_minus_jb = a * k - j * b;
-        float jc_minus_al = j * c - a * l;
-        float bl_minus_kc = b * l - k * c;
-        float m = a * ei_minus_hf + b * gf_minus_di + c * dh_minus_eg;
-        t = -1.0 * (f * ak_minus_jb + e0 * jc_minus_al + d * bl_minus_kc) / m;
-
-        if (t < 0.0)
-        {
-            continue;
-        }
-
-        gamma = (i * ak_minus_jb + h * jc_minus_al + g * bl_minus_kc) / m;
-
-        if (gamma < 0.0 || gamma > 1.0)
-        {
-            continue;
-        }
-
-        beta = (j * ei_minus_hf + k * gf_minus_di + l * dh_minus_eg) / m;
-
-        if (beta < 0.0 || beta > 1.0 - gamma)
-        {
-            continue;
-        }
-
-        return true;
-    }
-
-    return false;
+    return bvh->intersect(instance_e, instance_ray, min_time, min_index,
+                min_beta, min_gamma);
 }
 
 void Model::make_bounding_volume()
