@@ -43,7 +43,7 @@ bool Box::intersect(Vector3 e, Vector3 r) const
     return tmax >= tmin;
 }
 
-Box::Box(const Mesh* mesh, int n, int m)
+Box::Box(const Mesh* mesh, int *indices, int n, int m)
 {
     min_corner.x = INFINITY;
     min_corner.y = INFINITY;
@@ -53,18 +53,14 @@ Box::Box(const Mesh* mesh, int n, int m)
     max_corner.y = -INFINITY;
     max_corner.z = -INFINITY;
 
-    cout << "Creating bounding box for triangles " << n << " -> " << m << endl;
-
     for (size_t i = n; i < m; i++)
     {
-        MeshTriangle t = mesh->get_triangles()[i];
+        MeshTriangle t = mesh->get_triangles()[indices[i]];
 
         for (size_t j = 0; j < 3; j++)
         {
             int vidx = t.vertices[j];
             MeshVertex v = mesh->get_vertices()[vidx];
-
-            cout << "Vertex = " << v.position << endl;
 
             min_corner.x = min(min_corner.x, v.position.x);
             max_corner.x = max(max_corner.x, v.position.x);

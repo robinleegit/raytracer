@@ -20,6 +20,7 @@ public:
     const Material* material;
 
     BvhNode* bvh;
+    Box bbox;
 
     Model();
     virtual ~Model();

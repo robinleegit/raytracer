@@ -263,7 +263,10 @@ void Model::make_bounding_volume()
     bvh = new BvhNode(mesh, indices, 0, num_triangles);
     cout << bvh << endl;
     bvh->print();
+    cout << endl;
 
+    cout << "min corner: " << bvh->left->left->left_bbox.min_corner << endl;
+    cout << "max corner: " << bvh->left_bbox.max_corner << endl;
     delete indices;
 }
 
