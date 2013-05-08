@@ -16,7 +16,10 @@ BvhNode::BvhNode(const Mesh *_mesh, int *indices, int start, int end)
     mesh = _mesh;
 
     mid_idx = (start + end) / 2;
-    if (mid_idx > 8) {cout << mid_idx << "  ";}
+    if (mid_idx > 8)
+    {
+        cout << mid_idx << "  ";
+    }
 
     left = NULL;
     right = NULL;
@@ -63,7 +66,7 @@ void BvhNode::print()
 }
 
 bool BvhNode::intersect(Vector3 e, Vector3 ray, float &min_time, size_t &min_index,
-        float &min_beta, float &min_gamma)
+                        float &min_beta, float &min_gamma)
 {
     bool ret = false;
 
@@ -94,14 +97,14 @@ bool BvhNode::intersect(Vector3 e, Vector3 ray, float &min_time, size_t &min_ind
     if (left_bbox.intersect(e, ray))
     {
         bool l_inter = left->intersect(e, ray, min_time, min_index,
-                min_beta, min_gamma);
+                                       min_beta, min_gamma);
         ret = ret || l_inter;
     }
 
     if (right_bbox.intersect(e, ray))
     {
         bool r_inter = right->intersect(e, ray, min_time, min_index,
-                min_beta, min_gamma);
+                                        min_beta, min_gamma);
         ret = ret || r_inter;
     }
 

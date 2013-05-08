@@ -21,7 +21,7 @@ public:
     BvhNode(const Mesh* _mesh, int *indices, int start, int end);
     ~BvhNode();
     bool intersect(Vector3 e, Vector3 ray, float &min_time, size_t &min_index,
-            float &min_beta, float &min_gamma);
+                   float &min_beta, float &min_gamma);
     void print();
 };
 

@@ -46,7 +46,7 @@ bool Model::intersect(Vector3 e, Vector3 ray, struct SceneInfo *info) const
     size_t min_index = 0;
 
     if (!bvh->intersect(instance_e, instance_ray, min_time, min_index,
-                min_beta, min_gamma))
+                        min_beta, min_gamma))
     {
         return false;
     }
@@ -102,7 +102,7 @@ bool Model::shadow_test(Vector3 e, Vector3 ray) const
     size_t min_index = 0;
 
     return bvh->intersect(instance_e, instance_ray, min_time, min_index,
-                min_beta, min_gamma);
+                          min_beta, min_gamma);
 }
 
 void Model::make_bounding_volume()

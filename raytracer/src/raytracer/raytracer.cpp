@@ -41,15 +41,15 @@ bool Raytracer::initialize(Scene* scene0, size_t width0, size_t height0)
     for (size_t i = 0; i < num_geometries; i++)
     {
         make_inverse_transformation_matrix(&scene->get_geometries()[i]->inverse_transform_matrix,
-                scene->get_geometries()[i]->position,
-                scene->get_geometries()[i]->orientation,
-                scene->get_geometries()[i]->scale);
+                                           scene->get_geometries()[i]->position,
+                                           scene->get_geometries()[i]->orientation,
+                                           scene->get_geometries()[i]->scale);
         make_transformation_matrix(&scene->get_geometries()[i]->transform_matrix,
-                scene->get_geometries()[i]->position,
-                scene->get_geometries()[i]->orientation,
-                scene->get_geometries()[i]->scale);
+                                   scene->get_geometries()[i]->position,
+                                   scene->get_geometries()[i]->orientation,
+                                   scene->get_geometries()[i]->scale);
         make_normal_matrix(&scene->get_geometries()[i]->normal_matrix,
-                scene->get_geometries()[i]->transform_matrix);
+                           scene->get_geometries()[i]->transform_matrix);
 
         // calculate bounding volume for models
         scene->get_geometries()[i]->make_bounding_volume();
@@ -206,7 +206,7 @@ Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
             return R * trace_pixel(scene, pixel, width, height, recursions + 1,
                                    reflection_point, incident_ray, refractive, extras) +
                    (1.0 - R) * trace_pixel(scene, pixel, width, height, recursions + 1,
-                                         refraction_point, transmitted_ray, min_refractive, extras);
+                                           refraction_point, transmitted_ray, min_refractive, extras);
         }
     }
     // didn't hit anything - return background color
@@ -253,35 +253,35 @@ void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
     Vector3 right = cross(gaze, up); // normalized camera right direction
     float fov = scene->camera.get_fov_radians();
     float aspect = scene->camera.get_aspect_ratio();
-	float h_near = 2.0 * tan(fov / 2.0) * near;
-	float w_near = h_near * aspect;
-	float h_far = 2.0 * tan(fov / 2.0) * far;
-	float w_far = h_far * aspect;
+    float h_near = 2.0 * tan(fov / 2.0) * near;
+    float w_near = h_near * aspect;
+    float h_far = 2.0 * tan(fov / 2.0) * far;
+    float w_far = h_far * aspect;
 
 
     // nc and fc are the centers of the front and back of the frustum;
     // the other points are the corners; "ntl" -> "near top left" etc
     // TODO wait do we even need the other points?
-	Vector3 nc = e + gaze * near;
-	Vector3 ntl = nc + (up * h_near / 2.0) - (right * w_near / 2.0);
-	Vector3 ntr = nc + (up * h_near / 2.0) + (right * w_near / 2.0);
-	Vector3 nbl = nc - (up * h_near / 2.0) - (right * w_near / 2.0);
-	Vector3 nbr = nc - (up * h_near / 2.0) + (right * w_near / 2.0);
-	Vector3 fc = e + gaze * far;
-	Vector3 ftl = fc + (up * h_far / 2.0) - (right * w_far / 2.0);
-	Vector3 ftr = fc + (up * h_far / 2.0) + (right * w_far / 2.0);
-	Vector3 fbl = fc - (up * h_far / 2.0) - (right * w_far / 2.0);
-	Vector3 fbr = fc - (up * h_far / 2.0) + (right * w_far / 2.0);
+    Vector3 nc = e + gaze * near;
+    Vector3 ntl = nc + (up * h_near / 2.0) - (right * w_near / 2.0);
+    Vector3 ntr = nc + (up * h_near / 2.0) + (right * w_near / 2.0);
+    Vector3 nbl = nc - (up * h_near / 2.0) - (right * w_near / 2.0);
+    Vector3 nbr = nc - (up * h_near / 2.0) + (right * w_near / 2.0);
+    Vector3 fc = e + gaze * far;
+    Vector3 ftl = fc + (up * h_far / 2.0) - (right * w_far / 2.0);
+    Vector3 ftr = fc + (up * h_far / 2.0) + (right * w_far / 2.0);
+    Vector3 fbl = fc - (up * h_far / 2.0) - (right * w_far / 2.0);
+    Vector3 fbr = fc - (up * h_far / 2.0) + (right * w_far / 2.0);
 
     ////////////////////////
-	frustum.ntl = ntl;
-	frustum.ntr = ntr;
-	frustum.nbl = nbl;
-	frustum.nbr = nbr;
-	frustum.ftl = ftl;
-	frustum.ftr = ftr;
-	frustum.fbl = fbl;
-	frustum.fbr = fbr;
+    frustum.ntl = ntl;
+    frustum.ntr = ntr;
+    frustum.nbl = nbl;
+    frustum.nbr = nbr;
+    frustum.ftl = ftl;
+    frustum.ftr = ftr;
+    frustum.fbl = fbl;
+    frustum.fbr = fbr;
     ///////////////////////
 
 
@@ -301,20 +301,20 @@ void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
     Vector3 aux;
 
     aux = (nc + right * w_near / 2.0) - e;
-	aux = normalize(aux);
-	frustum.right.normal = cross(up, aux);
+    aux = normalize(aux);
+    frustum.right.normal = cross(up, aux);
 
     aux = (nc - right * w_near / 2.0) - e;
-	aux = normalize(aux);
-	frustum.left.normal = cross(up, aux);
+    aux = normalize(aux);
+    frustum.left.normal = cross(up, aux);
 
     aux = (nc + up * h_near / 2.0) - e;
-	aux = normalize(aux);
-	frustum.top.normal = cross(up, aux);
+    aux = normalize(aux);
+    frustum.top.normal = cross(up, aux);
 
     aux = (nc - up * h_near / 2.0) - e;
-	aux = normalize(aux);
-	frustum.bottom.normal = cross(up, aux);
+    aux = normalize(aux);
+    frustum.bottom.normal = cross(up, aux);
 }
 
 
