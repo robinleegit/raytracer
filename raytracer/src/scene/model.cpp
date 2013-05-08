@@ -43,8 +43,8 @@ bool Model::intersect(Vector3 e, Vector3 ray, struct SceneInfo *info) const
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
     vector<int> winners;
-    bvh->intersect(instance_e, instance_ray, winners);
-    if (winners.size() == 0)
+    
+    if (!bvh->intersect(instance_e, instance_ray, winners))
         return false;
 
     // if it intersects, loop over all triangles in the mesh and find closest hit, if any

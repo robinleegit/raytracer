@@ -12,28 +12,20 @@ BvhNode::BvhNode(const Mesh *mesh, int *indices, int start, int end)
 {
     mid_idx = (start + end) / 2;
 
+    left = NULL;
+    right = NULL;
+
     if (end - start == 1)
     {
-        left = NULL;
-        right = NULL;
+        // We are a leaf node, so don't need to do anything else
         return;
     }
 
-    if (start == mid_idx)
-        left = NULL;
-    else
-        left = new BvhNode(mesh, indices, start, mid_idx);
+    left = new BvhNode(mesh, indices, start, mid_idx);
+    left_bbox = Box(mesh, indices, start, mid_idx);
 
-    if (mid_idx == end)
-        right = NULL;
-    else
-        right = new BvhNode(mesh, indices, mid_idx, end);
-
-    //if (right != NULL || left != NULL)
-    //{
-        left_bbox = Box(mesh, indices, start, mid_idx);
-        right_bbox = Box(mesh, indices, mid_idx, end);
-    //}
+    right = new BvhNode(mesh, indices, mid_idx, end);
+    right_bbox = Box(mesh, indices, mid_idx, end);
 }
 
 BvhNode::~BvhNode()
@@ -72,20 +64,14 @@ bool BvhNode::intersect(Vector3 e, Vector3 ray, std::vector<int>& winners)
         return true;
     }
 
-    if (left && left_bbox.intersect(e, ray))
+    if (left_bbox.intersect(e, ray))
     {
-        if (left->intersect(e, ray, winners))
-        {
-            ret = true;
-        }
+        ret = ret || left->intersect(e, ray, winners);
     }
 
-    if (right && right_bbox.intersect(e, ray))
+    if (right_bbox.intersect(e, ray))
     {
-        if (right->intersect(e, ray, winners))
-        {
-            ret = true;
-        }
+        ret = ret || right->intersect(e, ray, winners);
     }
 
     return ret;
