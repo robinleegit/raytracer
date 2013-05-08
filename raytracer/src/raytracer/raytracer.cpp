@@ -220,23 +220,21 @@ Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
 Vector3 Raytracer::get_viewing_ray(Vector3 e, Int2 pixel, size_t width, size_t height)
 {
     Vector3 g = scene->camera.get_direction();
-    Vector3 c_u = scene->camera.get_up();
+    g = normalize(g); // normalized camera direction
+    Vector3 up = scene->camera.get_up();
+    up = normalize(up); // normalized camera up direction
+    Vector3 right = cross(g, up); // normalized camera right direction
     float fov = scene->camera.get_fov_radians();
-    Vector3 w = normalize(g);
-    Vector3 u = normalize(cross(c_u, w));
-    Vector3 v = cross(w, u);
-    u = -1.0 * u;
-    // shirley uses the near plane for the below calculation; we'll just use 1
+    // Shirley uses the near plane for the below calculation; we'll just use 1
     real_t t = tan((width / height) * fov / 2.0);
     real_t r = (t * width) / height;
     real_t b = -1.0 * t;
     real_t l = -1.0 * r;
     real_t u_s = l + (r - l) * (pixel.x + 0.5) / width;
     real_t v_s = b + (t - b) * (pixel.y + 0.5) / height;
-    Vector3 s_minus_e = u_s * u + v_s * v + w;
+    Vector3 s_minus_e = u_s * right + v_s * up + g;
 
-    // viewing ray direction
-    return normalize(s_minus_e);
+    return normalize(s_minus_e); // viewing ray direction
 }
 
 // parameters are the four ray origin coordinates on the screen, the camera/eye
@@ -244,9 +242,26 @@ Vector3 Raytracer::get_viewing_ray(Vector3 e, Int2 pixel, size_t width, size_t h
 void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll,
                                     Int2 lr, Vector3 e, size_t width, size_t height, Frustum frustum)
 {
-    real_t near = scene->camera.get_near_clip();
-    real_t far = scene->camera.get_far_clip();
-    // work seems like it's being duplicated here... TODO
+    // TODO work seems like it's being duplicated here...
+    real_t near = scene->camera.get_near_clip(); // near plane distance
+    real_t far = scene->camera.get_far_clip(); // far plane distance
+    Vector3 g = scene->camera.get_direction();
+    g = normalize(g); // normalized camera direction
+    Vector3 up = scene->camera.get_up();
+    up = normalize(up); // normalized camera up direction
+    Vector3 right = cross(g, up); // normalized camera right direction
+    float fov = scene->camera.get_fov_radians();
+    float aspect = scene->camera.get_aspect_ratio();
+	float h_near = 2 * tan(fov / 2) * near;
+	float w_near = h_near * aspect;
+	float h_far = 2 * tan(fov / 2) * far;
+	float w_far = h_far * aspect;
+
+
+
+
+
+
     Vector3 ray_ul = get_viewing_ray(e, ul, width, height);
     Vector3 ray_ur = get_viewing_ray(e, ur, width, height);
     Vector3 ray_ll = get_viewing_ray(e, ll, width, height);

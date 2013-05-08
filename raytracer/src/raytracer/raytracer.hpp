@@ -27,6 +27,12 @@ struct Plane
 struct Frustum
 {
     // define top, bottom, left, right, front, back planes
+    Plane top;
+    Plane bottom;
+    Plane left;
+    Plane right;
+    Plane front;
+    Plane back;
 };
 
 class Scene;
