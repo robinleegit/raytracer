@@ -29,11 +29,11 @@ BvhNode::BvhNode(const Mesh *mesh, int *indices, int start, int end)
     else
         right = new BvhNode(mesh, indices, mid_idx, end);
 
-    if (right != NULL || left != NULL)
-    {
-        left_bbox = Box(mesh, start, mid_idx);
-        right_bbox = Box(mesh, mid_idx, end);
-    }
+    //if (right != NULL || left != NULL)
+    //{
+        left_bbox = Box(mesh, indices, start, mid_idx);
+        right_bbox = Box(mesh, indices, mid_idx, end);
+    //}
 }
 
 BvhNode::~BvhNode()
@@ -66,21 +66,25 @@ bool BvhNode::intersect(Vector3 e, Vector3 ray, std::vector<int>& winners)
 {
     bool ret = false;
 
-    if (left == NULL && right == NULL)
+    if (!left && !right)
     {
         winners.push_back(mid_idx);
         return true;
     }
-    else
-    {
-        if (left != NULL && left_bbox.intersect(e, ray))
-        {
-            ret = ret || left->intersect(e, ray, winners);
-        }
 
-        if (right != NULL && right_bbox.intersect(e, ray))
+    if (left && left_bbox.intersect(e, ray))
+    {
+        if (left->intersect(e, ray, winners))
         {
-            ret = ret || right->intersect(e, ray, winners);
+            ret = true;
+        }
+    }
+
+    if (right && right_bbox.intersect(e, ray))
+    {
+        if (right->intersect(e, ray, winners))
+        {
+            ret = true;
         }
     }
 
