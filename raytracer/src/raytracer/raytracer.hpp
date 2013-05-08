@@ -21,7 +21,9 @@ struct Int2
 
 struct Plane
 {
-    // define elements of a Plane
+    // a plane can be defined with a point and a normal!
+    Vector3 point;
+    Vector3 normal;
 };
 
 struct Frustum
