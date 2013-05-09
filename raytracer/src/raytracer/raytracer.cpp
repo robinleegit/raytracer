@@ -83,8 +83,8 @@ Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
 
     int max_recursion_depth = 3;
     float eps = 0.0001; // "slop factor"
-    Vector3 e;          // origin of our viewing ray
-    Vector3 ray;        // viewing ray
+    Vector3 eye; // origin of our viewing ray
+    Vector3 ray; // viewing ray
     size_t num_geometries = scene->num_geometries();
     bool hit = false;
     intersect_info info; // everything we're calculating from intersection
@@ -100,13 +100,13 @@ Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
     // if this is the first tracing pass, calculate viewing ray from camera
     if (recursions == 0)
     {
-        e = scene->camera.get_position();
+        eye = scene->camera.get_position();
         ray = get_viewing_ray(pixel, width, height);
     }
     // otherwise use the ray that's passed in
     else
     {
-        e = start_e;
+        eye = start_e;
         ray = start_ray;
     }
 
@@ -115,7 +115,7 @@ Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
     {
         // intersect returns true if there's a hit, false if not, and sets
         //  values in info struct
-        hit = scene->get_geometries()[i]->intersect_ray(e, ray, &info);
+        hit = scene->get_geometries()[i]->intersect_ray(eye, ray, &info);
 
         if (hit && info.i_time > eps)
         {
@@ -129,7 +129,7 @@ Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
                 min_specular = info.i_specular;
                 min_texture = info.i_texture;
                 min_refractive = info.i_refractive;
-                intersection_point = e + (min_time * ray);
+                intersection_point = eye + (min_time * ray);
             }
         }
     }
