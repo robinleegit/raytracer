@@ -66,14 +66,14 @@ bool Raytracer::initialize(Scene* _scene, size_t _width, size_t _height)
  * @param width The width of the screen in pixels.
  * @param height The height of the screen in pixels.
  * @param recursions The number of times the function has been called.
- * @param start_e The ray origin
+ * @param start_eye The ray origin
  * @param start_ray The ray direction
  * @param refractive The index of refraction surrounding the ray
  * @param extras Whether to turn extras on
  * @return The color of that pixel in the final image.
  */
 Color3 Raytracer::trace_pixel(Int2 pixel, size_t width, size_t height,
-        int recursions, Vector3 start_e, Vector3 start_ray,
+        int recursions, Vector3 start_eye, Vector3 start_ray,
         float refractive, bool extras)
 {
     assert(0 <= pixel.x && pixel.x < width);
@@ -104,7 +104,7 @@ Color3 Raytracer::trace_pixel(Int2 pixel, size_t width, size_t height,
     // otherwise use the ray that's passed in
     else
     {
-        eye = start_e;
+        eye = start_eye;
         ray = start_ray;
     }
 
@@ -243,9 +243,10 @@ Vector3 Raytracer::get_viewing_ray(Int2 pixel, size_t width, size_t height)
 // parameters are the four ray origin coordinates on the screen, the camera/eye
 // position, the dimensions of the screen, and a place to store the frustum.
 void Raytracer::get_viewing_frustum(Int2 ll, Int2 lr, Int2 ul, Int2 ur,
-                                    Vector3 eye, size_t width, size_t height,
-                                    Frustum &frustum)
+                                    size_t width, size_t height, Frustum &frustum)
 {
+    // camera position
+    Vector3 eye = scene->camera.get_position();
     // normalized camera direction
     Vector3 gaze = normalize(scene->camera.get_direction());
     // near and far clipping planes
@@ -375,7 +376,7 @@ void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
         int recursions, float refractive, bool extras, unsigned char *buffer)
 {
     // these are just placeholders; trace_pixels finds its own starting ray
-    Vector3 start_e = Vector3(0.0, 0.0, 0.0);
+    Vector3 start_eye = Vector3(0.0, 0.0, 0.0);
     Vector3 start_ray = Vector3(0.0, 0.0, 0.0);
 
     Int2 ul = packet.ul;
@@ -383,8 +384,7 @@ void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
     Int2 ll = packet.ll;
     Int2 lr = packet.lr;
     Frustum frustum;
-    get_viewing_frustum(ll, lr, ul, ur, start_e,
-            width, height, frustum);
+    get_viewing_frustum(ll, lr, ul, ur, width, height, frustum);
 
     // run frustum intersection test on every object in scene
     for (size_t i = 0; i < scene->num_geometries(); i++)
@@ -415,7 +415,7 @@ void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
                 {
                     Int2 pixel = Int2(x, y);
                     Color3 color = trace_pixel(pixel, width, height,
-                            0, start_e, start_ray, 1.0, false);
+                            0, start_eye, start_ray, 1.0, false);
                     color.to_array(&buffer[4 * (y * width + x)]);
                 }
             }
