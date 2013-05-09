@@ -94,9 +94,9 @@ void Sphere::render() const
         material->reset_gl_state();
 }
 
-bool Sphere::intersect_ray(Vector3 e, Vector3 ray, intersect_info *info) const
+bool Sphere::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
 {
-    Vector3 instance_e = inverse_transform_matrix.transform_point(e);
+    Vector3 instance_e = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
     // spheres are centered at zero in object space
@@ -142,9 +142,9 @@ bool Sphere::intersect_ray(Vector3 e, Vector3 ray, intersect_info *info) const
     return true;
 }
 
-bool Sphere::shadow_test(Vector3 e, Vector3 ray) const
+bool Sphere::shadow_test(Vector3 eye, Vector3 ray) const
 {
-    Vector3 instance_e = inverse_transform_matrix.transform_point(e);
+    Vector3 instance_e = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
     float discriminant = pow(dot(instance_ray, instance_e), 2)
@@ -173,6 +173,7 @@ void Sphere::make_bounding_volume()
 
 bool Sphere::intersect_frustum(Frustum frustum) const
 {
+    // don't care right now
     return true;
 }
 

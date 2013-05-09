@@ -19,8 +19,8 @@ public:
     Sphere();
     virtual ~Sphere();
     virtual void render() const;
-    virtual bool intersect_ray(Vector3 e, Vector3 ray, intersect_info *info) const;
-    virtual bool shadow_test(Vector3 e, Vector3 ray) const;
+    virtual bool intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const;
+    virtual bool shadow_test(Vector3 eye, Vector3 ray) const;
     virtual void make_bounding_volume();
     virtual bool intersect_frustum(Frustum frustum) const;
 };

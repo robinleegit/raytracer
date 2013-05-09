@@ -57,8 +57,8 @@ public:
      * Renders this geometry using OpenGL in the local coordinate space.
      */
     virtual void render() const = 0;
-    virtual bool intersect_ray(Vector3 e, Vector3 ray, intersect_info *info) const = 0;
-    virtual bool shadow_test(Vector3 e, Vector3 ray) const = 0;
+    virtual bool intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const = 0;
+    virtual bool shadow_test(Vector3 eye, Vector3 ray) const = 0;
     virtual void make_bounding_volume() = 0;
     virtual bool intersect_frustum(Frustum frustum) const = 0;
 };

@@ -4,7 +4,7 @@ using namespace std;
 
 namespace _462
 {
-bool triangle_ray_intersect(Vector3 e, Vector3 ray, Vector3 p0, Vector3 p1,
+bool triangle_ray_intersect(Vector3 eye, Vector3 ray, Vector3 p0, Vector3 p1,
                         Vector3 p2, float &min_time, float &min_gamma,
                         float &min_beta)
 {
@@ -26,22 +26,22 @@ bool triangle_ray_intersect(Vector3 e, Vector3 ray, Vector3 p0, Vector3 p1,
     float b = y0 - y1;
     float c = z0 - z1;
     float d = x0 - x2;
-    float e0 = y0 - y2;
+    float e = y0 - y2;
     float f = z0 - z2;
     float g = ray.x;
     float h = ray.y;
     float i = ray.z;
-    float j = x0 - e.x;
-    float k = y0 - e.y;
-    float l = z0 - e.z;
-    float ei_minus_hf = e0 * i - h * f;
+    float j = x0 - eye.x;
+    float k = y0 - eye.y;
+    float l = z0 - eye.z;
+    float ei_minus_hf = e * i - h * f;
     float gf_minus_di = g * f - d * i;
-    float dh_minus_eg = d * h - e0 * g;
+    float dh_minus_eg = d * h - e * g;
     float ak_minus_jb = a * k - j * b;
     float jc_minus_al = j * c - a * l;
     float bl_minus_kc = b * l - k * c;
     float m = a * ei_minus_hf + b * gf_minus_di + c * dh_minus_eg;
-    t = -1.0 * (f * ak_minus_jb + e0 * jc_minus_al + d * bl_minus_kc) / m;
+    t = -1.0 * (f * ak_minus_jb + e * jc_minus_al + d * bl_minus_kc) / m;
 
     if (t < 0.0)
     {
