@@ -107,13 +107,18 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
             }
         }
 
-        /*
         for (int i = 0; i < 3; i++)
         {
             triangle_less tl(mesh, i);
             sort(indices[i].begin(), indices[i].end(), tl);
+
+            cout << "Printing axis " << i << endl;
+            for (int j = 0; j < num_triangles; j++)
+            {
+                cout << indices[i][j] << " ";
+            }
+            cout << endl;
         }
-        */
 
         cout << "Indices creation took " << (CycleTimer::currentSeconds() - start) << "s" << endl
              << "Bvh creation took     " << (CycleTimer::currentSeconds() - bvh_create_start) << "s" << endl;
@@ -156,9 +161,10 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
                 }
             }
         }
-    }*/
+    }*/ 
 
     int newaxis = 0;//(axis + 1) % 3;
+
     left = new BvhNode(mesh, indices, start, mid_idx, newaxis);
     left_bbox = Box(mesh, indices[newaxis], start, mid_idx);
 
@@ -180,7 +186,10 @@ BvhNode::~BvhNode()
 void BvhNode::print()
 {
     cout << "{";
-    cout << mid_idx;
+    if (!left && !right)
+        cout << start_triangle << " -> " << end_triangle;
+    else
+        cout << mid_idx;
     if (!(left == NULL && right == NULL))
     {
         if (left != NULL)
