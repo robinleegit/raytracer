@@ -101,7 +101,7 @@ Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
     if (recursions == 0)
     {
         e = scene->camera.get_position();
-        ray = get_viewing_ray(e, pixel, width, height);
+        ray = get_viewing_ray(pixel, width, height);
     }
     // otherwise use the ray that's passed in
     else
@@ -217,109 +217,70 @@ Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
 }
 
 // calculate direction of initial viewing ray from camera
-Vector3 Raytracer::get_viewing_ray(Vector3 e, Int2 pixel, size_t width, size_t height)
+Vector3 Raytracer::get_viewing_ray(Int2 pixel, size_t width, size_t height)
 {
-    Vector3 gaze = scene->camera.get_direction();
-    gaze = normalize(gaze); // normalized camera direction
-    Vector3 up = scene->camera.get_up();
-    up = normalize(up); // normalized camera up direction
-    // TODO should we precompute right to eliminate the cross product operation?
-    Vector3 right = cross(gaze, up); // normalized camera right direction
+    // normalized camera direction
+    Vector3 gaze = normalize(scene->camera.get_direction());
+    // normalized camera up direction
+    Vector3 up = normalize(scene->camera.get_up());
+    // normalized camera right direction
+    Vector3 right = cross(gaze, up);
+    // camera field of view
     float fov = scene->camera.get_fov_radians();
-    // Shirley uses the near plane for the below calculation; we'll just use 1
+    // t, b, r, and l are the border disances of the image plane
     real_t t = tan((width / height) * fov / 2.0);
     real_t r = (t * width) / height;
     real_t b = -1.0 * t;
     real_t l = -1.0 * r;
-    real_t u_s = l + (r - l) * (pixel.x + 0.5) / width;
-    real_t v_s = b + (t - b) * (pixel.y + 0.5) / height;
-    Vector3 s_minus_e = u_s * right + v_s * up + gaze;
+    // the pixel's horizontal coordinate on image plane
+    real_t u = l + (r - l) * (pixel.x + 0.5) / width; 
+    // the pixel's vertical coordinate on image plane
+    real_t v = b + (t - b) * (pixel.y + 0.5) / height;
+    // Shirley uses the near plane for the below calculation; we'll just use 1
+    Vector3 view_ray = gaze + (u * right) + (v * up);
 
-    return normalize(s_minus_e); // viewing ray direction
+    return normalize(view_ray); // viewing ray direction
 }
 
 // parameters are the four ray origin coordinates on the screen, the camera/eye
 // position, the dimensions of the screen, and a place to store the frustum.
 void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
-                                    Vector3 e, size_t width, size_t height,
-                                    Frustum& frustum)
+                                    Vector3 eye, size_t width, size_t height,
+                                    Frustum &frustum)
 {
-    real_t near = scene->camera.get_near_clip(); // near plane distance
-    real_t far = scene->camera.get_far_clip(); // far plane distance
-    Vector3 gaze = scene->camera.get_direction();
-    gaze = normalize(gaze); // normalized camera direction
-    Vector3 up = scene->camera.get_up();
-    up = normalize(up); // normalized camera up direction
-    Vector3 right = cross(gaze, up); // normalized camera right direction
-    float fov = scene->camera.get_fov_radians();
-    float aspect = scene->camera.get_aspect_ratio();
-    float h_near = 2.0 * tan(fov / 2.0) * near;
-    float w_near = h_near * aspect;
-    float h_far = 2.0 * tan(fov / 2.0) * far;
-    float w_far = h_far * aspect;
+    // normalized camera direction
+    Vector3 gaze = normalize(scene->camera.get_direction());
+    // near and far clipping planes
+    real_t near = scene->camera.get_near_clip();
+    real_t far = scene->camera.get_far_clip();
 
+    // directions of the frustum's corner rays
+    Vector3 ul_ray = get_viewing_ray(ul, width, height);
+    Vector3 ur_ray = get_viewing_ray(ur, width, height);
+    Vector3 ll_ray = get_viewing_ray(ll, width, height);
+    Vector3 lr_ray = get_viewing_ray(lr, width, height);
 
-    // nc and fc are the centers of the front and back of the frustum;
-    // the other points are the corners; "ntl" -> "near top left" etc
-    // TODO wait do we even need the other points?
-    Vector3 nc = e + gaze * near;
-    Vector3 ntl = nc + (up * h_near / 2.0) - (right * w_near / 2.0);
-    Vector3 ntr = nc + (up * h_near / 2.0) + (right * w_near / 2.0);
-    Vector3 nbl = nc - (up * h_near / 2.0) - (right * w_near / 2.0);
-    Vector3 nbr = nc - (up * h_near / 2.0) + (right * w_near / 2.0);
-    Vector3 fc = e + gaze * far;
-    Vector3 ftl = fc + (up * h_far / 2.0) - (right * w_far / 2.0);
-    Vector3 ftr = fc + (up * h_far / 2.0) + (right * w_far / 2.0);
-    Vector3 fbl = fc - (up * h_far / 2.0) - (right * w_far / 2.0);
-    Vector3 fbr = fc - (up * h_far / 2.0) + (right * w_far / 2.0);
+    // get side planes' normals by crossing them
+    // these normals will point INWARD
+    frustum.planes[TOP].normal = cross(ul_ray, ur_ray);
+    frustum.planes[RIGHT].normal = cross(ur_ray, lr_ray);
+    frustum.planes[BOTTOM].normal = cross(lr_ray, ll_ray);
+    frustum.planes[LEFT].normal = cross(ll_ray, ul_ray);
 
-    ////////////////////////
-    frustum.ntl = ntl;
-    frustum.ntr = ntr;
-    frustum.nbl = nbl;
-    frustum.nbr = nbr;
-    frustum.ftl = ftl;
-    frustum.ftr = ftr;
-    frustum.fbl = fbl;
-    frustum.fbr = fbr;
-    ///////////////////////
+    // gaze and negative gaze are normals for front and back
+    frustum.planes[FRONT].normal = gaze;
+    frustum.planes[BACK].normal = -1.0 * gaze;
 
-
-
+    // centers of the front and back planes
+    frustum.planes[FRONT].point = eye + gaze * near;
+    frustum.planes[BACK].point = eye + gaze * far;
 
     // camera position is a point on top, bottom, left, and right planes
-    frustum.front.point = nc;
-    frustum.back.point = fc;
-    frustum.top.point = e;
-    frustum.bottom.point = e;
-    frustum.left.point = e;
-    frustum.right.point = e;
-
-    frustum.front.normal = gaze;
-    frustum.back.normal = -1.0 * gaze;
-
-    Vector3 aux;
-
-    aux = (nc + right * w_near / 2.0) - e;
-    aux = normalize(aux);
-    frustum.right.normal = cross(up, aux);
-
-    aux = (nc - right * w_near / 2.0) - e;
-    aux = normalize(aux);
-    frustum.left.normal = cross(up, aux);
-
-    aux = (nc + up * h_near / 2.0) - e;
-    aux = normalize(aux);
-    frustum.top.normal = cross(up, aux);
-
-    aux = (nc - up * h_near / 2.0) - e;
-    aux = normalize(aux);
-    frustum.bottom.normal = cross(up, aux);
+    frustum.planes[TOP].point = eye;
+    frustum.planes[BOTTOM].point = eye;
+    frustum.planes[LEFT].point = eye;
+    frustum.planes[RIGHT].point = eye;
 }
-
-
-
-
 
 // calculate contribution of all lights to diffuse light
 Color3 Raytracer::get_diffuse(Vector3 intersection_point, Vector3 min_normal,

@@ -4,6 +4,7 @@
 #include "math/color.hpp"
 #include "scene/scene.hpp"
 #include "tsqueue.hpp"
+#include "geom_utils.hpp"
 
 namespace _462
 {
@@ -17,34 +18,6 @@ struct Int2
         y = 0;
     }
     Int2(int _x, int _y) : x(_x), y(_y) { }
-};
-
-struct Plane
-{
-    // a plane can be defined with a point and a normal!
-    Vector3 point;
-    Vector3 normal;
-};
-
-struct Frustum
-{
-    // define top, bottom, left, right, front, back planes
-    Plane top;
-    Plane bottom;
-    Plane left;
-    Plane right;
-    Plane front;
-    Plane back;
-
-    Vector3 ntl;
-    Vector3 ntr;
-    Vector3 nbl;
-    Vector3 nbr;
-    Vector3 ftl;
-    Vector3 ftr;
-    Vector3 fbl;
-    Vector3 fbr;
-
 };
 
 class Scene;
@@ -67,7 +40,7 @@ public:
 
     bool raytrace(unsigned char* buffer, real_t* max_time, bool extras, int numthreads);
 
-    Vector3 get_viewing_ray(Vector3 e, Int2 pixel, size_t width, size_t height);
+    Vector3 get_viewing_ray(Int2 pixel, size_t width, size_t height);
 
     void get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
                              Vector3 e, size_t width, size_t height, Frustum& frustum);
@@ -77,7 +50,6 @@ public:
 
     bool refract(Vector3 d, Vector3 normal, float n, Vector3 *t);
 
-
 private:
 
     // the scene to trace
@@ -85,7 +57,6 @@ private:
 
     // the dimensions of the image to trace
     size_t width, height;
-
 };
 
 } /* _462 */

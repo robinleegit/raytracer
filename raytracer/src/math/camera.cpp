@@ -69,7 +69,6 @@ void Camera::pitch( real_t radians )
     rotate( orientation * Vector3::UnitX, radians );
 }
 
-
 void Camera::roll( real_t radians )
 {
     rotate( orientation * Vector3::UnitZ, radians );
