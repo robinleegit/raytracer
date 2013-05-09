@@ -27,11 +27,11 @@ Raytracer::~Raytracer() { }
  * @return true on success, false on error. The raytrace will abort if
  *  false is returned.
  */
-bool Raytracer::initialize(Scene* scene0, size_t width0, size_t height0)
+bool Raytracer::initialize(Scene* _scene, size_t _width, size_t _height)
 {
-    this->scene = scene0;
-    this->width = width0;
-    this->height = height0;
+    this->scene = _scene;
+    this->width = _width;
+    this->height = _height;
 
     size_t num_geometries = scene->num_geometries();
 
@@ -72,9 +72,9 @@ bool Raytracer::initialize(Scene* scene0, size_t width0, size_t height0)
  * @param extras Whether to turn extras on
  * @return The color of that pixel in the final image.
  */
-Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
-                              size_t width, size_t height, int recursions, Vector3 start_e,
-                              Vector3 start_ray, float refractive, bool extras)
+Color3 Raytracer::trace_pixel(Int2 pixel, size_t width, size_t height,
+        int recursions, Vector3 start_e, Vector3 start_ray,
+        float refractive, bool extras)
 {
     assert(0 <= pixel.x && pixel.x < width);
     assert(0 <= pixel.y && pixel.y < height);
@@ -156,8 +156,8 @@ Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
                 return direct;
             }
 
-            return direct + min_texture * min_specular * trace_pixel(scene,
-                    pixel, width, height, recursions + 1, reflection_point,
+            return direct + min_texture * min_specular * trace_pixel( pixel,
+                    width, height, recursions + 1, reflection_point,
                     incident_ray, refractive, extras);
 
         }
@@ -190,7 +190,7 @@ Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
                 // total internal reflection
                 else
                 {
-                    return trace_pixel(scene, pixel, width, height, recursions + 1,
+                    return trace_pixel(pixel, width, height, recursions + 1,
                                        reflection_point, incident_ray, refractive, extras);
                 }
             }
@@ -201,9 +201,9 @@ Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
             Vector3 refraction_point = intersection_point + eps * transmitted_ray;
 
             // return reflected and refracted rays
-            return R * trace_pixel(scene, pixel, width, height, recursions + 1,
+            return R * trace_pixel(pixel, width, height, recursions + 1,
                                    reflection_point, incident_ray, refractive, extras) +
-                   (1.0 - R) * trace_pixel(scene, pixel, width, height, recursions + 1,
+                   (1.0 - R) * trace_pixel(pixel, width, height, recursions + 1,
                                            refraction_point, transmitted_ray, min_refractive, extras);
         }
     }
@@ -367,23 +367,22 @@ void Raytracer::trace_packet_worker(tsqueue<Packet> *packet_queue, unsigned char
             break;
         }
 
-        trace_packet(scene, packet, width, height, 0, 1.0, false);
-        // TODO confused about where scene comes from
+        trace_packet(packet, width, height, 0, 1.0, false, buffer);
     }
 }
 
-void trace_packet(const Scene* scene, Packet packet, size_t width, size_t height,
-        int recursions, float refractive, bool extras)
+void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
+        int recursions, float refractive, bool extras, unsigned char *buffer)
 {
     Vector3 start_e = Vector3(0.0, 0.0, 0.0);
     Vector3 start_ray = Vector3(0.0, 0.0, 0.0);
 
     // run frustum intersection test on every object in scene
-    for (size_t i = 0; i < num_geometries; i++)
+    for (size_t i = 0; i < scene->num_geometries(); i++)
     {
     }
 
-    Color3 color = trace_pixel(scene, pixel, width, height, 0, start_e, start_ray, 1.0, false);
+    Color3 color = trace_pixel(pixel, width, height, 0, start_e, start_ray, 1.0, false);
     color.to_array(&buffer[4 * (pixel.y * width + pixel.x)]);
 
 

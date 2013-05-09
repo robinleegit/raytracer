@@ -35,13 +35,12 @@ public:
 
     ~Raytracer();
 
-    bool initialize( Scene* scene, size_t width, size_t height );
+    bool initialize(Scene* _scene, size_t _width, size_t _height);
 
-    Color3 trace_pixel(const Scene* scene, Int2 pixel, size_t width,
-                       size_t height, int recursions, Vector3 start_e, Vector3 start_ray,
-                       float refractive, bool extras);
+    Color3 trace_pixel(Int2 pixel, size_t width, size_t height, int recursions,
+            Vector3 start_e, Vector3 start_ray, float refractive, bool extras);
 
-    void trace_pixel_worker(tsqueue<Int2> *pixel_queue, unsigned char *buffer);
+    void trace_packet_worker(tsqueue<Packet> *packet_queue, unsigned char *buffer);
 
     bool raytrace(unsigned char* buffer, real_t* max_time, bool extras, int numthreads);
 
@@ -55,8 +54,8 @@ public:
 
     bool refract(Vector3 d, Vector3 normal, float n, Vector3 *t);
 
-    void trace_packet(const Scene* scene, Packet packet, size_t width, size_t height,
-            int recursions, float refractive, bool extras);
+    void trace_packet(Packet packet, size_t width, size_t height,
+            int recursions, float refractive, bool extras, unsigned char* buffer);
 
 private:
 
