@@ -444,21 +444,20 @@ bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, bool extras, i
 
     for (size_t y = 0; y < height; y += PACKET_DIM)
     {
-
-        int ymax = y + PACKET_DIM;
+        int ymax = y + PACKET_DIM - 1;
 
         if (ymax >= height)
         {
-            ymax = y + height - y;
+            ymax = height - 1;
         }
 
         for (size_t x = 0; x < width; x += PACKET_DIM )
         {
-            int xmax = x + PACKET_DIM;
+            int xmax = x + PACKET_DIM - 1;
 
             if (xmax >= width)
             {
-                xmax = x + width - x;
+                xmax = width - 1;
             }
 
             Int2 ll(x, y);
