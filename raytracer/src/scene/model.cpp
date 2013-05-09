@@ -96,7 +96,6 @@ bool Model::intersect(Vector3 e, Vector3 ray, struct SceneInfo *info) const
 
 bool Model::shadow_test(Vector3 e, Vector3 ray) const
 {
-    // first check intersection with bounding sphere
     Vector3 instance_e = inverse_transform_matrix.transform_point(e);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
@@ -116,6 +115,23 @@ void Model::make_bounding_volume()
 
     bvh = new BvhNode(mesh, NULL, 0, 0, 0);
     bvh->print();
+}
+
+bool Model::intersect_frustum(Frustum frustum) const
+{
+    if (frustum_box_intersect(frustum, bvh->left_bbox.min_corner,
+            bvh->left_bbox.max_corner))
+    {
+        return true;
+    }
+
+    if (frustum_box_intersect(frustum, bvh->right_bbox.min_corner,
+            bvh->right_bbox.max_corner))
+    {
+        return true;
+    }
+
+    return false;
 }
 
 } /* _462 */

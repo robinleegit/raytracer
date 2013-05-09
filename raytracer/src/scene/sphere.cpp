@@ -171,5 +171,13 @@ void Sphere::make_bounding_volume()
     return;
 }
 
+bool Sphere::intersect_frustum(Frustum frustum) const
+{
+    return true;
+}
+
+
+
+
 } /* _462 */
 

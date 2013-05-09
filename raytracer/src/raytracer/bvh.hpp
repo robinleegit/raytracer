@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "scene/mesh.hpp"
+#include "geom_utils.hpp"
 
 namespace _462
 {

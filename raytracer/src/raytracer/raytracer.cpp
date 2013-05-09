@@ -377,6 +377,8 @@ void Raytracer::trace_pixel_worker(tsqueue<Int2> *pixel_queue, unsigned char *bu
     }
 }
 
+//void Raytracer::trace_packet(Vector3 
+
 /**
  * Raytraces some portion of the scene. Should raytrace for about
  * max_time duration and then return, even if the raytrace is not copmlete.

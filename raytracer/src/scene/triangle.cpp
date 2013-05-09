@@ -192,5 +192,10 @@ void Triangle::make_bounding_volume()
     return;
 }
 
+bool Triangle::intersect_frustum(Frustum frustum) const
+{
+    return true;
+}
+
 } /* _462 */
 
