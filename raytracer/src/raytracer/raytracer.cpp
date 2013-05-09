@@ -374,18 +374,53 @@ void Raytracer::trace_packet_worker(tsqueue<Packet> *packet_queue, unsigned char
 void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
         int recursions, float refractive, bool extras, unsigned char *buffer)
 {
+    // TODO need to figure out camera's current position
     Vector3 start_e = Vector3(0.0, 0.0, 0.0);
     Vector3 start_ray = Vector3(0.0, 0.0, 0.0);
+
+    Int2 ul = packet.ul;
+    Int2 ur = packet.ur;
+    Int2 ll = packet.ll;
+    Int2 lr = packet.lr;
+    Frustum frustum;
+    get_viewing_frustum(ul, ur, ll, lr, start_e,
+            width, height, frustum);
 
     // run frustum intersection test on every object in scene
     for (size_t i = 0; i < scene->num_geometries(); i++)
     {
+        bool hit = scene->get_geometries()[i]->intersect_frustum(frustum);
+
+        if (! hit) // no intersection
+        {
+            // TODO keep up/down straight
+            // TODO <=?
+            // TODO SIMD
+            // for every ray in the packet, set color in buffer for that pixel
+            // to scene background color
+            Color3 color = scene->background_color;
+            for (int x = ul.x; x <= ur.x; x++)
+            {
+                for (int y = ul.y; y <= lr.y; y++)
+                {
+                    color.to_array(&buffer[4 * (y * width + x)]);
+                }
+            }
+        }
+        else // trace each pixel in the packet
+        {
+            for (int x = ul.x; x <= ur.x; x++)
+            {
+                for (int y = ul.y; y <= lr.y; y++)
+                {
+                    Int2 pixel = Int2(x, y);
+                    Color3 color = trace_pixel(pixel, width, height,
+                            0, start_e, start_ray, 1.0, false);
+                    color.to_array(&buffer[4 * (y * width + x)]);
+                }
+            }
+        }
     }
-
-    Color3 color = trace_pixel(pixel, width, height, 0, start_e, start_ray, 1.0, false);
-    color.to_array(&buffer[4 * (pixel.y * width + pixel.x)]);
-
-
 }
 
 /**
