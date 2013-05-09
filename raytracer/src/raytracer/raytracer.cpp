@@ -6,7 +6,7 @@
 #include "raytracer.hpp"
 #include "CycleTimer.hpp"
 
-#define PACKET_DIM 8
+#define PACKET_DIM 128
 
 using namespace std;
 
@@ -374,7 +374,7 @@ void Raytracer::trace_packet_worker(tsqueue<Packet> *packet_queue, unsigned char
 void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
         int recursions, float refractive, bool extras, unsigned char *buffer)
 {
-    // TODO need to figure out camera's current position
+    // these are just placeholders; trace_pixels finds its own starting ray
     Vector3 start_e = Vector3(0.0, 0.0, 0.0);
     Vector3 start_ray = Vector3(0.0, 0.0, 0.0);
 
@@ -383,7 +383,7 @@ void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
     Int2 ll = packet.ll;
     Int2 lr = packet.lr;
     Frustum frustum;
-    get_viewing_frustum(ul, ur, ll, lr, start_e,
+    get_viewing_frustum(ll, lr, ul, ur, start_e,
             width, height, frustum);
 
     // run frustum intersection test on every object in scene
@@ -466,6 +466,14 @@ bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, bool extras, i
             Int2 ur(xmax, ymax);
             Packet packet(ll, lr, ul, ur);
             packet_queue.Push(packet);
+
+            /*
+            cout << "ll: (" << ll.x << ", " << ll.y << "), ";
+            cout << "lr: (" << lr.x << ", " << lr.y << "), ";
+            cout << "ul: (" << ul.x << ", " << ul.y << "), ";
+            cout << "ur: (" << ur.x << ", " << ur.y << ")";
+            cout << endl;
+            */
         }
     }
 

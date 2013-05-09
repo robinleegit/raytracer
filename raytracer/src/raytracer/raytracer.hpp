@@ -55,7 +55,7 @@ public:
 
     Vector3 get_viewing_ray(Int2 pixel, size_t width, size_t height);
 
-    void get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
+    void get_viewing_frustum(Int2 ll, Int2 lr, Int2 ul, Int2 ur,
                              Vector3 e, size_t width, size_t height, Frustum& frustum);
 
     Color3 get_diffuse(Vector3 intersection_point, Vector3 min_normal,
