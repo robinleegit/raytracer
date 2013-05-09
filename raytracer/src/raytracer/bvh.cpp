@@ -122,16 +122,6 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
             cout << endl;
         }
 
-        /*
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < num_triangles; j ++ )
-            {
-                swap(indices[i][j], indices[i][num_triangles - j - 1]);
-            }
-        }
-        */
-
         cout << "Indices creation took " << (CycleTimer::currentSeconds() - start) << "s" << endl
              << "Bvh creation took     " << (CycleTimer::currentSeconds() - bvh_create_start) << "s" << endl;
     }
@@ -146,12 +136,6 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
         // We are a leaf node
         start_triangle = start;
         end_triangle = end;
-
-        /*
-        for (int i = start; i < end; i++)
-            cout << indices[0][i] << " ";
-        cout << endl;
-        */
 
         return;
     }
