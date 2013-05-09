@@ -12,33 +12,33 @@ using namespace std;
 namespace _462
 {
 
-bool Box::intersect_ray(Vector3 e, Vector3 r) const
+bool Box::intersect_ray(Vector3 eye, Vector3 ray) const
 {
     double tmin = -INFINITY, tmax = INFINITY;
 
 
-    if (r.x != 0.0)
+    if (ray.x != 0.0)
     {
-        double tx1 = (min_corner.x - e.x)/r.x;
-        double tx2 = (max_corner.x - e.x)/r.x;
+        double tx1 = (min_corner.x - eye.x) / ray.x;
+        double tx2 = (max_corner.x - eye.x) / ray.x;
 
         tmin = max(tmin, min(tx1, tx2));
         tmax = min(tmax, max(tx1, tx2));
     }
 
-    if (r.y != 0.0)
+    if (ray.y != 0.0)
     {
-        double ty1 = (min_corner.y - e.y)/r.y;
-        double ty2 = (max_corner.y - e.y)/r.y;
+        double ty1 = (min_corner.y - eye.y)/ray.y;
+        double ty2 = (max_corner.y - eye.y)/ray.y;
 
         tmin = max(tmin, min(ty1, ty2));
         tmax = min(tmax, max(ty1, ty2));
     }
 
-    if (r.z != 0.0)
+    if (ray.z != 0.0)
     {
-        double tz1 = (min_corner.z - e.z)/r.z;
-        double tz2 = (max_corner.z - e.z)/r.z;
+        double tz1 = (min_corner.z - eye.z)/ray.z;
+        double tz2 = (max_corner.z - eye.z)/ray.z;
 
         tmin = max(tmin, min(tz1, tz2));
         tmax = min(tmax, max(tz1, tz2));

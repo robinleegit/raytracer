@@ -44,7 +44,7 @@ public:
     Box() { }
     Box(const Mesh* mesh, std::vector<int>& indices, int n, int m);
     Vector3 min_corner, max_corner;
-    bool intersect_ray(Vector3 e, Vector3 r) const;
+    bool intersect_ray(Vector3 eye, Vector3 ray) const;
 };
 
 class BvhNode
