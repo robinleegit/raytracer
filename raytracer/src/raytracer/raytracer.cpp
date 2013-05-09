@@ -261,24 +261,24 @@ void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
     Vector3 lr_ray = get_viewing_ray(lr, width, height);
 
     // get side planes' normals by crossing them
-    frustum.top.normal = cross(ul_ray, ur_ray);
-    frustum.right.normal = cross(ur_ray, lr_ray);
-    frustum.bottom.normal = cross(lr_ray, ll_ray);
-    frustum.left.normal = cross(ll_ray, ul_ray);
+    frustum.planes[TOP].normal = cross(ul_ray, ur_ray);
+    frustum.planes[RIGHT].normal = cross(ur_ray, lr_ray);
+    frustum.planes[BOTTOM].normal = cross(lr_ray, ll_ray);
+    frustum.planes[LEFT].normal = cross(ll_ray, ul_ray);
 
     // gaze and negative gaze are normals for front and back
-    frustum.front.normal = gaze;
-    frustum.back.normal = -1.0 * gaze;
+    frustum.planes[FRONT].normal = gaze;
+    frustum.planes[BACK].normal = -1.0 * gaze;
 
     // centers of the front and back planes
-    frustum.front.point = eye + gaze * near;
-    frustum.back.point = eye + gaze * far;
+    frustum.planes[FRONT].point = eye + gaze * near;
+    frustum.planes[BACK].point = eye + gaze * far;
 
     // camera position is a point on top, bottom, left, and right planes
-    frustum.top.point = eye;
-    frustum.bottom.point = eye;
-    frustum.left.point = eye;
-    frustum.right.point = eye;
+    frustum.planes[TOP].point = eye;
+    frustum.planes[BOTTOM].point = eye;
+    frustum.planes[LEFT].point = eye;
+    frustum.planes[RIGHT].point = eye;
 }
 
 // calculate contribution of all lights to diffuse light

@@ -8,6 +8,8 @@
 namespace _462
 {
 
+enum plane_sides {FRONT, BACK, TOP, BOTTOM, LEFT, RIGHT};
+
 struct Int2
 {
     int x, y;
@@ -28,13 +30,8 @@ struct Plane
 
 struct Frustum
 {
-    // define top, bottom, left, right, front, back planes
-    Plane top;
-    Plane bottom;
-    Plane left;
-    Plane right;
-    Plane front;
-    Plane back;
+    // top, bottom, left, right, front, back planes
+    Plane planes[6];
 };
 
 class Scene;
@@ -67,7 +64,6 @@ public:
 
     bool refract(Vector3 d, Vector3 normal, float n, Vector3 *t);
 
-
 private:
 
     // the scene to trace
@@ -75,7 +71,6 @@ private:
 
     // the dimensions of the image to trace
     size_t width, height;
-
 };
 
 } /* _462 */

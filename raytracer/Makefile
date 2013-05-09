@@ -5,9 +5,9 @@ SRC_DIR = src
 # top-level output directory (for .o and .d files)
 TOP_OBJ_DIR = bin
 
-# default to debug
+# default to release; other option is debug
 ifeq ($(MODE),)
-	MODE = debug
+	MODE = release
 endif
 
 SRCS = \
@@ -89,7 +89,7 @@ endif
 
 ifeq ($(MODE), release)
 	SUB_OBJ_DIR = release
-	CXXFLAGS += -O2
+	CXXFLAGS += -O3
 else ifeq ($(MODE), debug)
 	SUB_OBJ_DIR = debug
 	CXXFLAGS += -g -O0
