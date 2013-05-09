@@ -38,7 +38,7 @@ void Model::render() const
         material->reset_gl_state();
 }
 
-bool Model::intersect(Vector3 e, Vector3 ray, struct SceneInfo *info) const
+bool Model::intersect_ray(Vector3 e, Vector3 ray, intersect_info *info) const
 {
     // first check intersection with bounding box
     Vector3 instance_e = inverse_transform_matrix.transform_point(e);
@@ -47,7 +47,7 @@ bool Model::intersect(Vector3 e, Vector3 ray, struct SceneInfo *info) const
     float min_time = INFINITY, min_beta = INFINITY, min_gamma = INFINITY;
     size_t min_index = 0;
 
-    if (!bvh->intersect(instance_e, instance_ray, min_time, min_index,
+    if (!bvh->intersect_ray(instance_e, instance_ray, min_time, min_index,
                         min_beta, min_gamma))
     {
         return false;
@@ -102,7 +102,7 @@ bool Model::shadow_test(Vector3 e, Vector3 ray) const
     float min_time = INFINITY, min_beta = INFINITY, min_gamma = INFINITY;
     size_t min_index = 0;
 
-    return bvh->intersect(instance_e, instance_ray, min_time, min_index,
+    return bvh->intersect_ray(instance_e, instance_ray, min_time, min_index,
                           min_beta, min_gamma);
 }
 

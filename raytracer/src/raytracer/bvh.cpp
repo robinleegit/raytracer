@@ -12,7 +12,7 @@ using namespace std;
 namespace _462
 {
 
-bool Box::intersect(Vector3 e, Vector3 r) const
+bool Box::intersect_ray(Vector3 e, Vector3 r) const
 {
     double tmin = -INFINITY, tmax = INFINITY;
 
@@ -243,7 +243,7 @@ void BvhNode::print()
     cout << "}";
 }
 
-bool BvhNode::intersect(Vector3 e, Vector3 ray, float &min_time, size_t &min_index,
+bool BvhNode::intersect_ray(Vector3 e, Vector3 ray, float &min_time, size_t &min_index,
                         float &min_beta, float &min_gamma)
 {
     bool ret = false;
@@ -274,16 +274,16 @@ bool BvhNode::intersect(Vector3 e, Vector3 ray, float &min_time, size_t &min_ind
         return ret;
     }
 
-    if (left_bbox.intersect(e, ray))
+    if (left_bbox.intersect_ray(e, ray))
     {
-        bool l_inter = left->intersect(e, ray, min_time, min_index,
+        bool l_inter = left->intersect_ray(e, ray, min_time, min_index,
                                        min_beta, min_gamma);
         ret = ret || l_inter;
     }
 
-    if (right_bbox.intersect(e, ray))
+    if (right_bbox.intersect_ray(e, ray))
     {
-        bool r_inter = right->intersect(e, ray, min_time, min_index,
+        bool r_inter = right->intersect_ray(e, ray, min_time, min_index,
                                         min_beta, min_gamma);
         ret = ret || r_inter;
     }

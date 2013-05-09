@@ -87,7 +87,7 @@ Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
     Vector3 ray;        // viewing ray
     size_t num_geometries = scene->num_geometries();
     bool hit = false;
-    struct SceneInfo info; // everything we're calculating from intersection
+    intersect_info info; // everything we're calculating from intersection
     float min_time = -1.0;
     Vector3 min_normal = Vector3::Zero;
     Color3 min_ambient = Color3::Black;
@@ -115,7 +115,7 @@ Color3 Raytracer::trace_pixel(const Scene* scene, Int2 pixel,
     {
         // intersect returns true if there's a hit, false if not, and sets
         //  values in info struct
-        hit = scene->get_geometries()[i]->intersect(e, ray, &info);
+        hit = scene->get_geometries()[i]->intersect_ray(e, ray, &info);
 
         if (hit && info.i_time > eps)
         {

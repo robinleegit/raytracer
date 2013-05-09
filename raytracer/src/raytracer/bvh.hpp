@@ -44,7 +44,7 @@ public:
     Box() { }
     Box(const Mesh* mesh, std::vector<int>& indices, int n, int m);
     Vector3 min_corner, max_corner;
-    bool intersect(Vector3 e, Vector3 r) const;
+    bool intersect_ray(Vector3 e, Vector3 r) const;
 };
 
 class BvhNode
@@ -62,7 +62,7 @@ public:
 
     BvhNode(const Mesh *_mesh, std::vector<int> *_indices, int start, int end, int _axis);
     ~BvhNode();
-    bool intersect(Vector3 e, Vector3 ray, float &min_time, size_t &min_index,
+    bool intersect_ray(Vector3 e, Vector3 ray, float &min_time, size_t &min_index,
                    float &min_beta, float &min_gamma);
     void print();
 };

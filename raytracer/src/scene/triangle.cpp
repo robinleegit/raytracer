@@ -43,7 +43,7 @@ void Triangle::render() const
         vertices[0].material->reset_gl_state();
 }
 
-bool Triangle::intersect(Vector3 e, Vector3 ray, struct SceneInfo *info) const
+bool Triangle::intersect_ray(Vector3 e, Vector3 ray, intersect_info *info) const
 {
     Vector3 instance_e = inverse_transform_matrix.transform_point(e);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
