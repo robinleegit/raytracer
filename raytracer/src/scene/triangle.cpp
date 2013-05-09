@@ -138,7 +138,28 @@ void Triangle::make_bounding_volume()
 
 bool Triangle::intersect_frustum(Frustum frustum) const
 {
-    // don't care right now
+    // check each vertex against all planes
+    for (int i = 0; i < 6; i++)
+    {
+        int outside = 0;
+
+        for (int j = 0; j < 3; j++)
+        { 
+            Vector3 pos = vertices[j].position;
+            Plane plane = frustum.planes[i];
+
+            if (dot(pos - plane.point, plane.normal) < 0.0)
+            {
+                outside++;
+            }
+        } 
+
+        if (outside == 3)
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 
