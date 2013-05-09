@@ -4,8 +4,9 @@ using namespace std;
 
 namespace _462
 {
-bool triangle_intersect(Vector3 e, Vector3 ray, Vector3 p0, Vector3 p1,
-                        Vector3 p2, float &min_time, float &min_gamma, float &min_beta)
+bool triangle_ray_intersect(Vector3 e, Vector3 ray, Vector3 p0, Vector3 p1,
+                        Vector3 p2, float &min_time, float &min_gamma,
+                        float &min_beta)
 {
     float x0, y0, z0, x1, y1, z1, x2, y2, z2;
     float beta = 0.0, gamma = 0.0;
@@ -72,27 +73,5 @@ bool triangle_intersect(Vector3 e, Vector3 ray, Vector3 p0, Vector3 p1,
 
     return false;
 }
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -81,7 +81,8 @@ bool BvhNode::intersect(Vector3 e, Vector3 ray, float &min_time, size_t &min_ind
             p1 = mesh->get_vertices()[v1].position;
             p2 = mesh->get_vertices()[v2].position;
 
-            if (triangle_intersect(e, ray, p0, p1, p2, min_time, min_gamma, min_beta))
+            if (triangle_ray_intersect(e, ray, p0, p1, p2, min_time,
+                                       min_gamma, min_beta))
             {
                 min_index = s;
                 ret = true;
