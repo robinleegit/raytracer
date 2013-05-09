@@ -243,7 +243,7 @@ void BvhNode::print()
     cout << "}";
 }
 
-bool BvhNode::intersect_ray(Vector3 e, Vector3 ray, float &min_time, size_t &min_index,
+bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
                         float &min_beta, float &min_gamma)
 {
     bool ret = false;
@@ -263,7 +263,7 @@ bool BvhNode::intersect_ray(Vector3 e, Vector3 ray, float &min_time, size_t &min
             p1 = mesh->get_vertices()[v1].position;
             p2 = mesh->get_vertices()[v2].position;
 
-            if (triangle_ray_intersect(e, ray, p0, p1, p2, min_time,
+            if (triangle_ray_intersect(eye, ray, p0, p1, p2, min_time,
                                        min_gamma, min_beta))
             {
                 min_index = indices[axis][s];
@@ -274,21 +274,77 @@ bool BvhNode::intersect_ray(Vector3 e, Vector3 ray, float &min_time, size_t &min
         return ret;
     }
 
-    if (left_bbox.intersect_ray(e, ray))
+    if (left_bbox.intersect_ray(eye, ray))
     {
-        bool l_inter = left->intersect_ray(e, ray, min_time, min_index,
+        bool l_inter = left->intersect_ray(eye, ray, min_time, min_index,
                                        min_beta, min_gamma);
         ret = ret || l_inter;
     }
 
-    if (right_bbox.intersect_ray(e, ray))
+    if (right_bbox.intersect_ray(eye, ray))
     {
-        bool r_inter = right->intersect_ray(e, ray, min_time, min_index,
+        bool r_inter = right->intersect_ray(eye, ray, min_time, min_index,
                                         min_beta, min_gamma);
         ret = ret || r_inter;
     }
 
     return ret;
 }
+
+// this test will exit early if any triangle is hit
+bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float min_time, size_t min_index,
+        float min_beta, float min_gamma)
+{
+    bool ret = false;
+
+    if (!left && !right)
+    {
+        for (size_t s = start_triangle; s < end_triangle; s++)
+        {
+            unsigned int v0, v1, v2;
+            Vector3 p0, p1, p2;
+
+            MeshTriangle triangle = mesh->get_triangles()[indices[axis][s]];
+            v0 = triangle.vertices[0];
+            v1 = triangle.vertices[1];
+            v2 = triangle.vertices[2];
+            p0 = mesh->get_vertices()[v0].position;
+            p1 = mesh->get_vertices()[v1].position;
+            p2 = mesh->get_vertices()[v2].position;
+
+            if (triangle_ray_intersect(eye, ray, p0, p1, p2, min_time,
+                        min_gamma, min_beta))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    if (left_bbox.intersect_ray(eye, ray))
+    {
+        bool l_inter = left->intersect_ray(eye, ray, min_time, min_index,
+                                       min_beta, min_gamma);
+        ret = ret || l_inter;
+        
+    }
+
+    // no need to check the right side if left intersected
+    if (ret)
+    {
+        return true;
+    }
+
+    if (right_bbox.intersect_ray(eye, ray))
+    {
+        bool r_inter = right->intersect_ray(eye, ray, min_time, min_index,
+                                        min_beta, min_gamma);
+        ret = ret || r_inter;
+    }
+
+    return ret;
+}
+
 
 }

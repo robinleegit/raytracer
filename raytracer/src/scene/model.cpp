@@ -102,7 +102,7 @@ bool Model::shadow_test(Vector3 eye, Vector3 ray) const
     float min_time = INFINITY, min_beta = INFINITY, min_gamma = INFINITY;
     size_t min_index = 0;
 
-    return bvh->intersect_ray(instance_e, instance_ray, min_time, min_index,
+    return bvh->shadow_test(instance_e, instance_ray, min_time, min_index,
                           min_beta, min_gamma);
 }
 
