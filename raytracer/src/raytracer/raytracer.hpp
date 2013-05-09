@@ -55,6 +55,9 @@ public:
 
     bool refract(Vector3 d, Vector3 normal, float n, Vector3 *t);
 
+    void trace_packet(const Scene* scene, Packet packet, size_t width, size_t height,
+            int recursions, float refractive, bool extras);
+
 private:
 
     // the scene to trace

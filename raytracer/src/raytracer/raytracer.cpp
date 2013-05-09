@@ -355,27 +355,39 @@ bool Raytracer::refract(Vector3 d, Vector3 normal, float n, Vector3 *t)
     return true;
 }
 
-void Raytracer::trace_pixel_worker(tsqueue<Int2> *pixel_queue, unsigned char *buffer)
+void Raytracer::trace_packet_worker(tsqueue<Packet> *packet_queue, unsigned char *buffer)
 {
-    Vector3 start_e = Vector3(0.0, 0.0, 0.0);
-    Vector3 start_ray = Vector3(0.0, 0.0, 0.0);
-
     while (true)
     {
         bool empty;
-        Int2 pixel = pixel_queue->Pop(empty);
+        Packet packet = packet_queue->Pop(empty);
 
         if (empty)
         {
             break;
         }
 
-        Color3 color = trace_pixel(scene, pixel, width, height, 0, start_e, start_ray, 1.0, false);
-        color.to_array( &buffer[4 * ( pixel.y * width + pixel.x )] );
+        trace_packet(scene, packet, width, height, 0, 1.0, false);
+        // TODO confused about where scene comes from
     }
 }
 
-//void Raytracer::trace_packet(Vector3 
+void trace_packet(const Scene* scene, Packet packet, size_t width, size_t height,
+        int recursions, float refractive, bool extras)
+{
+    Vector3 start_e = Vector3(0.0, 0.0, 0.0);
+    Vector3 start_ray = Vector3(0.0, 0.0, 0.0);
+
+    // run frustum intersection test on every object in scene
+    for (size_t i = 0; i < num_geometries; i++)
+    {
+    }
+
+    Color3 color = trace_pixel(scene, pixel, width, height, 0, start_e, start_ray, 1.0, false);
+    color.to_array(&buffer[4 * (pixel.y * width + pixel.x)]);
+
+
+}
 
 /**
  * Raytraces some portion of the scene. Should raytrace for about
@@ -392,24 +404,26 @@ void Raytracer::trace_pixel_worker(tsqueue<Int2> *pixel_queue, unsigned char *bu
 bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, bool extras, int numthreads)
 {
     boost::thread *thread = new boost::thread[numthreads];
-    tsqueue<Int2> pixel_queue;
+    tsqueue<Packet> packet_queue;
 
     double tot_start = CycleTimer::currentSeconds();
+
     for (size_t y = 0; y < height; ++y)
     {
         for (size_t x = 0; x < width; ++x )
         {
-            Int2 tmp(x, y);
-            pixel_queue.Push(tmp);
+            Packet tmp(x, y);
+            packet_queue.Push(tmp);
         }
     }
-    double push_duration = CycleTimer::currentSeconds() - tot_start;
 
+    double push_duration = CycleTimer::currentSeconds() - tot_start;
     double thread_start = CycleTimer::currentSeconds();
+
     for (int i = 0; i < numthreads; i++)
     {
         //cout << "Launching thread " << i << endl;
-        thread[i] = boost::thread(&Raytracer::trace_pixel_worker, this, &pixel_queue, buffer);
+        thread[i] = boost::thread(&Raytracer::trace_packet_worker, this, &packet_queue, buffer);
     }
 
     for (int i = 0; i < numthreads; i++)
@@ -417,6 +431,7 @@ bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, bool extras, i
         //cout << "Joining thread " << i << endl;
         thread[i].join();
     }
+
     double thread_duration = CycleTimer::currentSeconds() - thread_start;
     double tot_duration = CycleTimer::currentSeconds() - tot_start;
 
