@@ -94,7 +94,7 @@ void Sphere::render() const
         material->reset_gl_state();
 }
 
-bool Sphere::intersect(Vector3 e, Vector3 ray, struct SceneInfo *info) const
+bool Sphere::intersect_ray(Vector3 e, Vector3 ray, intersect_info *info) const
 {
     Vector3 instance_e = inverse_transform_matrix.transform_point(e);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
@@ -170,6 +170,14 @@ void Sphere::make_bounding_volume()
 {
     return;
 }
+
+bool Sphere::intersect_frustum(Frustum frustum) const
+{
+    return true;
+}
+
+
+
 
 } /* _462 */
 

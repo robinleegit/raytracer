@@ -7,13 +7,14 @@
 #include "math/camera.hpp"
 #include "scene/material.hpp"
 #include "scene/mesh.hpp"
+#include "raytracer/geom_utils.hpp"
 #include <string>
 #include <vector>
 
 namespace _462
 {
 
-struct SceneInfo
+struct intersect_info
 {
     float i_time;
     Vector3 i_normal;
@@ -56,9 +57,10 @@ public:
      * Renders this geometry using OpenGL in the local coordinate space.
      */
     virtual void render() const = 0;
-    virtual bool intersect(Vector3 e, Vector3 ray, struct SceneInfo *info) const = 0;
+    virtual bool intersect_ray(Vector3 e, Vector3 ray, intersect_info *info) const = 0;
     virtual bool shadow_test(Vector3 e, Vector3 ray) const = 0;
     virtual void make_bounding_volume() = 0;
+    virtual bool intersect_frustum(Frustum frustum) const = 0;
 };
 
 struct PointLight

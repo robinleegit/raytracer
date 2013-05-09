@@ -1,9 +1,9 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include "raytracer/CycleTimer.hpp"
 #include "raytracer/bvh.hpp"
 #include "scene/model.hpp"
-#include "geom_utils.hpp"
 
 #define LEAF_SIZE 4
 
@@ -12,7 +12,7 @@ using namespace std;
 namespace _462
 {
 
-bool Box::intersect(Vector3 e, Vector3 r) const
+bool Box::intersect_ray(Vector3 e, Vector3 r) const
 {
     double tmin = -INFINITY, tmax = INFINITY;
 
@@ -59,6 +59,7 @@ Box::Box(const Mesh* mesh, vector<int>& indices, int n, int m)
 
     for (size_t i = n; i < m; i++)
     {
+        cout << indices[i] << " ";
         MeshTriangle t = mesh->get_triangles()[indices[i]];
 
         for (size_t j = 0; j < 3; j++)
@@ -76,6 +77,7 @@ Box::Box(const Mesh* mesh, vector<int>& indices, int n, int m)
             max_corner.z = max(max_corner.z, v.position.z);
         }
     }
+    cout << endl;
 }
 
 BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, int _axis) 
@@ -120,6 +122,16 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
             cout << endl;
         }
 
+        /*
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < num_triangles; j ++ )
+            {
+                swap(indices[i][j], indices[i][num_triangles - j - 1]);
+            }
+        }
+        */
+
         cout << "Indices creation took " << (CycleTimer::currentSeconds() - start) << "s" << endl
              << "Bvh creation took     " << (CycleTimer::currentSeconds() - bvh_create_start) << "s" << endl;
     }
@@ -134,6 +146,13 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
         // We are a leaf node
         start_triangle = start;
         end_triangle = end;
+
+        /*
+        for (int i = start; i < end; i++)
+            cout << indices[0][i] << " ";
+        cout << endl;
+        */
+
         return;
     }
 
@@ -192,7 +211,13 @@ void BvhNode::print()
 {
     cout << "{";
     if (!left && !right)
-        cout << start_triangle << " -> " << end_triangle;
+    {
+        for (int i = start_triangle; i < end_triangle; i++)
+        {
+            cout << indices[0][i] << " ";
+            //cout << start_triangle << " -> " << end_triangle;
+        }
+    }
     else
         cout << mid_idx;
     if (!(left == NULL && right == NULL))
@@ -209,7 +234,7 @@ void BvhNode::print()
     cout << "}";
 }
 
-bool BvhNode::intersect(Vector3 e, Vector3 ray, float &min_time, size_t &min_index,
+bool BvhNode::intersect_ray(Vector3 e, Vector3 ray, float &min_time, size_t &min_index,
                         float &min_beta, float &min_gamma)
 {
     bool ret = false;
@@ -240,16 +265,16 @@ bool BvhNode::intersect(Vector3 e, Vector3 ray, float &min_time, size_t &min_ind
         return ret;
     }
 
-    if (left_bbox.intersect(e, ray))
+    if (left_bbox.intersect_ray(e, ray))
     {
-        bool l_inter = left->intersect(e, ray, min_time, min_index,
+        bool l_inter = left->intersect_ray(e, ray, min_time, min_index,
                                        min_beta, min_gamma);
         ret = ret || l_inter;
     }
 
-    if (right_bbox.intersect(e, ray))
+    if (right_bbox.intersect_ray(e, ray))
     {
-        bool r_inter = right->intersect(e, ray, min_time, min_index,
+        bool r_inter = right->intersect_ray(e, ray, min_time, min_index,
                                         min_beta, min_gamma);
         ret = ret || r_inter;
     }

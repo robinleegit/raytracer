@@ -18,8 +18,8 @@ using namespace std;
 namespace _462
 {
 
-#define DEFAULT_WIDTH 800
-#define DEFAULT_HEIGHT 600
+#define DEFAULT_WIDTH 1024
+#define DEFAULT_HEIGHT 768
 
 #define BUFFER_SIZE(w,h) ( (size_t) ( 4 * (w) * (h) ) )
 
@@ -193,7 +193,8 @@ void RaytracerApplication::update( real_t delta_time )
             //    cout << "Running with " << i << " threads" << endl;
             //    raytrace_finished = raytracer.raytrace( buffer, &delta_time, extras, i );
             //}
-            raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras, boost::thread::hardware_concurrency());
+            raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras,
+                    boost::thread::hardware_concurrency());
         }
     }
     else
