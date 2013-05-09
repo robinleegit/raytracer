@@ -376,6 +376,7 @@ bool Mesh::load()
             tri.vertices[j] = rv.first->second;
         }
         triangles.push_back( tri );
+        centroids.push_back( compute_triangle_centroid(triangles.size()-1) );
     }
 
     std::cout << "Successfully loaded mesh '" << filename << "'.\n";
@@ -485,6 +486,22 @@ void Mesh::render() const
     assert( index_data.size() > 0 );
     glInterleavedArrays( GL_T2F_N3F_V3F, VERTEX_SIZE * sizeof vertex_data[0], &vertex_data[0] );
     glDrawElements( GL_TRIANGLES, index_data.size(), GL_UNSIGNED_INT, &index_data[0] );
+}
+
+const Vector3& Mesh::get_triangle_centroid(size_t index) const
+{
+    return centroids[index];
+}
+
+Vector3 Mesh::compute_triangle_centroid(size_t index) const
+{
+    unsigned int vidx0, vidx1, vidx2;
+
+    vidx0 = triangles[index].vertices[0];
+    vidx1 = triangles[index].vertices[1];
+    vidx2 = triangles[index].vertices[2];
+
+    return (vertices[vidx0].position + vertices[vidx0].position + vertices[vidx0].position) / 3;
 }
 
 } /* _462 */

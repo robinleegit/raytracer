@@ -4,9 +4,11 @@
 #include <OpenGL/gl.h>
 #endif
 
+#include "math/vector.hpp"
 #include "scene/model.hpp"
 #include "scene/material.hpp"
 #include "raytracer/bvh.hpp"
+#include "raytracer/CycleTimer.hpp"
 
 #include <iostream>
 #include <cstring>
@@ -112,18 +114,8 @@ void Model::make_bounding_volume()
         delete bvh;
     }
 
-    int num_triangles = mesh->num_triangles();
-
-    int *indices = new int[num_triangles];
-
-    for (int i = 0; i < num_triangles; i++)
-    {
-        indices[i] = i;
-    }
-
-    bvh = new BvhNode(mesh, indices, 0, num_triangles);
-
-    delete indices;
+    bvh = new BvhNode(mesh, NULL, 0, 0, 0);
+    bvh->print();
 }
 
 } /* _462 */

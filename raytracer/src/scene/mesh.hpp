@@ -13,6 +13,7 @@ struct MeshVertex
     Vector3 position;
     Vector3 normal;
     Vector2 tex_coord;
+
 };
 
 struct MeshTriangle
@@ -59,6 +60,8 @@ public:
     /// Renders the mesh using opengl.
     void render() const;
 
+    const Vector3& get_triangle_centroid(size_t index) const;
+
 private:
 
     typedef std::vector< MeshTriangle > MeshTriangleList;
@@ -69,6 +72,11 @@ private:
 
     // The list of all vertices in this model.
     MeshVertexList vertices;
+
+    // Centroids of each triangle
+    std::vector< Vector3 > centroids;
+
+    Vector3 compute_triangle_centroid(size_t index) const;
 
     bool has_tcoords;
     bool has_normals;
