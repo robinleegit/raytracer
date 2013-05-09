@@ -18,8 +18,8 @@ using namespace std;
 namespace _462
 {
 
-#define DEFAULT_WIDTH 1024
-#define DEFAULT_HEIGHT 768
+#define DEFAULT_WIDTH 800
+#define DEFAULT_HEIGHT 600
 
 #define BUFFER_SIZE(w,h) ( (size_t) ( 4 * (w) * (h) ) )
 

@@ -267,8 +267,8 @@ bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &m
 }
 
 // this test will exit early if any triangle is hit
-bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float min_time, size_t min_index,
-        float min_beta, float min_gamma)
+bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
+        float &min_beta, float &min_gamma)
 {
     bool ret = false;
 
