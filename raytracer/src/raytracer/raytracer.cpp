@@ -261,6 +261,7 @@ void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
     Vector3 lr_ray = get_viewing_ray(lr, width, height);
 
     // get side planes' normals by crossing them
+    // these normals will point INWARD
     frustum.planes[TOP].normal = cross(ul_ray, ur_ray);
     frustum.planes[RIGHT].normal = cross(ur_ray, lr_ray);
     frustum.planes[BOTTOM].normal = cross(lr_ray, ll_ray);

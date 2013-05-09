@@ -4,11 +4,10 @@
 #include "math/color.hpp"
 #include "scene/scene.hpp"
 #include "tsqueue.hpp"
+#include "geom_utils.hpp"
 
 namespace _462
 {
-
-enum plane_sides {FRONT, BACK, TOP, BOTTOM, LEFT, RIGHT};
 
 struct Int2
 {
@@ -19,19 +18,6 @@ struct Int2
         y = 0;
     }
     Int2(int _x, int _y) : x(_x), y(_y) { }
-};
-
-struct Plane
-{
-    // a plane can be defined with a point and a normal
-    Vector3 point;
-    Vector3 normal;
-};
-
-struct Frustum
-{
-    // top, bottom, left, right, front, back planes
-    Plane planes[6];
 };
 
 class Scene;
