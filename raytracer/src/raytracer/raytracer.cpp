@@ -1,14 +1,12 @@
-#include "raytracer.hpp"
-#include "scene/scene.hpp"
-#include "CycleTimer.hpp"
-
 #include <SDL/SDL_timer.h>
 #include <iostream>
 #include <math.h>
 #include <algorithm>
 
-#include "tsqueue.hpp"
+#include "raytracer.hpp"
 #include "CycleTimer.hpp"
+
+#define PACKET_DIM 8
 
 using namespace std;
 

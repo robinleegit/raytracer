@@ -20,6 +20,11 @@ struct Int2
     Int2(int _x, int _y) : x(_x), y(_y) { }
 };
 
+struct Packet
+{
+    Int2 ul, ur, lr, ll;
+};
+
 class Scene;
 
 class Raytracer
