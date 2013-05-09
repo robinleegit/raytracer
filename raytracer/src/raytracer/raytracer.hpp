@@ -22,7 +22,16 @@ struct Int2
 
 struct Packet
 {
-    Int2 ul, ur, lr, ll;
+    Int2 ll, lr, ul, ur;
+    Packet()
+    {
+        ll = Int2(0, 0);
+        lr = Int2(0, 0);
+        ul = Int2(0, 0);
+        ur = Int2(0, 0);
+    }
+    Packet(Int2 _ll, Int2 _lr, Int2 _ul, Int2 _ur) :
+        ll(_ll), lr(_lr), ul( _ul), ur(_ur) { }
 };
 
 class Scene;

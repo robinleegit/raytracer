@@ -19,6 +19,7 @@ struct Plane
 struct Frustum
 {
     // top, bottom, left, right, front, back planes
+    // note that the planes' normals should point INWARD
     Plane planes[6];
 };
 

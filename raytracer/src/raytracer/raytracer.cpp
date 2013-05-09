@@ -242,7 +242,7 @@ Vector3 Raytracer::get_viewing_ray(Int2 pixel, size_t width, size_t height)
 
 // parameters are the four ray origin coordinates on the screen, the camera/eye
 // position, the dimensions of the screen, and a place to store the frustum.
-void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
+void Raytracer::get_viewing_frustum(Int2 ll, Int2 lr, Int2 ul, Int2 ur,
                                     Vector3 eye, size_t width, size_t height,
                                     Frustum &frustum)
 {
@@ -253,10 +253,10 @@ void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
     real_t far = scene->camera.get_far_clip();
 
     // directions of the frustum's corner rays
-    Vector3 ul_ray = get_viewing_ray(ul, width, height);
-    Vector3 ur_ray = get_viewing_ray(ur, width, height);
     Vector3 ll_ray = get_viewing_ray(ll, width, height);
     Vector3 lr_ray = get_viewing_ray(lr, width, height);
+    Vector3 ul_ray = get_viewing_ray(ul, width, height);
+    Vector3 ur_ray = get_viewing_ray(ur, width, height);
 
     // get side planes' normals by crossing them
     // these normals will point INWARD
@@ -396,12 +396,12 @@ void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
             // TODO keep up/down straight
             // TODO <=?
             // TODO SIMD
-            // for every ray in the packet, set color in buffer for that pixel
-            // to scene background color
+            // set all of packet's pixels to background color
             Color3 color = scene->background_color;
-            for (int x = ul.x; x <= ur.x; x++)
+
+            for (int y = ll.y; y <= ur.y; y++)
             {
-                for (int y = ul.y; y <= lr.y; y++)
+                for (int x = ll.x; x <= lr.x; x++)
                 {
                     color.to_array(&buffer[4 * (y * width + x)]);
                 }
@@ -409,9 +409,9 @@ void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
         }
         else // trace each pixel in the packet
         {
-            for (int x = ul.x; x <= ur.x; x++)
+            for (int y = ll.y; y <= ur.y; y++)
             {
-                for (int y = ul.y; y <= lr.y; y++)
+                for (int x = ll.x; x <= lr.x; x++)
                 {
                     Int2 pixel = Int2(x, y);
                     Color3 color = trace_pixel(pixel, width, height,
@@ -425,7 +425,7 @@ void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
 
 /**
  * Raytraces some portion of the scene. Should raytrace for about
- * max_time duration and then return, even if the raytrace is not copmlete.
+ * max_time duration and then return, even if the raytrace is not complete.
  * The results should be placed in the given buffer.
  * @param buffer The buffer into which to place the color data. It is
  *  32-bit RGBA (4 bytes per pixel), in row-major order.
@@ -442,12 +442,31 @@ bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, bool extras, i
 
     double tot_start = CycleTimer::currentSeconds();
 
-    for (size_t y = 0; y < height; ++y)
+    for (size_t y = 0; y < height; y += PACKET_DIM)
     {
-        for (size_t x = 0; x < width; ++x )
+
+        int ymax = y + PACKET_DIM;
+
+        if (ymax >= height)
         {
-            Packet tmp(x, y);
-            packet_queue.Push(tmp);
+            ymax = y + height - y;
+        }
+
+        for (size_t x = 0; x < width; x += PACKET_DIM )
+        {
+            int xmax = x + PACKET_DIM;
+
+            if (xmax >= width)
+            {
+                xmax = x + width - x;
+            }
+
+            Int2 ll(x, y);
+            Int2 lr(xmax, y);
+            Int2 ul(x, ymax);
+            Int2 ur(xmax, ymax);
+            Packet packet(ll, lr, ul, ur);
+            packet_queue.Push(packet);
         }
     }
 
