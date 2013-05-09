@@ -21,7 +21,7 @@ struct Int2
 
 struct Plane
 {
-    // a plane can be defined with a point and a normal!
+    // a plane can be defined with a point and a normal
     Vector3 point;
     Vector3 normal;
 };

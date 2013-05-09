@@ -250,13 +250,6 @@ void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
 {
     // normalized camera direction
     Vector3 gaze = normalize(scene->camera.get_direction());
-    // normalized camera up direction
-    Vector3 up = normalize(scene->camera.get_up());
-    // normalized camera right direction
-    Vector3 right = cross(gaze, up);
-    // camera field of view and aspect ratio
-    float fov = scene->camera.get_fov_radians();
-    float aspect = scene->camera.get_aspect_ratio();
     // near and far clipping planes
     real_t near = scene->camera.get_near_clip();
     real_t far = scene->camera.get_far_clip();
@@ -278,8 +271,8 @@ void Raytracer::get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
     frustum.back.normal = -1.0 * gaze;
 
     // centers of the front and back planes
-    frustum.front.point = e + gaze * near;
-    frustum.back.point = e + gaze * far;
+    frustum.front.point = eye + gaze * near;
+    frustum.back.point = eye + gaze * far;
 
     // camera position is a point on top, bottom, left, and right planes
     frustum.top.point = eye;
