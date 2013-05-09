@@ -78,8 +78,8 @@ Box::Box(const Mesh* mesh, vector<int>& indices, int n, int m)
     }
 }
 
-BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, int axis) 
-    : indices(_indices), mesh(_mesh), root(false)
+BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, int _axis) 
+    : indices(_indices), mesh(_mesh), axis(_axis), root(false)
 {
     // do some setup for the root node
     if (!_indices)
@@ -99,9 +99,9 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
 
         double start = CycleTimer::currentSeconds();
 
-        for (int j = 0; j < num_triangles; j++)
+        for (int i = 0; i < 3; i++)
         {
-            for (int i = 0; i < 3; i++)
+            for (int j = 0; j < num_triangles; j++)
             {
                 indices[i][j] = j;
             }
@@ -138,38 +138,52 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
     }
 
     /*
+    float mid_val = mesh->get_triangle_centroid(indices[axis][mid_idx])[axis];
     // partition
     for (int i = 0; i < 3; i++)
     {
         if (i != axis)
         {
-            float mid_val = mesh->get_triangle_centroid(mid_idx)[axis];
-            partition_tester pt(mesh, axis, indices[axis][mid_idx], mid_val);
-
+            vector<int> tmp(mesh->num_triangles());
             int p1 = 0, p2 = mid_idx;
             for (int j = start; j < end; j++)
             {
-                if (pt(j))
+                float tri_val = mesh->get_triangle_centroid(indices[i][j])[axis];
+
+                if (tri_val < mid_val)
                 {
-                    swap(indices[i][j], indices[i][p1]);
+                    tmp[p1] = indices[i][j];
                     p1++;
                 }
                 else
                 {
-                    swap(indices[i][j], indices[i][p2]);
+                    tmp[p2] = indices[i][j];
                     p2++;
                 }
             }
+            indices[i] = tmp;
         }
-    }*/ 
+    }
+
+    cout << "after partitioning" << endl;
+    for (int i = 0; i < 3; i++)
+    {
+        cout << "axis" << endl;
+        for (int j = 0; j < mesh->num_triangles(); j++)
+        {
+            cout << indices[i][j] << " ";
+        }
+        cout << endl;
+    }
+    */
 
     int newaxis = 0;//(axis + 1) % 3;
 
+    left_bbox = Box(mesh, indices[axis], start, mid_idx);
     left = new BvhNode(mesh, indices, start, mid_idx, newaxis);
-    left_bbox = Box(mesh, indices[newaxis], start, mid_idx);
 
+    right_bbox = Box(mesh, indices[axis], mid_idx, end);
     right = new BvhNode(mesh, indices, mid_idx, end, newaxis);
-    right_bbox = Box(mesh, indices[newaxis], mid_idx, end);
 }
 
 BvhNode::~BvhNode()
@@ -216,7 +230,7 @@ bool BvhNode::intersect(Vector3 e, Vector3 ray, float &min_time, size_t &min_ind
             unsigned int v0, v1, v2;
             Vector3 p0, p1, p2;
 
-            MeshTriangle triangle = mesh->get_triangles()[indices[0][s]];
+            MeshTriangle triangle = mesh->get_triangles()[indices[axis][s]];
             v0 = triangle.vertices[0];
             v1 = triangle.vertices[1];
             v2 = triangle.vertices[2];
@@ -227,10 +241,11 @@ bool BvhNode::intersect(Vector3 e, Vector3 ray, float &min_time, size_t &min_ind
             if (triangle_ray_intersect(e, ray, p0, p1, p2, min_time,
                                        min_gamma, min_beta))
             {
-                min_index = s;
+                min_index = indices[axis][s];
                 ret = true;
             }
         }
+
         return ret;
     }
 

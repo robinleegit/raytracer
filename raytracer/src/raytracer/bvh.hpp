@@ -10,11 +10,11 @@ namespace _462
 struct partition_tester
 {
     const Mesh* mesh;
-    size_t part_axis, mid_idx;
+    size_t part_axis;
     float mid_val;
 
-    partition_tester(const Mesh* _mesh, size_t _part_axis, size_t _mid_idx, float _mid_val) 
-        : mesh(_mesh), part_axis(_part_axis), mid_idx(_mid_idx), mid_val(_mid_val) { }
+    partition_tester(const Mesh* _mesh, size_t _part_axis, float _mid_val) 
+        : mesh(_mesh), part_axis(_part_axis), mid_val(_mid_val) { }
 
     bool operator()(int i)
     {
@@ -56,9 +56,10 @@ public:
     int mid_idx;
     int start_triangle;
     int end_triangle;
+    int axis;
     bool root;
 
-    BvhNode(const Mesh *_mesh, std::vector<int> *_indices, int start, int end, int axis);
+    BvhNode(const Mesh *_mesh, std::vector<int> *_indices, int start, int end, int _axis);
     ~BvhNode();
     bool intersect(Vector3 e, Vector3 ray, float &min_time, size_t &min_index,
                    float &min_beta, float &min_gamma);
