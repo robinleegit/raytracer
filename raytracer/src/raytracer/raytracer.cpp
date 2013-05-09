@@ -6,7 +6,7 @@
 #include "raytracer.hpp"
 #include "CycleTimer.hpp"
 
-#define PACKET_DIM 128
+#define PACKET_DIM 8
 
 using namespace std;
 
@@ -368,21 +368,21 @@ void Raytracer::trace_packet_worker(tsqueue<Packet> *packet_queue, unsigned char
             break;
         }
 
-        trace_packet(packet, width, height, 0, 1.0, false, buffer);
+        trace_packet(packet, width, height, 1.0, false, buffer);
     }
 }
 
 void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
-        int recursions, float refractive, bool extras, unsigned char *buffer)
+        float refractive, bool extras, unsigned char *buffer)
 {
     // these are just placeholders; trace_pixels finds its own starting ray
     Vector3 start_eye = Vector3(0.0, 0.0, 0.0);
     Vector3 start_ray = Vector3(0.0, 0.0, 0.0);
 
-    Int2 ul = packet.ul;
-    Int2 ur = packet.ur;
     Int2 ll = packet.ll;
     Int2 lr = packet.lr;
+    Int2 ul = packet.ul;
+    Int2 ur = packet.ur;
     Frustum frustum;
     get_viewing_frustum(ll, lr, ul, ur, width, height, frustum);
 
@@ -391,7 +391,7 @@ void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
     {
         bool hit = scene->get_geometries()[i]->intersect_frustum(frustum);
 
-        if (! hit) // no intersection
+        if (!hit) // no intersection
         {
             // TODO keep up/down straight
             // TODO <=?
@@ -399,7 +399,7 @@ void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
             // set all of packet's pixels to background color
             Color3 color = scene->background_color;
 
-            for (int y = ll.y; y <= ur.y; y++)
+            for (int y = ll.y; y <= ul.y; y++)
             {
                 for (int x = ll.x; x <= lr.x; x++)
                 {
@@ -409,7 +409,7 @@ void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
         }
         else // trace each pixel in the packet
         {
-            for (int y = ll.y; y <= ur.y; y++)
+            for (int y = ll.y; y <= ul.y; y++)
             {
                 for (int x = ll.x; x <= lr.x; x++)
                 {

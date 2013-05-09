@@ -47,7 +47,7 @@ public:
     bool initialize(Scene* _scene, size_t _width, size_t _height);
 
     Color3 trace_pixel(Int2 pixel, size_t width, size_t height, int recursions,
-            Vector3 start_e, Vector3 start_ray, float refractive, bool extras);
+            Vector3 start_eye, Vector3 start_ray, float refractive, bool extras);
 
     void trace_packet_worker(tsqueue<Packet> *packet_queue, unsigned char *buffer);
 
@@ -64,7 +64,7 @@ public:
     bool refract(Vector3 d, Vector3 normal, float n, Vector3 *t);
 
     void trace_packet(Packet packet, size_t width, size_t height,
-            int recursions, float refractive, bool extras, unsigned char* buffer);
+            float refractive, bool extras, unsigned char* buffer);
 
 private:
 

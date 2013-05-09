@@ -45,7 +45,7 @@ void Triangle::render() const
 
 bool Triangle::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
 {
-    Vector3 instance_e = inverse_transform_matrix.transform_point(eye);
+    Vector3 instance_eye = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
     float t = INFINITY, beta = INFINITY, gamma = INFINITY;
@@ -54,7 +54,7 @@ bool Triangle::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) con
     p1 = vertices[1].position;
     p2 = vertices[2].position;
 
-    if (!triangle_ray_intersect(instance_e, instance_ray, p0, p1, p2,
+    if (!triangle_ray_intersect(instance_eye, instance_ray, p0, p1, p2,
                 t, gamma, beta))
     {
         return false;
@@ -113,7 +113,7 @@ bool Triangle::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) con
 
 bool Triangle::shadow_test(Vector3 eye, Vector3 ray) const
 {
-    Vector3 instance_e = inverse_transform_matrix.transform_point(eye);
+    Vector3 instance_eye = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
     float t = INFINITY, beta = INFINITY, gamma = INFINITY;
@@ -122,7 +122,7 @@ bool Triangle::shadow_test(Vector3 eye, Vector3 ray) const
     p1 = vertices[1].position;
     p2 = vertices[2].position;
 
-    if (!triangle_ray_intersect(instance_e, instance_ray, p0, p1, p2,
+    if (!triangle_ray_intersect(instance_eye, instance_ray, p0, p1, p2,
                 t, gamma, beta))
     {
         return false;
@@ -138,15 +138,22 @@ void Triangle::make_bounding_volume()
 
 bool Triangle::intersect_frustum(Frustum frustum) const
 {
-    // check each vertex against all planes
+    Frustum instance_frustum;
+
+    // check each vertex against all instanced planes
     for (int i = 0; i < 6; i++)
     {
+        instance_frustum.planes[i].point =
+            inverse_transform_matrix.transform_point(frustum.planes[i].point);
+        instance_frustum.planes[i].normal =
+            inverse_transform_matrix.transform_vector(frustum.planes[i].normal);
+
         int outside = 0;
 
         for (int j = 0; j < 3; j++)
         { 
             Vector3 pos = vertices[j].position;
-            Plane plane = frustum.planes[i];
+            Plane plane = instance_frustum.planes[i];
 
             if (dot(pos - plane.point, plane.normal) < 0.0)
             {

@@ -41,13 +41,13 @@ void Model::render() const
 bool Model::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
 {
     // first check intersection with bounding box
-    Vector3 instance_e = inverse_transform_matrix.transform_point(eye);
+    Vector3 instance_eye = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
     float min_time = INFINITY, min_beta = INFINITY, min_gamma = INFINITY;
     size_t min_index = 0;
 
-    if (!bvh->intersect_ray(instance_e, instance_ray, min_time, min_index,
+    if (!bvh->intersect_ray(instance_eye, instance_ray, min_time, min_index,
                         min_beta, min_gamma))
     {
         return false;
@@ -96,13 +96,13 @@ bool Model::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
 
 bool Model::shadow_test(Vector3 eye, Vector3 ray) const
 {
-    Vector3 instance_e = inverse_transform_matrix.transform_point(eye);
+    Vector3 instance_eye = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
     float min_time = INFINITY, min_beta = INFINITY, min_gamma = INFINITY;
     size_t min_index = 0;
 
-    return bvh->shadow_test(instance_e, instance_ray, min_time, min_index,
+    return bvh->shadow_test(instance_eye, instance_ray, min_time, min_index,
                           min_beta, min_gamma);
 }
 
@@ -119,13 +119,25 @@ void Model::make_bounding_volume()
 
 bool Model::intersect_frustum(Frustum frustum) const
 {
-    if (frustum_box_intersect(frustum, bvh->left_bbox.min_corner,
+
+    Frustum instance_frustum;
+
+    for (int i = 0; i < 6; i++)
+    {
+        instance_frustum.planes[i].point =
+            inverse_transform_matrix.transform_point(frustum.planes[i].point);
+        instance_frustum.planes[i].normal =
+            inverse_transform_matrix.transform_vector(frustum.planes[i].normal);
+    }
+
+
+    if (frustum_box_intersect(instance_frustum, bvh->left_bbox.min_corner,
             bvh->left_bbox.max_corner))
     {
         return true;
     }
 
-    if (frustum_box_intersect(frustum, bvh->right_bbox.min_corner,
+    if (frustum_box_intersect(instance_frustum, bvh->right_bbox.min_corner,
             bvh->right_bbox.max_corner))
     {
         return true;
