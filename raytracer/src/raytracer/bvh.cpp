@@ -156,20 +156,19 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
         return;
     }
 
-    /*
-    float mid_val = mesh->get_triangle_centroid(indices[axis][mid_idx])[axis];
     // partition
+    float mid_val = mesh->get_triangle_centroid(indices[axis][mid_idx])[axis];
     for (int i = 0; i < 3; i++)
     {
         if (i != axis)
         {
-            vector<int> tmp(mesh->num_triangles());
-            int p1 = 0, p2 = mid_idx;
+            vector<int> tmp(end - start);
+            int p1 = 0, p2 = mid_idx - start;
             for (int j = start; j < end; j++)
             {
                 float tri_val = mesh->get_triangle_centroid(indices[i][j])[axis];
 
-                if (tri_val < mid_val)
+                if (tri_val < mid_val || p2 == (end - start))
                 {
                     tmp[p1] = indices[i][j];
                     p1++;
@@ -180,23 +179,15 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
                     p2++;
                 }
             }
-            indices[i] = tmp;
+
+            for (int j = start; j < end; j++)
+            {
+                indices[i][j] = tmp[j - start];
+            }
         }
     }
 
-    cout << "after partitioning" << endl;
-    for (int i = 0; i < 3; i++)
-    {
-        cout << "axis" << endl;
-        for (int j = 0; j < mesh->num_triangles(); j++)
-        {
-            cout << indices[i][j] << " ";
-        }
-        cout << endl;
-    }
-    */
-
-    int newaxis = 0;//(axis + 1) % 3;
+    int newaxis = 0; // (axis + 1) % 3;
 
     left_bbox = Box(mesh, indices[axis], start, mid_idx);
     left = new BvhNode(mesh, indices, start, mid_idx, newaxis);
