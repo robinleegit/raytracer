@@ -193,7 +193,8 @@ void RaytracerApplication::update( real_t delta_time )
             //    cout << "Running with " << i << " threads" << endl;
             //    raytrace_finished = raytracer.raytrace( buffer, &delta_time, extras, i );
             //}
-            raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras, boost::thread::hardware_concurrency());
+            raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras,
+                    boost::thread::hardware_concurrency());
         }
     }
     else
