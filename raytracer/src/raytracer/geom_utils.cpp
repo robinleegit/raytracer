@@ -138,12 +138,11 @@ bool frustum_box_intersect(Frustum frustum, Vector3 box_min, Vector3 box_max)
                 break;
             }
         }
+    }
 
-        // if all 8 box points are on the wrong side, it doesn't intersect
-        if (right_side == 6)
-        {
-            return true;
-        }
+    if (right_side == 6)
+    {
+        return true;
     }
 
     return false;

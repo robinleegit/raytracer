@@ -295,6 +295,7 @@ bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &m
 
     if (!left && !right)
     {
+        //TODO SIMD
         for (size_t s = start_triangle; s < end_triangle; s++)
         {
             unsigned int v0, v1, v2;
