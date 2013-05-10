@@ -385,13 +385,19 @@ void Raytracer::trace_packet(Packet packet, float refractive,
     Frustum frustum;
     get_viewing_frustum(ll, lr, ul, ur, frustum);
 
-    // run frustum intersection test on every object in scene
+    int hit = 0;
+
+    // extremely naive at the moment - test on everything, if no hits, 
+    // color blank
+    // TODO maybe pass in a bit vector of which geometries must be tested?
     for (size_t i = 0; i < scene->num_geometries(); i++)
     {
-        //bool hit = scene->get_geometries()[i]->intersect_frustum(frustum);
+        if (scene->get_geometries()[i]->intersect_frustum(frustum))
+        {
+            hit++;
+        }
 
-        if (false) // no intersection
-        //if (!hit) // no intersection
+        if (!hit) // no intersection
         {
             // TODO keep up/down straight
             // TODO <=?
