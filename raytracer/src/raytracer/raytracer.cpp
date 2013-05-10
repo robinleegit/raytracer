@@ -6,7 +6,7 @@
 #include "raytracer.hpp"
 #include "CycleTimer.hpp"
 
-#define PACKET_DIM 8
+#define PACKET_DIM 256
 
 using namespace std;
 
@@ -258,6 +258,7 @@ void Raytracer::get_viewing_frustum(Int2 ll, Int2 lr, Int2 ul, Int2 ur,
     Vector3 ul_ray = get_viewing_ray(ul);
     Vector3 ur_ray = get_viewing_ray(ur);
 
+    // attempt 1: use sides
     // get side planes' normals by crossing them
     // these normals will point OUTWARD
     frustum.planes[TOP].normal = cross(ur_ray, ul_ray);
@@ -278,6 +279,35 @@ void Raytracer::get_viewing_frustum(Int2 ll, Int2 lr, Int2 ul, Int2 ur,
     frustum.planes[BOTTOM].point = eye;
     frustum.planes[LEFT].point = eye;
     frustum.planes[RIGHT].point = eye;
+
+    
+    // attempt 2: use corners
+    // line's point of intersection with plane is:
+    // dot((p0 - l0), n) / dot(l, n)
+    // where p0 is a point on the plane, l0 is the line's origin, 
+    // n is the plane's normal, and l is the direction of the line
+    // in our case l0 == eye, p0 == p_near or p_far, l is the viewing ray
+
+    Vector3 n = normalize(gaze * near);
+    Vector3 p_near = eye + gaze * near;
+    frustum.corners[NLL] = (dot((p_near - eye), n) / dot(ll_ray, n))
+        * ll_ray + eye;
+    frustum.corners[NLR] = (dot((p_near - eye), n) / dot(lr_ray, n))
+        * lr_ray + eye;
+    frustum.corners[NUL] = (dot((p_near - eye), n) / dot(ul_ray, n))
+        * ul_ray + eye;
+    frustum.corners[NUR] = (dot((p_near - eye), n) / dot(ur_ray, n))
+        * ur_ray + eye;
+
+    Vector3 p_far = eye + gaze * far;
+    frustum.corners[FLL] = (dot((p_far - eye), n) / dot(ll_ray, n))
+        * ll_ray + eye;
+    frustum.corners[FLR] = (dot((p_far - eye), n) / dot(lr_ray, n))
+        * lr_ray + eye;
+    frustum.corners[FUL] = (dot((p_far - eye), n) / dot(ul_ray, n))
+        * ul_ray + eye;
+    frustum.corners[FUR] = (dot((p_far - eye), n) / dot(ur_ray, n))
+        * ur_ray + eye;
 }
 
 // calculate contribution of all lights to diffuse light
@@ -384,6 +414,17 @@ void Raytracer::trace_packet(Packet packet, float refractive,
     Int2 ur = packet.ur;
     Frustum frustum;
     get_viewing_frustum(ll, lr, ul, ur, frustum);
+
+    /*
+    if (packet.ll.x == 0 && packet.ll.y == 0)
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            cout << frustum.corners[i] << " ";
+        }
+        cout << endl;
+    }
+    */
 
     bool hit = false;
 
