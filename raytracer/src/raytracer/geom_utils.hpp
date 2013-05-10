@@ -7,7 +7,9 @@
 namespace _462
 {
 
-enum plane_sides {FRONT, BACK, TOP, BOTTOM, LEFT, RIGHT};
+enum frustum_sides {FRONT, BACK, TOP, BOTTOM, LEFT, RIGHT};
+enum frustum_corners {NLL, NLR, NUL, NUR, FLL, FLR, FUL, FUR};
+enum frustum_edges {LL, LR, UL, UR};
 
 struct Plane
 {
@@ -19,7 +21,10 @@ struct Plane
 struct Frustum
 {
     // top, bottom, left, right, front, back planes
+    // note that the planes' normals point OUTWARD
     Plane planes[6];
+    Vector3 edges[4];
+    Vector3 corners[8];
 };
 
 bool triangle_ray_intersect(Vector3 eye, Vector3 ray, Vector3 p0, Vector3 p1,

@@ -196,26 +196,35 @@ void Triangle::make_bounding_volume()
 
 bool Triangle::intersect_frustum(Frustum frustum) const
 {
-    // check each vertex against all planes
+    Frustum instance_frustum;
+
+    // check each vertex against all instanced planes
     for (int i = 0; i < 6; i++)
     {
+        instance_frustum.planes[i].point =
+            inverse_transform_matrix.transform_point(frustum.planes[i].point);
+        Matrix3 N;
+        make_normal_matrix(&N, inverse_transform_matrix);
+        instance_frustum.planes[i].normal = normalize(N * frustum.planes[i].normal);
+
         int outside = 0;
 
+        // check if all three of triangle's points are on the wrong side
         for (int j = 0; j < 3; j++)
         {
             Vector3 pos = vertices[j].position;
-            Plane plane = frustum.planes[i];
+            Plane plane = instance_frustum.planes[i];
+            Vector3 v = pos - plane.point;
 
-            if (dot(pos - plane.point, plane.normal) < 0.0)
+            // if any point is inside plane, continue
+            if (dot(v, plane.normal) > 0.0)
             {
-                outside++;
+                continue;
             }
-        }
 
-        if (outside == 3)
-        {
+            // if we haven't continued, all three were outside
             return false;
-        }
+        } 
     }
 
     return true;

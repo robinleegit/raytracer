@@ -96,12 +96,12 @@ void Sphere::render() const
 
 bool Sphere::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
 {
-    Vector3 instance_e = inverse_transform_matrix.transform_point(eye);
+    Vector3 instance_eye = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
     // spheres are centered at zero in object space
-    float discriminant = pow(dot(instance_ray, instance_e), 2)
-                         - dot(instance_ray, instance_ray) * (dot(instance_e, instance_e) - pow(radius, 2));
+    float discriminant = pow(dot(instance_ray, instance_eye), 2)
+                         - dot(instance_ray, instance_ray) * (dot(instance_eye, instance_eye) - pow(radius, 2));
 
     if (discriminant < 0)
     {
@@ -109,18 +109,18 @@ bool Sphere::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
     }
 
     // return lower value of t (ie minus discriminant) if it isn't negative (behind origin)
-    float t = (-1.0 * dot(instance_ray, instance_e) - sqrt(discriminant))
+    float t = (-1.0 * dot(instance_ray, instance_eye) - sqrt(discriminant))
               / dot(instance_ray, instance_ray);
 
     // if t is negative, try the other t (we might be inside sphere)
     if (t < 0)
     {
-        t = (-1.0 * dot(instance_ray, instance_e) + sqrt(discriminant))
+        t = (-1.0 * dot(instance_ray, instance_eye) + sqrt(discriminant))
             / dot(instance_ray, instance_ray);
     }
 
     // return info
-    Vector3 normal = (instance_e + t * instance_ray) / radius;
+    Vector3 normal = (instance_eye + t * instance_ray) / radius;
     info->i_normal = normalize(normal_matrix * normal);
     info->i_ambient = material->ambient;
     info->i_diffuse = material->diffuse;
@@ -144,18 +144,18 @@ bool Sphere::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
 
 bool Sphere::shadow_test(Vector3 eye, Vector3 ray) const
 {
-    Vector3 instance_e = inverse_transform_matrix.transform_point(eye);
+    Vector3 instance_eye = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
-    float discriminant = pow(dot(instance_ray, instance_e), 2)
-                         - dot(instance_ray, instance_ray) * (dot(instance_e, instance_e) - pow(radius, 2));
+    float discriminant = pow(dot(instance_ray, instance_eye), 2)
+                         - dot(instance_ray, instance_ray) * (dot(instance_eye, instance_eye) - pow(radius, 2));
 
     if (discriminant < 0)
     {
         return false;
     }
 
-    float t = (-1.0 * dot(instance_ray, instance_e) - sqrt(discriminant))
+    float t = (-1.0 * dot(instance_ray, instance_eye) - sqrt(discriminant))
               / dot(instance_ray, instance_ray);
 
     if (t < 0 || t > 1)
@@ -173,18 +173,28 @@ void Sphere::make_bounding_volume()
 
 bool Sphere::intersect_frustum(Frustum frustum) const
 {
+    Frustum instance_frustum;
+
     // check center/radius against all planes
     for (int i = 0; i < 6; i++)
     {
-        Plane plane = frustum.planes[i];
+        instance_frustum.planes[i].point =
+            inverse_transform_matrix.transform_point(frustum.planes[i].point);
+        Matrix3 N;
+        make_normal_matrix(&N, inverse_transform_matrix);
+        instance_frustum.planes[i].normal = normalize(N * frustum.planes[i].normal);
 
-        if (dot(position - plane.point, plane.normal) < 0.0)
+        Plane plane = instance_frustum.planes[i];
+        Vector3 point = position - plane.point; // position is the sphere's center
+
+        // check if center is outside plane
+        if (dot(point, plane.normal) > 0.0)
         {
             // check if distance from center to plane is greater than radius
-            Vector3 v = position - plane.point;
-            float distance = dot(v, plane.normal) / length(plane.normal);
+            // if so, then it doesn't intersect
+            float distance = dot(point, plane.normal) / length(plane.normal);
 
-            if (distance < radius)
+            if (distance > radius)
             {
                 return false;
             }

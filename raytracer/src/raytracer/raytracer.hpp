@@ -22,7 +22,16 @@ struct Int2
 
 struct Packet
 {
-    Int2 ul, ur, lr, ll;
+    Int2 ll, lr, ul, ur;
+    Packet()
+    {
+        ll = Int2(0, 0);
+        lr = Int2(0, 0);
+        ul = Int2(0, 0);
+        ur = Int2(0, 0);
+    }
+    Packet(Int2 _ll, Int2 _lr, Int2 _ul, Int2 _ur) :
+        ll(_ll), lr(_lr), ul( _ul), ur(_ur) { }
 };
 
 class Scene;
@@ -35,24 +44,27 @@ public:
 
     ~Raytracer();
 
-    bool initialize(Scene* scene, size_t width, size_t height);
+    bool initialize(Scene* _scene, size_t _width, size_t _height);
 
-    Color3 trace_pixel(Int2 pixel, size_t width, size_t height, int recursions,
-                       Vector3 start_e, Vector3 start_ray, float refractive, bool extras);
+    Color3 trace_pixel(Int2 pixel, int recursions, Vector3 start_eye,
+            Vector3 start_ray, float refractive, bool extras);
 
-    void trace_pixel_worker(tsqueue<Int2> *pixel_queue, unsigned char *buffer);
+    void trace_packet_worker(tsqueue<Packet> *packet_queue, unsigned char *buffer);
 
     bool raytrace(unsigned char* buffer, real_t* max_time, bool extras, int numthreads);
 
-    Vector3 get_viewing_ray(Int2 pixel, size_t width, size_t height);
+    Vector3 get_viewing_ray(Int2 pixel);
 
-    void get_viewing_frustum(Int2 ul, Int2 ur, Int2 ll, Int2 lr,
-                             Vector3 e, size_t width, size_t height, Frustum& frustum);
+    void get_viewing_frustum(Int2 ll, Int2 lr, Int2 ul, Int2 ur,
+                             Frustum& frustum);
 
     Color3 get_diffuse(Vector3 intersection_point, Vector3 min_normal,
                        Color3 min_diffuse, float eps);
 
     bool refract(Vector3 d, Vector3 normal, float n, Vector3 *t);
+
+    void trace_packet(Packet packet, float refractive, bool extras,
+            unsigned char* buffer);
 
 private:
 
