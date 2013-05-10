@@ -228,6 +228,7 @@ bool Triangle::intersect_frustum(Frustum frustum) const
         return true;
     }
 
+    return false;
 }
 
 } /* _462 */

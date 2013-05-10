@@ -54,6 +54,8 @@ bool Raytracer::initialize(Scene* _scene, size_t _width, size_t _height)
         cout << "Created bounding volume for geometry " << i << endl;
     }
 
+    cout << scene->camera.orientation << endl;
+
     return true;
 }
 
