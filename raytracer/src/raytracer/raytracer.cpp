@@ -6,7 +6,7 @@
 #include "raytracer.hpp"
 #include "CycleTimer.hpp"
 
-#define PACKET_DIM 256
+#define PACKET_DIM 16
 
 using namespace std;
 
@@ -308,6 +308,13 @@ void Raytracer::get_viewing_frustum(Int2 ll, Int2 lr, Int2 ul, Int2 ur,
         * ul_ray + eye;
     frustum.corners[FUR] = (dot((p_far - eye), n) / dot(ur_ray, n))
         * ur_ray + eye;
+
+    // attempt 3: use edges
+    frustum.edges[LL] = ll_ray;
+    frustum.edges[LR] = lr_ray;
+    frustum.edges[UL] = ul_ray;
+    frustum.edges[UR] = ur_ray;
+
 }
 
 // calculate contribution of all lights to diffuse light

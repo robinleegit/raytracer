@@ -124,7 +124,6 @@ void Model::make_bounding_volume()
 
 bool Model::intersect_frustum(Frustum frustum) const
 {
-
     Frustum instance_frustum;
 
     for (int i = 0; i < 6; i++)
@@ -135,7 +134,6 @@ bool Model::intersect_frustum(Frustum frustum) const
         make_normal_matrix(&N, inverse_transform_matrix);
         instance_frustum.planes[i].normal = normalize(N * frustum.planes[i].normal);
     }
-
 
     if (frustum_box_intersect(instance_frustum, bvh->left_bbox.min_corner,
             bvh->left_bbox.max_corner))
