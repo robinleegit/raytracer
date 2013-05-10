@@ -59,7 +59,6 @@ Box::Box(const Mesh* mesh, vector<int>& indices, int n, int m)
 
     for (size_t i = n; i < m; i++)
     {
-        cout << indices[i] << " ";
         MeshTriangle t = mesh->get_triangles()[indices[i]];
 
         for (size_t j = 0; j < 3; j++)
@@ -77,7 +76,6 @@ Box::Box(const Mesh* mesh, vector<int>& indices, int n, int m)
             max_corner.z = max(max_corner.z, v.position.z);
         }
     }
-    cout << endl;
 }
 
 BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, int _axis) 
@@ -113,20 +111,26 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
         {
             triangle_less tl(mesh, i);
             sort(indices[i].begin(), indices[i].end(), tl);
-
-            cout << "Printing axis " << i << endl;
-            for (int j = 0; j < num_triangles; j++)
-            {
-                cout << indices[i][j] << " ";
-            }
-            cout << endl;
         }
 
         cout << "Indices creation took " << (CycleTimer::currentSeconds() - start) << "s" << endl
              << "Bvh creation took     " << (CycleTimer::currentSeconds() - bvh_create_start) << "s" << endl;
     }
 
+    /*
+    ///////////////////////////////////
+    // Do SAH to choose partition
+    vector<Box> candidates(end - start);
+
+    for (int i = 0; i < end; i++)
+    {
+    }
+
+    ///////////////////////////////////
+    */
     mid_idx = (start + end) / 2;
+    int mid_tri_id = indices[axis][mid_idx];
+    float mid_val = mesh->get_triangle_centroid(indices[axis][mid_idx])[axis];
 
     left = NULL;
     right = NULL;
@@ -141,7 +145,6 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
     }
 
     // partition
-    float mid_val = mesh->get_triangle_centroid(indices[axis][mid_idx])[axis];
     for (int i = 0; i < 3; i++)
     {
         if (i != axis)
@@ -151,8 +154,18 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
             for (int j = start; j < end; j++)
             {
                 float tri_val = mesh->get_triangle_centroid(indices[i][j])[axis];
+                bool left;
 
-                if (tri_val < mid_val || p2 == (end - start))
+                if (tri_val != mid_val)
+                {
+                    left = tri_val < mid_val;
+                }
+                else
+                {
+                    left = indices[i][j] < mid_tri_id;
+                }
+
+                if (left)
                 {
                     tmp[p1] = indices[i][j];
                     p1++;
@@ -171,7 +184,7 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
         }
     }
 
-    int newaxis = 0; // (axis + 1) % 3;
+    int newaxis = (axis + 1) % 3;
 
     left_bbox = Box(mesh, indices[axis], start, mid_idx);
     left = new BvhNode(mesh, indices, start, mid_idx, newaxis);
@@ -198,8 +211,10 @@ void BvhNode::print()
     {
         for (int i = start_triangle; i < end_triangle; i++)
         {
-            cout << indices[0][i] << " ";
-            //cout << start_triangle << " -> " << end_triangle;
+            cout << indices[0][i];
+
+            if (i + 1 != end_triangle)
+                cout << " ";
         }
     }
     else

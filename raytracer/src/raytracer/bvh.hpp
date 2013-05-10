@@ -34,6 +34,10 @@ struct triangle_less
         float vi, vj;
         vi = mesh->get_triangle_centroid(i)[axis];
         vj = mesh->get_triangle_centroid(j)[axis];
+
+        if (vi == vj)
+            return i < j;
+
         return vi < vj;
     }
 };

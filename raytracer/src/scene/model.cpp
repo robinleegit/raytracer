@@ -114,7 +114,7 @@ void Model::make_bounding_volume()
     }
 
     bvh = new BvhNode(mesh, NULL, 0, 0, 0);
-    bvh->print();
+    //bvh->print();
 }
 
 bool Model::intersect_frustum(Frustum frustum) const
