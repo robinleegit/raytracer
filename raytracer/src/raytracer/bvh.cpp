@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <algorithm>
 #include <limits>
@@ -6,6 +7,8 @@
 #include "raytracer/bvh.hpp"
 #include "scene/model.hpp"
 
+#define CHECK_HEAP 0
+#define VERBOSE 0
 #define LEAF_SIZE 4
 
 using namespace std;
@@ -100,6 +103,60 @@ Box::Box(const Mesh* mesh, vector<int>& indices, int n, int m)
     }
 }
 
+
+void check_heap(const Mesh* mesh, vector<int> indices, int start, int end, int axis)
+{
+#if CHECK_HEAP
+    ostringstream oss_idx, oss_val, oss_err;
+    bool ok = true;
+    for (int j = start + 1; j < end; j++)
+    {
+        float tv1 = mesh->get_triangle_centroid(indices[j - 1])[axis];
+        float tv2 = mesh->get_triangle_centroid(indices[j])[axis];
+
+        oss_val << tv1 << " ";
+        oss_idx << (j - 1) << " ";
+
+        bool local_ok;
+        if (tv1 == tv2)
+        {
+            local_ok = (indices[j - 1] < indices[j]);
+            ok = ok && local_ok;
+
+            if (!local_ok) 
+            {
+                oss_err << (j-1) << ", " << j << " violate the ordering" 
+                        << "(" << tv1 << ", " << tv2 << ")" << endl;
+            }
+        }
+        else
+        {
+            local_ok = (tv1 < tv2);
+            ok = ok && local_ok;
+
+            if (!local_ok)
+            {
+                oss_err << (j-1) << ", " << j << " violate the ordering"
+                        << "(" << tv1 << ", " << tv2 << ")" << endl;
+            }
+        }
+
+    }
+
+    oss_val << endl;
+    oss_idx << endl;
+
+    if (!ok)
+    {
+        cout << oss_val.str() << oss_idx.str() << oss_err.str();
+        cout << "start = " << start << endl;
+        cout << "end   = " << end   << endl;
+        cout << "axis  = " << axis  << endl;
+        assert(false);
+    }
+#endif
+}
+
 BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, int _axis)
     : indices(_indices), mesh(_mesh), axis(_axis), root(false)
 {
@@ -135,6 +192,13 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
         {
             triangle_less tl(mesh, i);
             sort(indices[i].begin(), indices[i].end(), tl);
+            check_heap(mesh, indices[i], 0, indices[i].size(), i);
+
+            for (int j = 0; j < num_triangles; j++)
+            {
+                cout << indices[i][j] << " ";
+            }
+            cout << endl;
         }
 
         double done = CycleTimer::currentSeconds();
@@ -176,7 +240,7 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
     float mincost = numeric_limits<float>::max();
     for (int j = 1; j < len; j++)
     {
-        float left_sa = left_boxes[j].get_surface_area();
+        float left_sa = left_boxes[j - 1].get_surface_area();
         float right_sa = right_boxes[j].get_surface_area();
         float cost = left_sa * j + right_sa * (len - j);
 
@@ -197,6 +261,10 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
     delete [] left_boxes;
     ///////////////////////////////////
 
+#if VERBOSE
+    cout << "################" << endl;
+    cout << "partitioning" << endl;
+#endif
     // partition
     for (int i = 0; i < 3; i++)
     {
@@ -207,18 +275,28 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
             for (int j = start; j < end; j++)
             {
                 float tri_val = mesh->get_triangle_centroid(indices[i][j])[axis];
-                bool left_part;
+                bool is_less;
 
                 if (tri_val != mid_val)
                 {
-                    left_part = tri_val < mid_val;
+                    is_less = (tri_val < mid_val);
                 }
                 else
                 {
-                    left_part = indices[i][j] < mid_tri_id;
+                    is_less = (indices[i][j] < mid_tri_id);
                 }
 
-                if (left_part)
+#if VERBOSE
+                cout << "indices[i][j] = " << indices[i][j] << endl
+                     << "mid_idx       = " << mid_idx       << endl
+                     << "mid_tri_id    = " << mid_tri_id    << endl
+                     << "tri_val       = " << tri_val       << mesh->get_triangle_centroid(mid_tri_id) << endl
+                     << "mid_val       = " << mid_val       << mesh->get_triangle_centroid(indices[i][j]) << endl
+                     << "is_less       = " << is_less       << endl
+                     << endl;
+#endif
+
+                if (is_less)
                 {
                     tmp[p1] = indices[i][j];
                     p1++;
@@ -230,12 +308,48 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
                 }
             }
 
+            check_heap(mesh, indices[i], start, mid_idx, i);
+            check_heap(mesh, indices[i], mid_idx, end, i);
+
+#if VERBOSE
+            if (p1 != mid_idx - start)
+            {
+                cout << "P1: " << p1 << " " << start << " " << mid_idx << " " << end << endl;
+            }
+            if (p2 != end - start)
+            {
+                cout << "P2: " <<  p2 << " " << start << " " << mid_idx << " " << end << endl;
+            }
+#endif
+
             for (int j = start; j < end; j++)
             {
                 indices[i][j] = tmp[j - start];
             }
         }
     }
+
+#if VERBOSE
+    for (int i = 0; i < 3; i++)
+    {
+        cout << "axis = " << i;
+        if (i == axis)
+            cout << "*: ";
+        else
+            cout << " : ";
+        for (int j = start; j < end; j++)
+        {
+            cout.width(2);
+            cout << indices[i][j];
+
+            if (j == mid_idx-1)
+                cout << "|";
+            else
+                cout << " ";
+        }
+        cout << endl;
+    }
+#endif
 
     int newaxis = (axis + 1) % 3;
 
