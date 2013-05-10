@@ -123,29 +123,30 @@ bool frustum_box_intersect(Frustum frustum, Vector3 box_min, Vector3 box_max)
 
     // test each plane of frustum individually; if the point is on the wrong
     // side of the plane, the box is outside the frustum and we can exit
+    int right_side = 0;
+
     for (int i = 0; i < 6; i++)
     {
-        int wrong_side = 0;
-
         for (int j = 0; j < 8; j++)
         {
             Vector3 point = box[j];
             Plane plane = frustum.planes[i];
 
-            if (dot(point - plane.point, plane.normal) > 0.0)
+            if (dot(point - plane.point, plane.normal) < 0.0)
             {
-                wrong_side++;
+                right_side++;
+                break;
             }
         }
 
         // if all 8 box points are on the wrong side, it doesn't intersect
-        if (wrong_side == 8)
+        if (right_side == 6)
         {
-            return false;
+            return true;
         }
     }
 
-    return true;
+    return false;
 }
 
 }
