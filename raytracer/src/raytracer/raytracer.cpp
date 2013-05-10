@@ -388,9 +388,10 @@ void Raytracer::trace_packet(Packet packet, float refractive,
     // run frustum intersection test on every object in scene
     for (size_t i = 0; i < scene->num_geometries(); i++)
     {
-        bool hit = scene->get_geometries()[i]->intersect_frustum(frustum);
+        //bool hit = scene->get_geometries()[i]->intersect_frustum(frustum);
 
-        if (!hit) // no intersection
+        if (false) // no intersection
+        //if (!hit) // no intersection
         {
             // TODO keep up/down straight
             // TODO <=?
