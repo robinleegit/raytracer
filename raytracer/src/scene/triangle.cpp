@@ -43,19 +43,48 @@ void Triangle::render() const
         vertices[0].material->reset_gl_state();
 }
 
+
 bool Triangle::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
 {
     Vector3 instance_e = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
-    float t = INFINITY, beta = INFINITY, gamma = INFINITY;
-    Vector3 p0, p1, p2;
-    p0 = vertices[0].position;
-    p1 = vertices[1].position;
-    p2 = vertices[2].position;
+    float a = vertices[0].position.x - vertices[1].position.x;
+    float b = vertices[0].position.y - vertices[1].position.y;
+    float c = vertices[0].position.z - vertices[1].position.z;
+    float d = vertices[0].position.x - vertices[2].position.x;
+    float e = vertices[0].position.y - vertices[2].position.y;
+    float f = vertices[0].position.z - vertices[2].position.z;
+    float g = instance_ray.x;
+    float h = instance_ray.y;
+    float i = instance_ray.z;
+    float j = vertices[0].position.x - instance_e.x;
+    float k = vertices[0].position.y - instance_e.y;
+    float l = vertices[0].position.z - instance_e.z;
+    float ei_minus_hf = e * i - h * f;
+    float gf_minus_di = g * f - d * i;
+    float dh_minus_eg = d * h - e * g;
+    float ak_minus_jb = a * k - j * b;
+    float jc_minus_al = j * c - a * l;
+    float bl_minus_kc = b * l - k * c;
+    float m = a * ei_minus_hf + b * gf_minus_di + c * dh_minus_eg;
+    float t = -1.0 * (f * ak_minus_jb + e * jc_minus_al + d * bl_minus_kc) / m;
 
-    if (!triangle_ray_intersect(instance_e, instance_ray, p0, p1, p2,
-                t, gamma, beta))
+    if (t < 0.0)
+    {
+        return false;
+    }
+
+    float gamma = (i * ak_minus_jb + h * jc_minus_al + g * bl_minus_kc) / m;
+
+    if (gamma < 0.0 || gamma > 1.0)
+    {
+        return false;
+    }
+
+    float beta = (j * ei_minus_hf + k * gf_minus_di + l * dh_minus_eg) / m;
+
+    if (beta < 0.0 || beta > 1.0 - gamma)
     {
         return false;
     }
@@ -116,20 +145,49 @@ bool Triangle::shadow_test(Vector3 eye, Vector3 ray) const
     Vector3 instance_e = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
-    float t = INFINITY, beta = INFINITY, gamma = INFINITY;
-    Vector3 p0, p1, p2;
-    p0 = vertices[0].position;
-    p1 = vertices[1].position;
-    p2 = vertices[2].position;
+    float a = vertices[0].position.x - vertices[1].position.x;
+    float b = vertices[0].position.y - vertices[1].position.y;
+    float c = vertices[0].position.z - vertices[1].position.z;
+    float d = vertices[0].position.x - vertices[2].position.x;
+    float e = vertices[0].position.y - vertices[2].position.y;
+    float f = vertices[0].position.z - vertices[2].position.z;
+    float g = instance_ray.x;
+    float h = instance_ray.y;
+    float i = instance_ray.z;
+    float j = vertices[0].position.x - instance_e.x;
+    float k = vertices[0].position.y - instance_e.y;
+    float l = vertices[0].position.z - instance_e.z;
+    float ei_minus_hf = e * i - h * f;
+    float gf_minus_di = g * f - d * i;
+    float dh_minus_eg = d * h - e * g;
+    float ak_minus_jb = a * k - j * b;
+    float jc_minus_al = j * c - a * l;
+    float bl_minus_kc = b * l - k * c;
+    float m = a * ei_minus_hf + b * gf_minus_di + c * dh_minus_eg;
+    float t = -1.0 * (f * ak_minus_jb + e * jc_minus_al + d * bl_minus_kc) / m;
 
-    if (!triangle_ray_intersect(instance_e, instance_ray, p0, p1, p2,
-                t, gamma, beta))
+    if (t < 0 || t > 1)
+    {
+        return false;
+    }
+
+    float gamma = (i * ak_minus_jb + h * jc_minus_al + g * bl_minus_kc) / m;
+
+    if (gamma < 0 || gamma > 1)
+    {
+        return false;
+    }
+
+    float beta = (j * ei_minus_hf + k * gf_minus_di + l * dh_minus_eg) / m;
+
+    if (beta < 0 || beta > 1 - gamma)
     {
         return false;
     }
 
     return true;
 }
+
 
 void Triangle::make_bounding_volume()
 {
