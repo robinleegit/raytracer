@@ -49,6 +49,9 @@ public:
     Box(const Mesh* mesh, std::vector<int>& indices, int n, int m);
     Vector3 min_corner, max_corner;
     bool intersect_ray(Vector3 eye, Vector3 ray) const;
+    Box operator+(const Box& rhs);
+    float get_surface_area();
+    Vector3 get_centroid();
 };
 
 class BvhNode

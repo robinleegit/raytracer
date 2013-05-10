@@ -1,16 +1,44 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <limits>
 #include "raytracer/CycleTimer.hpp"
 #include "raytracer/bvh.hpp"
 #include "scene/model.hpp"
 
+#define MEDIAN_SPLIT 1
+#define VERBOSE 0
 #define LEAF_SIZE 4
 
 using namespace std;
 
 namespace _462
 {
+
+Box Box::operator+(const Box& rhs)
+{
+    Box ret;
+
+    for (int axis = 0; axis < 3; axis++)
+    {
+        ret.min_corner[axis] = min(this->min_corner[axis], rhs.min_corner[axis]);
+        ret.max_corner[axis] = max(this->max_corner[axis], rhs.max_corner[axis]);
+    }
+
+    return ret;
+}
+
+float Box::get_surface_area()
+{
+    float ret = 0.0;
+    Vector3 diag = max_corner - min_corner;
+
+    ret += diag.x * diag.y;
+    ret += diag.y * diag.z;
+    ret += diag.z * diag.x;
+
+    return ret * 2;
+}
 
 bool Box::intersect_ray(Vector3 eye, Vector3 ray) const
 {
@@ -49,31 +77,27 @@ bool Box::intersect_ray(Vector3 eye, Vector3 ray) const
 
 Box::Box(const Mesh* mesh, vector<int>& indices, int n, int m)
 {
-    min_corner.x = INFINITY;
-    min_corner.y = INFINITY;
-    min_corner.z = INFINITY;
-
-    max_corner.x = -INFINITY;
-    max_corner.y = -INFINITY;
-    max_corner.z = -INFINITY;
+    for (int axis = 0; axis < 3; axis++)
+    {
+        min_corner[axis] = INFINITY;
+        max_corner[axis] = -INFINITY;
+    }
 
     for (size_t i = n; i < m; i++)
     {
         MeshTriangle t = mesh->get_triangles()[indices[i]];
 
+        // Iterate over the 3 vertices in the triangle
         for (size_t j = 0; j < 3; j++)
         {
             int vidx = t.vertices[j];
             MeshVertex v = mesh->get_vertices()[vidx];
 
-            min_corner.x = min(min_corner.x, v.position.x);
-            max_corner.x = max(max_corner.x, v.position.x);
-
-            min_corner.y = min(min_corner.y, v.position.y);
-            max_corner.y = max(max_corner.y, v.position.y);
-
-            min_corner.z = min(min_corner.z, v.position.z);
-            max_corner.z = max(max_corner.z, v.position.z);
+            for (int axis = 0; axis < 3; axis++)
+            {
+                min_corner[axis] = min(min_corner[axis], v.position[axis]);
+                max_corner[axis] = max(max_corner[axis], v.position[axis]);
+            }
         }
     }
 }
@@ -117,21 +141,6 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
              << "Bvh creation took     " << (CycleTimer::currentSeconds() - bvh_create_start) << "s" << endl;
     }
 
-    /*
-    ///////////////////////////////////
-    // Do SAH to choose partition
-    vector<Box> candidates(end - start);
-
-    for (int i = 0; i < end; i++)
-    {
-    }
-
-    ///////////////////////////////////
-    */
-    mid_idx = (start + end) / 2;
-    int mid_tri_id = indices[axis][mid_idx];
-    float mid_val = mesh->get_triangle_centroid(indices[axis][mid_idx])[axis];
-
     left = NULL;
     right = NULL;
 
@@ -144,6 +153,95 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
         return;
     }
 
+#if MEDIAN_SPLIT
+    mid_idx = (start + end) / 2;
+    int mid_tri_id = indices[axis][mid_idx];
+    float mid_val = mesh->get_triangle_centroid(indices[axis][mid_idx])[axis];
+#else
+    ///////////////////////////////////
+    // Do SAH to choose partition
+    int mid_tri_id, len = end - start;
+    float mid_val;
+
+    Box *left_boxes = new Box[len];
+    Box *right_boxes = new Box[len];
+
+#if VERBOSE
+    cout << "####################################" << endl;
+    cout << "Doing partial sums" << endl;
+#endif
+    left_boxes[0] = Box(mesh, indices[axis], start, start + 1);
+    right_boxes[len-1] = Box(mesh, indices[axis], end - 1, end);
+    for (int j = 1; j < len; j++)
+    {
+        left_boxes[j] = Box(mesh, indices[axis], j, j+1) + left_boxes[j-1];
+        right_boxes[len-j-1] = Box(mesh, indices[axis], len-j-1, len-j) + right_boxes[len-j];
+    }
+
+#if VERBOSE
+    for (int j = 0; j < len; j++)
+    {
+        cout.width(4);
+        cout << left_boxes[j].get_surface_area() << " ";
+    }
+    cout << endl;
+
+    for (int j = 0; j < len; j++)
+    {
+        cout.width(4);
+        cout << right_boxes[j].get_surface_area() << " ";
+    }
+    cout << endl;
+
+    cout << "####################################" << endl;
+    cout << "Getting min cost partition" << endl;
+#endif
+    float mincost = numeric_limits<float>::max();
+    for (int j = 1; j < len; j++)
+    {
+        float left_sa = left_boxes[j].get_surface_area();
+        float right_sa = right_boxes[j].get_surface_area();
+        float cost = left_sa * j + right_sa * (len - j);
+
+#if VERBOSE
+        cout << "j = ";
+        cout.width(2);
+        cout << j;
+        cout << ", cost = " << cost << endl;
+#endif
+
+        if (cost < mincost)
+        {
+            mincost = cost;
+            float val1 = mesh->get_triangle_centroid(indices[axis][j-1])[axis];
+            float val2 = mesh->get_triangle_centroid(indices[axis][j])[axis];
+            mid_idx = j;
+            mid_val = (val1 + val2) / 2;
+            mid_tri_id = indices[axis][j];
+            left_bbox = left_boxes[j];
+            right_bbox = right_boxes[j];
+        }
+    }
+
+#if VERBOSE
+    cout << "####################################" << endl;
+    cout << "min cost   = " << mincost    << endl;
+    cout << "mid_idx    = " << mid_idx    << endl;
+    cout << "mid_tri_id = " << mid_tri_id << endl;
+    cout << "mid_val    = " << mid_val    << endl;
+#endif
+
+    delete [] right_boxes;
+    delete [] left_boxes;
+
+#if VERBOSE
+    cout << "####################################" << endl;
+    cout << "Freed memory" << endl;
+    cout << "####################################" << endl;
+#endif
+    ///////////////////////////////////
+#endif
+
     // partition
     for (int i = 0; i < 3; i++)
     {
@@ -154,18 +252,18 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
             for (int j = start; j < end; j++)
             {
                 float tri_val = mesh->get_triangle_centroid(indices[i][j])[axis];
-                bool left;
+                bool left_part;
 
                 if (tri_val != mid_val)
                 {
-                    left = tri_val < mid_val;
+                    left_part = tri_val < mid_val;
                 }
                 else
                 {
-                    left = indices[i][j] < mid_tri_id;
+                    left_part = indices[i][j] < mid_tri_id;
                 }
 
-                if (left)
+                if (left_part)
                 {
                     tmp[p1] = indices[i][j];
                     p1++;
@@ -186,10 +284,12 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
 
     int newaxis = (axis + 1) % 3;
 
+#if MEDIAN_SPLIT
     left_bbox = Box(mesh, indices[axis], start, mid_idx);
-    left = new BvhNode(mesh, indices, start, mid_idx, newaxis);
-
     right_bbox = Box(mesh, indices[axis], mid_idx, end);
+#endif
+
+    left = new BvhNode(mesh, indices, start, mid_idx, newaxis);
     right = new BvhNode(mesh, indices, mid_idx, end, newaxis);
 }
 
