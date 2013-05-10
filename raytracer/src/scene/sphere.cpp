@@ -174,7 +174,6 @@ void Sphere::make_bounding_volume()
 bool Sphere::intersect_frustum(Frustum frustum) const
 {
     Frustum instance_frustum;
-    int right_side = 0;
 
     // check center/radius against all planes
     for (int i = 0; i < 6; i++)
@@ -189,19 +188,14 @@ bool Sphere::intersect_frustum(Frustum frustum) const
         Vector3 v = position - plane.point; // position is the sphere's center
 
         // check if center is outside plane
-        if ((dot(v, plane.normal) < 0.0) ||
-               (abs(dot(v, plane.normal)) / length(plane.normal) < radius))
+        if ((dot(v, plane.normal) > 0.0) &&
+               (dot(v, plane.normal)) / length(plane.normal) < -1.0 * radius)
         {
-            right_side++;
+            return false;
         }
     }
 
-    if (right_side == 6)
-    {
-        return true;
-    }
-
-    return false;
+    return true;
 }
 
 } /* _462 */
