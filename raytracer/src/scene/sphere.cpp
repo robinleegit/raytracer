@@ -189,7 +189,7 @@ bool Sphere::intersect_frustum(Frustum frustum) const
                 return false;
             }
         }
-    } 
+    }
 
     return true;
 }

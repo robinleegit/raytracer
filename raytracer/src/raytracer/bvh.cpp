@@ -6,8 +6,6 @@
 #include "raytracer/bvh.hpp"
 #include "scene/model.hpp"
 
-#define MEDIAN_SPLIT 1
-#define VERBOSE 0
 #define LEAF_SIZE 4
 
 using namespace std;
@@ -102,14 +100,14 @@ Box::Box(const Mesh* mesh, vector<int>& indices, int n, int m)
     }
 }
 
-BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, int _axis) 
+BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, int _axis)
     : indices(_indices), mesh(_mesh), axis(_axis), root(false)
 {
     // do some setup for the root node
     if (!_indices)
     {
         root = true;
-        double bvh_create_start = CycleTimer::currentSeconds();
+        double root_create_start = CycleTimer::currentSeconds();
 
         int num_triangles = mesh->num_triangles();
         start = 0;
@@ -121,7 +119,7 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
         indices[1] = vector<int>(num_triangles);
         indices[2] = vector<int>(num_triangles);
 
-        double start = CycleTimer::currentSeconds();
+        double index_assign_start = CycleTimer::currentSeconds();
 
         for (int i = 0; i < 3; i++)
         {
@@ -131,14 +129,18 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
             }
         }
 
+        double sort_start = CycleTimer::currentSeconds();
+
         for (int i = 0; i < 3; i++)
         {
             triangle_less tl(mesh, i);
             sort(indices[i].begin(), indices[i].end(), tl);
         }
 
-        cout << "Indices creation took " << (CycleTimer::currentSeconds() - start) << "s" << endl
-             << "Bvh creation took     " << (CycleTimer::currentSeconds() - bvh_create_start) << "s" << endl;
+        double done = CycleTimer::currentSeconds();
+        cout << "Indices creation took   " << (done - index_assign_start) << "s" << endl
+             << "Sorting of indices took " << (done - sort_start)         << "s" << endl
+             << "Root bvh setup took     " << (done - root_create_start ) << "s" << endl;
     }
 
     left = NULL;
@@ -153,11 +155,6 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
         return;
     }
 
-#if MEDIAN_SPLIT
-    mid_idx = (start + end) / 2;
-    int mid_tri_id = indices[axis][mid_idx];
-    float mid_val = mesh->get_triangle_centroid(indices[axis][mid_idx])[axis];
-#else
     ///////////////////////////////////
     // Do SAH to choose partition
     int mid_tri_id, len = end - start;
@@ -166,36 +163,16 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
     Box *left_boxes = new Box[len];
     Box *right_boxes = new Box[len];
 
-#if VERBOSE
-    cout << "####################################" << endl;
-    cout << "Doing partial sums" << endl;
-#endif
+    // Create partial sums of bounding boxes
     left_boxes[0] = Box(mesh, indices[axis], start, start + 1);
     right_boxes[len-1] = Box(mesh, indices[axis], end - 1, end);
     for (int j = 1; j < len; j++)
     {
-        left_boxes[j] = Box(mesh, indices[axis], j, j+1) + left_boxes[j-1];
-        right_boxes[len-j-1] = Box(mesh, indices[axis], len-j-1, len-j) + right_boxes[len-j];
+        left_boxes[j] = Box(mesh, indices[axis], start + j, start + j+1) + left_boxes[j-1];
+        right_boxes[len-j-1] = Box(mesh, indices[axis], start + (len-j-1), start + (len-j)) + right_boxes[len-j];
     }
 
-#if VERBOSE
-    for (int j = 0; j < len; j++)
-    {
-        cout.width(4);
-        cout << left_boxes[j].get_surface_area() << " ";
-    }
-    cout << endl;
-
-    for (int j = 0; j < len; j++)
-    {
-        cout.width(4);
-        cout << right_boxes[j].get_surface_area() << " ";
-    }
-    cout << endl;
-
-    cout << "####################################" << endl;
-    cout << "Getting min cost partition" << endl;
-#endif
+    // Actually find the minimum cost partition using the partial sums
     float mincost = numeric_limits<float>::max();
     for (int j = 1; j < len; j++)
     {
@@ -203,44 +180,22 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
         float right_sa = right_boxes[j].get_surface_area();
         float cost = left_sa * j + right_sa * (len - j);
 
-#if VERBOSE
-        cout << "j = ";
-        cout.width(2);
-        cout << j;
-        cout << ", cost = " << cost << endl;
-#endif
-
         if (cost < mincost)
         {
             mincost = cost;
-            float val1 = mesh->get_triangle_centroid(indices[axis][j-1])[axis];
-            float val2 = mesh->get_triangle_centroid(indices[axis][j])[axis];
-            mid_idx = j;
+            float val1 = mesh->get_triangle_centroid(indices[axis][start + j - 1])[axis];
+            float val2 = mesh->get_triangle_centroid(indices[axis][start + j ])[axis];
+            mid_idx = start + j;
             mid_val = (val1 + val2) / 2;
-            mid_tri_id = indices[axis][j];
+            mid_tri_id = indices[axis][start + j];
             left_bbox = left_boxes[j];
             right_bbox = right_boxes[j];
         }
     }
 
-#if VERBOSE
-    cout << "####################################" << endl;
-    cout << "min cost   = " << mincost    << endl;
-    cout << "mid_idx    = " << mid_idx    << endl;
-    cout << "mid_tri_id = " << mid_tri_id << endl;
-    cout << "mid_val    = " << mid_val    << endl;
-#endif
-
     delete [] right_boxes;
     delete [] left_boxes;
-
-#if VERBOSE
-    cout << "####################################" << endl;
-    cout << "Freed memory" << endl;
-    cout << "####################################" << endl;
-#endif
     ///////////////////////////////////
-#endif
 
     // partition
     for (int i = 0; i < 3; i++)
@@ -283,11 +238,6 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
     }
 
     int newaxis = (axis + 1) % 3;
-
-#if MEDIAN_SPLIT
-    left_bbox = Box(mesh, indices[axis], start, mid_idx);
-    right_bbox = Box(mesh, indices[axis], mid_idx, end);
-#endif
 
     left = new BvhNode(mesh, indices, start, mid_idx, newaxis);
     right = new BvhNode(mesh, indices, mid_idx, end, newaxis);
@@ -334,7 +284,7 @@ void BvhNode::print()
 }
 
 bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
-                        float &min_beta, float &min_gamma)
+                            float &min_beta, float &min_gamma)
 {
     bool ret = false;
 
@@ -367,14 +317,14 @@ bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &m
     if (left_bbox.intersect_ray(eye, ray))
     {
         bool l_inter = left->intersect_ray(eye, ray, min_time, min_index,
-                                       min_beta, min_gamma);
+                                           min_beta, min_gamma);
         ret = ret || l_inter;
     }
 
     if (right_bbox.intersect_ray(eye, ray))
     {
         bool r_inter = right->intersect_ray(eye, ray, min_time, min_index,
-                                        min_beta, min_gamma);
+                                            min_beta, min_gamma);
         ret = ret || r_inter;
     }
 
@@ -383,7 +333,7 @@ bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &m
 
 // this test will exit early if any triangle is hit
 bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
-        float &min_beta, float &min_gamma)
+                          float &min_beta, float &min_gamma)
 {
     bool ret = false;
 
@@ -403,7 +353,7 @@ bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min
             p2 = mesh->get_vertices()[v2].position;
 
             if (triangle_ray_intersect(eye, ray, p0, p1, p2, min_time,
-                        min_gamma, min_beta))
+                                       min_gamma, min_beta))
             {
                 return true;
             }
@@ -415,9 +365,9 @@ bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min
     if (left_bbox.intersect_ray(eye, ray))
     {
         bool l_inter = left->intersect_ray(eye, ray, min_time, min_index,
-                                       min_beta, min_gamma);
+                                           min_beta, min_gamma);
         ret = ret || l_inter;
-        
+
     }
 
     // no need to check the right side if left intersected
@@ -429,7 +379,7 @@ bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min
     if (right_bbox.intersect_ray(eye, ray))
     {
         bool r_inter = right->intersect_ray(eye, ray, min_time, min_index,
-                                        min_beta, min_gamma);
+                                            min_beta, min_gamma);
         ret = ret || r_inter;
     }
 

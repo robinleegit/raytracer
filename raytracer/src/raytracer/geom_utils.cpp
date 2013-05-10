@@ -5,8 +5,8 @@ using namespace std;
 namespace _462
 {
 bool triangle_ray_intersect(Vector3 eye, Vector3 ray, Vector3 p0, Vector3 p1,
-                        Vector3 p2, float &min_time, float &min_gamma,
-                        float &min_beta)
+                            Vector3 p2, float &min_time, float &min_gamma,
+                            float &min_beta)
 {
     float x0, y0, z0, x1, y1, z1, x2, y2, z2;
     float beta = 0.0, gamma = 0.0;
@@ -81,27 +81,27 @@ bool frustum_box_intersect(Frustum frustum, Vector3 box_min, Vector3 box_max)
     // test each plane of frustum individually; if the point is on the wrong
     // side of the plane, the box is outside the frustum and we can exit
     for (int i = 0; i < 6; i++)
-    { 
+    {
         if (frustum.planes[i].normal.x > 0)
-        { 
-            pos.x = box_max.x; 
+        {
+            pos.x = box_max.x;
         }
 
         if (frustum.planes[i].normal.y > 0)
-        { 
-            pos.y = box_max.y; 
+        {
+            pos.y = box_max.y;
         }
 
         if (frustum.planes[i].normal.z > 0)
-        { 
-            pos.z = box_max.z; 
+        {
+            pos.z = box_max.z;
         }
 
-		if (dot(pos - frustum.planes[i].point, frustum.planes[i].normal) < 0.0)
+        if (dot(pos - frustum.planes[i].point, frustum.planes[i].normal) < 0.0)
         {
             return false;
         }
-    } 
+    }
 
     return true;
 }
