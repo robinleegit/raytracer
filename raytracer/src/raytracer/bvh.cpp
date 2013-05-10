@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <limits>
 #include "raytracer/CycleTimer.hpp"
 #include "raytracer/bvh.hpp"
 #include "scene/model.hpp"
@@ -11,6 +12,31 @@ using namespace std;
 
 namespace _462
 {
+
+Box Box::operator+(const Box& rhs)
+{
+    Box ret;
+
+    for (int axis = 0; axis < 3; axis++)
+    {
+        ret.min_corner[axis] = min(this->min_corner[axis], rhs.min_corner[axis]);
+        ret.max_corner[axis] = max(this->max_corner[axis], rhs.max_corner[axis]);
+    }
+
+    return ret;
+}
+
+float Box::get_surface_area()
+{
+    float ret = 0.0;
+    Vector3 diag = max_corner - min_corner;
+
+    ret += diag.x * diag.y;
+    ret += diag.y * diag.z;
+    ret += diag.z * diag.x;
+
+    return ret * 2;
+}
 
 bool Box::intersect_ray(Vector3 eye, Vector3 ray) const
 {
@@ -49,43 +75,39 @@ bool Box::intersect_ray(Vector3 eye, Vector3 ray) const
 
 Box::Box(const Mesh* mesh, vector<int>& indices, int n, int m)
 {
-    min_corner.x = INFINITY;
-    min_corner.y = INFINITY;
-    min_corner.z = INFINITY;
-
-    max_corner.x = -INFINITY;
-    max_corner.y = -INFINITY;
-    max_corner.z = -INFINITY;
+    for (int axis = 0; axis < 3; axis++)
+    {
+        min_corner[axis] = INFINITY;
+        max_corner[axis] = -INFINITY;
+    }
 
     for (size_t i = n; i < m; i++)
     {
         MeshTriangle t = mesh->get_triangles()[indices[i]];
 
+        // Iterate over the 3 vertices in the triangle
         for (size_t j = 0; j < 3; j++)
         {
             int vidx = t.vertices[j];
             MeshVertex v = mesh->get_vertices()[vidx];
 
-            min_corner.x = min(min_corner.x, v.position.x);
-            max_corner.x = max(max_corner.x, v.position.x);
-
-            min_corner.y = min(min_corner.y, v.position.y);
-            max_corner.y = max(max_corner.y, v.position.y);
-
-            min_corner.z = min(min_corner.z, v.position.z);
-            max_corner.z = max(max_corner.z, v.position.z);
+            for (int axis = 0; axis < 3; axis++)
+            {
+                min_corner[axis] = min(min_corner[axis], v.position[axis]);
+                max_corner[axis] = max(max_corner[axis], v.position[axis]);
+            }
         }
     }
 }
 
-BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, int _axis) 
+BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, int _axis)
     : indices(_indices), mesh(_mesh), axis(_axis), root(false)
 {
     // do some setup for the root node
     if (!_indices)
     {
         root = true;
-        double bvh_create_start = CycleTimer::currentSeconds();
+        double root_create_start = CycleTimer::currentSeconds();
 
         int num_triangles = mesh->num_triangles();
         start = 0;
@@ -97,7 +119,7 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
         indices[1] = vector<int>(num_triangles);
         indices[2] = vector<int>(num_triangles);
 
-        double start = CycleTimer::currentSeconds();
+        double index_assign_start = CycleTimer::currentSeconds();
 
         for (int i = 0; i < 3; i++)
         {
@@ -107,30 +129,19 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
             }
         }
 
+        double sort_start = CycleTimer::currentSeconds();
+
         for (int i = 0; i < 3; i++)
         {
             triangle_less tl(mesh, i);
             sort(indices[i].begin(), indices[i].end(), tl);
         }
 
-        cout << "Indices creation took " << (CycleTimer::currentSeconds() - start) << "s" << endl
-             << "Bvh creation took     " << (CycleTimer::currentSeconds() - bvh_create_start) << "s" << endl;
+        double done = CycleTimer::currentSeconds();
+        cout << "Indices creation took   " << (done - index_assign_start) << "s" << endl
+             << "Sorting of indices took " << (done - sort_start)         << "s" << endl
+             << "Root bvh setup took     " << (done - root_create_start ) << "s" << endl;
     }
-
-    /*
-    ///////////////////////////////////
-    // Do SAH to choose partition
-    vector<Box> candidates(end - start);
-
-    for (int i = 0; i < end; i++)
-    {
-    }
-
-    ///////////////////////////////////
-    */
-    mid_idx = (start + end) / 2;
-    int mid_tri_id = indices[axis][mid_idx];
-    float mid_val = mesh->get_triangle_centroid(indices[axis][mid_idx])[axis];
 
     left = NULL;
     right = NULL;
@@ -144,6 +155,48 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
         return;
     }
 
+    ///////////////////////////////////
+    // Do SAH to choose partition
+    int mid_tri_id, len = end - start;
+    float mid_val;
+
+    Box *left_boxes = new Box[len];
+    Box *right_boxes = new Box[len];
+
+    // Create partial sums of bounding boxes
+    left_boxes[0] = Box(mesh, indices[axis], start, start + 1);
+    right_boxes[len-1] = Box(mesh, indices[axis], end - 1, end);
+    for (int j = 1; j < len; j++)
+    {
+        left_boxes[j] = Box(mesh, indices[axis], start + j, start + j+1) + left_boxes[j-1];
+        right_boxes[len-j-1] = Box(mesh, indices[axis], start + (len-j-1), start + (len-j)) + right_boxes[len-j];
+    }
+
+    // Actually find the minimum cost partition using the partial sums
+    float mincost = numeric_limits<float>::max();
+    for (int j = 1; j < len; j++)
+    {
+        float left_sa = left_boxes[j].get_surface_area();
+        float right_sa = right_boxes[j].get_surface_area();
+        float cost = left_sa * j + right_sa * (len - j);
+
+        if (cost < mincost)
+        {
+            mincost = cost;
+            float val1 = mesh->get_triangle_centroid(indices[axis][start + j - 1])[axis];
+            float val2 = mesh->get_triangle_centroid(indices[axis][start + j ])[axis];
+            mid_idx = start + j;
+            mid_val = (val1 + val2) / 2;
+            mid_tri_id = indices[axis][start + j];
+            left_bbox = left_boxes[j];
+            right_bbox = right_boxes[j];
+        }
+    }
+
+    delete [] right_boxes;
+    delete [] left_boxes;
+    ///////////////////////////////////
+
     // partition
     for (int i = 0; i < 3; i++)
     {
@@ -154,18 +207,18 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
             for (int j = start; j < end; j++)
             {
                 float tri_val = mesh->get_triangle_centroid(indices[i][j])[axis];
-                bool left;
+                bool left_part;
 
                 if (tri_val != mid_val)
                 {
-                    left = tri_val < mid_val;
+                    left_part = tri_val < mid_val;
                 }
                 else
                 {
-                    left = indices[i][j] < mid_tri_id;
+                    left_part = indices[i][j] < mid_tri_id;
                 }
 
-                if (left)
+                if (left_part)
                 {
                     tmp[p1] = indices[i][j];
                     p1++;
@@ -186,10 +239,7 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
 
     int newaxis = (axis + 1) % 3;
 
-    left_bbox = Box(mesh, indices[axis], start, mid_idx);
     left = new BvhNode(mesh, indices, start, mid_idx, newaxis);
-
-    right_bbox = Box(mesh, indices[axis], mid_idx, end);
     right = new BvhNode(mesh, indices, mid_idx, end, newaxis);
 }
 
@@ -234,7 +284,7 @@ void BvhNode::print()
 }
 
 bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
-                        float &min_beta, float &min_gamma)
+                            float &min_beta, float &min_gamma)
 {
     bool ret = false;
 
@@ -267,14 +317,14 @@ bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &m
     if (left_bbox.intersect_ray(eye, ray))
     {
         bool l_inter = left->intersect_ray(eye, ray, min_time, min_index,
-                                       min_beta, min_gamma);
+                                           min_beta, min_gamma);
         ret = ret || l_inter;
     }
 
     if (right_bbox.intersect_ray(eye, ray))
     {
         bool r_inter = right->intersect_ray(eye, ray, min_time, min_index,
-                                        min_beta, min_gamma);
+                                            min_beta, min_gamma);
         ret = ret || r_inter;
     }
 
@@ -283,7 +333,7 @@ bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &m
 
 // this test will exit early if any triangle is hit
 bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
-        float &min_beta, float &min_gamma)
+                          float &min_beta, float &min_gamma)
 {
     bool ret = false;
 
@@ -303,7 +353,7 @@ bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min
             p2 = mesh->get_vertices()[v2].position;
 
             if (triangle_ray_intersect(eye, ray, p0, p1, p2, min_time,
-                        min_gamma, min_beta))
+                                       min_gamma, min_beta))
             {
                 return true;
             }
@@ -315,9 +365,9 @@ bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min
     if (left_bbox.intersect_ray(eye, ray))
     {
         bool l_inter = left->intersect_ray(eye, ray, min_time, min_index,
-                                       min_beta, min_gamma);
+                                           min_beta, min_gamma);
         ret = ret || l_inter;
-        
+
     }
 
     // no need to check the right side if left intersected
@@ -329,7 +379,7 @@ bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min
     if (right_bbox.intersect_ray(eye, ray))
     {
         bool r_inter = right->intersect_ray(eye, ray, min_time, min_index,
-                                        min_beta, min_gamma);
+                                            min_beta, min_gamma);
         ret = ret || r_inter;
     }
 

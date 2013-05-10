@@ -48,7 +48,7 @@ bool Model::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
     size_t min_index = 0;
 
     if (!bvh->intersect_ray(instance_e, instance_ray, min_time, min_index,
-                        min_beta, min_gamma))
+                            min_beta, min_gamma))
     {
         return false;
     }
@@ -103,7 +103,7 @@ bool Model::shadow_test(Vector3 eye, Vector3 ray) const
     size_t min_index = 0;
 
     return bvh->shadow_test(instance_e, instance_ray, min_time, min_index,
-                          min_beta, min_gamma);
+                            min_beta, min_gamma);
 }
 
 void Model::make_bounding_volume()
@@ -113,20 +113,25 @@ void Model::make_bounding_volume()
         delete bvh;
     }
 
+    double bvh_create_start = CycleTimer::currentSeconds();
+
     bvh = new BvhNode(mesh, NULL, 0, 0, 0);
-    //bvh->print();
+
+    double done = CycleTimer::currentSeconds();
+
+    cout << "Bvh creation took       " << (done - bvh_create_start) << "s" << endl;
 }
 
 bool Model::intersect_frustum(Frustum frustum) const
 {
     if (frustum_box_intersect(frustum, bvh->left_bbox.min_corner,
-            bvh->left_bbox.max_corner))
+                              bvh->left_bbox.max_corner))
     {
         return true;
     }
 
     if (frustum_box_intersect(frustum, bvh->right_bbox.min_corner,
-            bvh->right_bbox.max_corner))
+                              bvh->right_bbox.max_corner))
     {
         return true;
     }

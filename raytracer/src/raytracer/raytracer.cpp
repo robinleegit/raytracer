@@ -73,8 +73,8 @@ bool Raytracer::initialize(Scene* scene0, size_t width0, size_t height0)
  * @return The color of that pixel in the final image.
  */
 Color3 Raytracer::trace_pixel(Int2 pixel, size_t width, size_t height,
-        int recursions, Vector3 start_e, Vector3 start_ray,
-        float refractive, bool extras)
+                              int recursions, Vector3 start_e, Vector3 start_ray,
+                              float refractive, bool extras)
 {
     assert(0 <= pixel.x && pixel.x < width);
     assert(0 <= pixel.y && pixel.y < height);
@@ -231,7 +231,7 @@ Vector3 Raytracer::get_viewing_ray(Int2 pixel, size_t width, size_t height)
     real_t b = -1.0 * t;
     real_t l = -1.0 * r;
     // the pixel's horizontal coordinate on image plane
-    real_t u = l + (r - l) * (pixel.x + 0.5) / width; 
+    real_t u = l + (r - l) * (pixel.x + 0.5) / width;
     // the pixel's vertical coordinate on image plane
     real_t v = b + (t - b) * (pixel.y + 0.5) / height;
     // Shirley uses the near plane for the below calculation; we'll just use 1
@@ -371,12 +371,12 @@ void Raytracer::trace_pixel_worker(tsqueue<Int2> *pixel_queue, unsigned char *bu
         }
 
         Color3 color = trace_pixel(pixel, width, height, 0, start_e,
-                start_ray, 1.0, false);
+                                   start_ray, 1.0, false);
         color.to_array(&buffer[4 * ( pixel.y * width + pixel.x)]);
     }
 }
 
-//void Raytracer::trace_packet(Vector3 
+//void Raytracer::trace_packet(Vector3
 
 /**
  * Raytraces some portion of the scene. Should raytrace for about

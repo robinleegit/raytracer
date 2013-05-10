@@ -38,7 +38,7 @@ public:
     bool initialize(Scene* scene, size_t width, size_t height);
 
     Color3 trace_pixel(Int2 pixel, size_t width, size_t height, int recursions,
-            Vector3 start_e, Vector3 start_ray, float refractive, bool extras);
+                       Vector3 start_e, Vector3 start_ray, float refractive, bool extras);
 
     void trace_pixel_worker(tsqueue<Int2> *pixel_queue, unsigned char *buffer);
 

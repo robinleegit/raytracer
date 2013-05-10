@@ -14,7 +14,7 @@ struct partition_tester
     size_t part_axis;
     float mid_val;
 
-    partition_tester(const Mesh* _mesh, size_t _part_axis, float _mid_val) 
+    partition_tester(const Mesh* _mesh, size_t _part_axis, float _mid_val)
         : mesh(_mesh), part_axis(_part_axis), mid_val(_mid_val) { }
 
     bool operator()(int i)
@@ -49,6 +49,9 @@ public:
     Box(const Mesh* mesh, std::vector<int>& indices, int n, int m);
     Vector3 min_corner, max_corner;
     bool intersect_ray(Vector3 eye, Vector3 ray) const;
+    Box operator+(const Box& rhs);
+    float get_surface_area();
+    Vector3 get_centroid();
 };
 
 class BvhNode
@@ -67,9 +70,9 @@ public:
     BvhNode(const Mesh *_mesh, std::vector<int> *_indices, int start, int end, int _axis);
     ~BvhNode();
     bool intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
-            float &min_beta, float &min_gamma);
+                       float &min_beta, float &min_gamma);
     bool shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
-            float &min_beta, float &min_gamma);
+                     float &min_beta, float &min_gamma);
     void print();
 };
 

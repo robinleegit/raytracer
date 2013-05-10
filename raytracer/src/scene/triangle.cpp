@@ -202,7 +202,7 @@ bool Triangle::intersect_frustum(Frustum frustum) const
         int outside = 0;
 
         for (int j = 0; j < 3; j++)
-        { 
+        {
             Vector3 pos = vertices[j].position;
             Plane plane = frustum.planes[i];
 
@@ -210,7 +210,7 @@ bool Triangle::intersect_frustum(Frustum frustum) const
             {
                 outside++;
             }
-        } 
+        }
 
         if (outside == 3)
         {
