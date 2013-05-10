@@ -230,7 +230,7 @@ Vector3 Raytracer::get_viewing_ray(Int2 pixel)
     real_t b = -1.0 * t;
     real_t l = -1.0 * r;
     // the pixel's horizontal coordinate on image plane
-    real_t u = l + (r - l) * (pixel.x + 0.5) / width; 
+    real_t u = l + (r - l) * (pixel.x + 0.5) / width;
     // the pixel's vertical coordinate on image plane
     real_t v = b + (t - b) * (pixel.y + 0.5) / height;
     // Shirley uses the near plane for the below calculation; we'll just use 1

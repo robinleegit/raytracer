@@ -43,6 +43,7 @@ void Triangle::render() const
         vertices[0].material->reset_gl_state();
 }
 
+
 bool Triangle::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
 {
     Vector3 instance_e = inverse_transform_matrix.transform_point(eye);
@@ -210,7 +211,7 @@ bool Triangle::intersect_frustum(Frustum frustum) const
 
         // check if all three of triangle's points are on the wrong side
         for (int j = 0; j < 3; j++)
-        { 
+        {
             Vector3 pos = vertices[j].position;
             Plane plane = instance_frustum.planes[i];
             Vector3 v = pos - plane.point;

@@ -113,8 +113,13 @@ void Model::make_bounding_volume()
         delete bvh;
     }
 
+    double bvh_create_start = CycleTimer::currentSeconds();
+
     bvh = new BvhNode(mesh, NULL, 0, 0, 0);
-    //bvh->print();
+
+    double done = CycleTimer::currentSeconds();
+
+    cout << "Bvh creation took       " << (done - bvh_create_start) << "s" << endl;
 }
 
 bool Model::intersect_frustum(Frustum frustum) const
