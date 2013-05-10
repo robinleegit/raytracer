@@ -64,10 +64,9 @@ public:
     int mid_idx;
     int start_triangle;
     int end_triangle;
-    int axis;
     bool root;
 
-    BvhNode(const Mesh *_mesh, std::vector<int> *_indices, int start, int end, int _axis);
+    BvhNode(const Mesh *_mesh, std::vector<int> *_indices, int start, int end);
     ~BvhNode();
     bool intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
                        float &min_beta, float &min_gamma);

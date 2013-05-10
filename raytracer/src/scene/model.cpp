@@ -115,7 +115,7 @@ void Model::make_bounding_volume()
 
     double bvh_create_start = CycleTimer::currentSeconds();
 
-    bvh = new BvhNode(mesh, NULL, 0, 0, 0);
+    bvh = new BvhNode(mesh, NULL, 0, 0);
 
     double done = CycleTimer::currentSeconds();
 

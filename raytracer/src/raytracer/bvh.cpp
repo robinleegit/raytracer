@@ -100,8 +100,8 @@ Box::Box(const Mesh* mesh, vector<int>& indices, int n, int m)
     }
 }
 
-BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, int _axis)
-    : indices(_indices), mesh(_mesh), axis(_axis), root(false)
+BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end)
+    : indices(_indices), mesh(_mesh), root(false)
 {
     // do some setup for the root node
     if (!_indices)
@@ -112,7 +112,6 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
         int num_triangles = mesh->num_triangles();
         start = 0;
         end = num_triangles;
-        axis = 0;
 
         indices = new vector<int>[3];
         indices[0] = vector<int>(num_triangles);
@@ -157,7 +156,7 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
 
     ///////////////////////////////////
     // Do SAH to choose partition
-    int mid_tri_id, len = end - start;
+    int mid_tri_id, len = end - start, axis;
     float mid_val;
     float mincost = numeric_limits<float>::max();
 
@@ -166,35 +165,35 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
 
     for (int i = 0; i < 3; i++)
     {
-    // Create partial sums of bounding boxes
-    left_boxes[0] = Box(mesh, indices[i], start, start + 1);
-    right_boxes[len-1] = Box(mesh, indices[i], end - 1, end);
-    for (int j = 1; j < len; j++)
-    {
-        left_boxes[j] = Box(mesh, indices[i], start + j, start + j+1) + left_boxes[j-1];
-        right_boxes[len-j-1] = Box(mesh, indices[i], start + (len-j-1), start + (len-j)) + right_boxes[len-j];
-    }
-
-    // Actually find the minimum cost partition using the partial sums
-    for (int j = 1; j < len; j++)
-    {
-        float left_sa = left_boxes[j-1].get_surface_area();
-        float right_sa = right_boxes[j].get_surface_area();
-        float cost = left_sa * j + right_sa * (len - j);
-
-        if (cost < mincost)
+        // Create partial sums of bounding boxes
+        left_boxes[0] = Box(mesh, indices[i], start, start + 1);
+        right_boxes[len-1] = Box(mesh, indices[i], end - 1, end);
+        for (int j = 1; j < len; j++)
         {
-            mincost = cost;
-            float val1 = mesh->get_triangle_centroid(indices[i][start + j - 1])[i];
-            float val2 = mesh->get_triangle_centroid(indices[i][start + j ])[i];
-            mid_idx = start + j;
-            mid_val = (val1 + val2) / 2;
-            mid_tri_id = indices[i][start + j];
-            left_bbox = left_boxes[j];
-            right_bbox = right_boxes[j];
-            axis = i;
+            left_boxes[j] = Box(mesh, indices[i], start + j, start + j+1) + left_boxes[j-1];
+            right_boxes[len-j-1] = Box(mesh, indices[i], start + (len-j-1), start + (len-j)) + right_boxes[len-j];
         }
-    }
+
+        // Actually find the minimum cost partition using the partial sums
+        for (int j = 1; j < len; j++)
+        {
+            float left_sa = left_boxes[j-1].get_surface_area();
+            float right_sa = right_boxes[j].get_surface_area();
+            float cost = left_sa * j + right_sa * (len - j);
+
+            if (cost < mincost)
+            {
+                mincost = cost;
+                float val1 = mesh->get_triangle_centroid(indices[i][start + j - 1])[i];
+                float val2 = mesh->get_triangle_centroid(indices[i][start + j ])[i];
+                mid_idx = start + j;
+                mid_val = (val1 + val2) / 2;
+                mid_tri_id = indices[i][start + j];
+                left_bbox = left_boxes[j];
+                right_bbox = right_boxes[j];
+                axis = i;
+            }
+        }
     }
 
     delete [] right_boxes;
@@ -245,10 +244,8 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
         }
     }
 
-    int newaxis = (axis + 1) % 3;
-
-    left = new BvhNode(mesh, indices, start, mid_idx, newaxis);
-    right = new BvhNode(mesh, indices, mid_idx, end, newaxis);
+    left = new BvhNode(mesh, indices, start, mid_idx);
+    right = new BvhNode(mesh, indices, mid_idx, end);
 }
 
 BvhNode::~BvhNode()
@@ -303,7 +300,7 @@ bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &m
             unsigned int v0, v1, v2;
             Vector3 p0, p1, p2;
 
-            MeshTriangle triangle = mesh->get_triangles()[indices[axis][s]];
+            MeshTriangle triangle = mesh->get_triangles()[indices[0][s]];
             v0 = triangle.vertices[0];
             v1 = triangle.vertices[1];
             v2 = triangle.vertices[2];
@@ -314,7 +311,7 @@ bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &m
             if (triangle_ray_intersect(eye, ray, p0, p1, p2, min_time,
                                        min_gamma, min_beta))
             {
-                min_index = indices[axis][s];
+                min_index = indices[0][s];
                 ret = true;
             }
         }
@@ -352,7 +349,7 @@ bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min
             unsigned int v0, v1, v2;
             Vector3 p0, p1, p2;
 
-            MeshTriangle triangle = mesh->get_triangles()[indices[axis][s]];
+            MeshTriangle triangle = mesh->get_triangles()[indices[0][s]];
             v0 = triangle.vertices[0];
             v1 = triangle.vertices[1];
             v2 = triangle.vertices[2];
