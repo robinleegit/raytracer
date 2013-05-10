@@ -159,38 +159,42 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
     // Do SAH to choose partition
     int mid_tri_id, len = end - start;
     float mid_val;
+    float mincost = numeric_limits<float>::max();
 
     Box *left_boxes = new Box[len];
     Box *right_boxes = new Box[len];
 
+    for (int i = 0; i < 3; i++)
+    {
     // Create partial sums of bounding boxes
-    left_boxes[0] = Box(mesh, indices[axis], start, start + 1);
-    right_boxes[len-1] = Box(mesh, indices[axis], end - 1, end);
+    left_boxes[0] = Box(mesh, indices[i], start, start + 1);
+    right_boxes[len-1] = Box(mesh, indices[i], end - 1, end);
     for (int j = 1; j < len; j++)
     {
-        left_boxes[j] = Box(mesh, indices[axis], start + j, start + j+1) + left_boxes[j-1];
-        right_boxes[len-j-1] = Box(mesh, indices[axis], start + (len-j-1), start + (len-j)) + right_boxes[len-j];
+        left_boxes[j] = Box(mesh, indices[i], start + j, start + j+1) + left_boxes[j-1];
+        right_boxes[len-j-1] = Box(mesh, indices[i], start + (len-j-1), start + (len-j)) + right_boxes[len-j];
     }
 
     // Actually find the minimum cost partition using the partial sums
-    float mincost = numeric_limits<float>::max();
     for (int j = 1; j < len; j++)
     {
-        float left_sa = left_boxes[j].get_surface_area();
+        float left_sa = left_boxes[j-1].get_surface_area();
         float right_sa = right_boxes[j].get_surface_area();
         float cost = left_sa * j + right_sa * (len - j);
 
         if (cost < mincost)
         {
             mincost = cost;
-            float val1 = mesh->get_triangle_centroid(indices[axis][start + j - 1])[axis];
-            float val2 = mesh->get_triangle_centroid(indices[axis][start + j ])[axis];
+            float val1 = mesh->get_triangle_centroid(indices[i][start + j - 1])[i];
+            float val2 = mesh->get_triangle_centroid(indices[i][start + j ])[i];
             mid_idx = start + j;
             mid_val = (val1 + val2) / 2;
-            mid_tri_id = indices[axis][start + j];
+            mid_tri_id = indices[i][start + j];
             left_bbox = left_boxes[j];
             right_bbox = right_boxes[j];
+            axis = i;
         }
+    }
     }
 
     delete [] right_boxes;
@@ -209,6 +213,10 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end, i
                 float tri_val = mesh->get_triangle_centroid(indices[i][j])[axis];
                 bool left_part;
 
+                // Check which partition this triangle goes in. First check
+                // based on the axis we are using to partition, and if some
+                // triangles have the same value on that axis, use triangle
+                // id to do the tire breaking
                 if (tri_val != mid_val)
                 {
                     left_part = tri_val < mid_val;
