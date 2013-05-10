@@ -400,8 +400,8 @@ void Raytracer::trace_packet(Packet packet, float refractive,
         }
     }
 
-    if (false) // no intersection
-    //if (!hit) // no intersection
+    //if (false) // no intersection
+    if (!hit) // no intersection
     {
         // TODO keep up/down straight
         // TODO <=?
