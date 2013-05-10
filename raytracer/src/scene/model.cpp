@@ -126,8 +126,9 @@ bool Model::intersect_frustum(Frustum frustum) const
     {
         instance_frustum.planes[i].point =
             inverse_transform_matrix.transform_point(frustum.planes[i].point);
-        instance_frustum.planes[i].normal =
-            inverse_transform_matrix.transform_vector(frustum.planes[i].normal);
+        Matrix3 N;
+        make_normal_matrix(&N, inverse_transform_matrix);
+        instance_frustum.planes[i].normal = normalize(N * frustum.planes[i].normal);
     }
 
 

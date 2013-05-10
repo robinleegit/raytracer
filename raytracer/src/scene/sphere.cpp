@@ -180,18 +180,21 @@ bool Sphere::intersect_frustum(Frustum frustum) const
     {
         instance_frustum.planes[i].point =
             inverse_transform_matrix.transform_point(frustum.planes[i].point);
-        instance_frustum.planes[i].normal =
-            inverse_transform_matrix.transform_vector(frustum.planes[i].normal);
+        Matrix3 N;
+        make_normal_matrix(&N, inverse_transform_matrix);
+        instance_frustum.planes[i].normal = normalize(N * frustum.planes[i].normal);
 
         Plane plane = instance_frustum.planes[i];
+        Vector3 v = position - plane.point; // position is the sphere's center
 
-        if (dot(position - plane.point, plane.normal) < 0.0)
+        // check if center is outside plane
+        if (dot(v, plane.normal) > 0.0)
         {
             // check if distance from center to plane is greater than radius
-            Vector3 v = position - plane.point;
+            // if so, then it doesn't intersect
             float distance = dot(v, plane.normal) / length(plane.normal);
 
-            if (distance < radius)
+            if (distance > radius)
             {
                 return false;
             }

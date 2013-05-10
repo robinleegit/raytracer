@@ -72,9 +72,8 @@ bool Raytracer::initialize(Scene* _scene, size_t _width, size_t _height)
  * @param extras Whether to turn extras on
  * @return The color of that pixel in the final image.
  */
-Color3 Raytracer::trace_pixel(Int2 pixel, size_t width, size_t height,
-        int recursions, Vector3 start_eye, Vector3 start_ray,
-        float refractive, bool extras)
+Color3 Raytracer::trace_pixel(Int2 pixel, int recursions,
+        Vector3 start_eye, Vector3 start_ray, float refractive, bool extras)
 {
     assert(0 <= pixel.x && pixel.x < width);
     assert(0 <= pixel.y && pixel.y < height);
@@ -99,7 +98,7 @@ Color3 Raytracer::trace_pixel(Int2 pixel, size_t width, size_t height,
     if (recursions == 0)
     {
         eye = scene->camera.get_position();
-        ray = get_viewing_ray(pixel, width, height);
+        ray = get_viewing_ray(pixel);
     }
     // otherwise use the ray that's passed in
     else
@@ -157,7 +156,7 @@ Color3 Raytracer::trace_pixel(Int2 pixel, size_t width, size_t height,
             }
 
             return direct + min_texture * min_specular * trace_pixel( pixel,
-                    width, height, recursions + 1, reflection_point,
+                    recursions + 1, reflection_point,
                     incident_ray, refractive, extras);
 
         }
@@ -190,7 +189,7 @@ Color3 Raytracer::trace_pixel(Int2 pixel, size_t width, size_t height,
                 // total internal reflection
                 else
                 {
-                    return trace_pixel(pixel, width, height, recursions + 1,
+                    return trace_pixel(pixel, recursions + 1,
                                        reflection_point, incident_ray, refractive, extras);
                 }
             }
@@ -201,9 +200,9 @@ Color3 Raytracer::trace_pixel(Int2 pixel, size_t width, size_t height,
             Vector3 refraction_point = intersection_point + eps * transmitted_ray;
 
             // return reflected and refracted rays
-            return R * trace_pixel(pixel, width, height, recursions + 1,
+            return R * trace_pixel(pixel, recursions + 1,
                                    reflection_point, incident_ray, refractive, extras) +
-                   (1.0 - R) * trace_pixel(pixel, width, height, recursions + 1,
+                   (1.0 - R) * trace_pixel(pixel, recursions + 1,
                                            refraction_point, transmitted_ray, min_refractive, extras);
         }
     }
@@ -215,7 +214,7 @@ Color3 Raytracer::trace_pixel(Int2 pixel, size_t width, size_t height,
 }
 
 // calculate direction of initial viewing ray from camera
-Vector3 Raytracer::get_viewing_ray(Int2 pixel, size_t width, size_t height)
+Vector3 Raytracer::get_viewing_ray(Int2 pixel)
 {
     // normalized camera direction
     Vector3 gaze = normalize(scene->camera.get_direction());
@@ -243,7 +242,7 @@ Vector3 Raytracer::get_viewing_ray(Int2 pixel, size_t width, size_t height)
 // parameters are the four ray origin coordinates on the screen, the camera/eye
 // position, the dimensions of the screen, and a place to store the frustum.
 void Raytracer::get_viewing_frustum(Int2 ll, Int2 lr, Int2 ul, Int2 ur,
-                                    size_t width, size_t height, Frustum &frustum)
+                                    Frustum &frustum)
 {
     // camera position
     Vector3 eye = scene->camera.get_position();
@@ -254,21 +253,21 @@ void Raytracer::get_viewing_frustum(Int2 ll, Int2 lr, Int2 ul, Int2 ur,
     real_t far = scene->camera.get_far_clip();
 
     // directions of the frustum's corner rays
-    Vector3 ll_ray = get_viewing_ray(ll, width, height);
-    Vector3 lr_ray = get_viewing_ray(lr, width, height);
-    Vector3 ul_ray = get_viewing_ray(ul, width, height);
-    Vector3 ur_ray = get_viewing_ray(ur, width, height);
+    Vector3 ll_ray = get_viewing_ray(ll);
+    Vector3 lr_ray = get_viewing_ray(lr);
+    Vector3 ul_ray = get_viewing_ray(ul);
+    Vector3 ur_ray = get_viewing_ray(ur);
 
     // get side planes' normals by crossing them
-    // these normals will point INWARD
-    frustum.planes[TOP].normal = cross(ul_ray, ur_ray);
-    frustum.planes[RIGHT].normal = cross(ur_ray, lr_ray);
-    frustum.planes[BOTTOM].normal = cross(lr_ray, ll_ray);
-    frustum.planes[LEFT].normal = cross(ll_ray, ul_ray);
+    // these normals will point OUTWARD
+    frustum.planes[TOP].normal = cross(ur_ray, ul_ray);
+    frustum.planes[RIGHT].normal = cross(lr_ray, ur_ray);
+    frustum.planes[BOTTOM].normal = cross(ll_ray, lr_ray);
+    frustum.planes[LEFT].normal = cross(ul_ray, ll_ray);
 
-    // gaze and negative gaze are normals for front and back
-    frustum.planes[FRONT].normal = gaze;
-    frustum.planes[BACK].normal = -1.0 * gaze;
+    // gaze and negative gaze are normals for back and front
+    frustum.planes[FRONT].normal = -1.0 * gaze;
+    frustum.planes[BACK].normal = gaze;
 
     // centers of the front and back planes
     frustum.planes[FRONT].point = eye + gaze * near;
@@ -368,12 +367,12 @@ void Raytracer::trace_packet_worker(tsqueue<Packet> *packet_queue, unsigned char
             break;
         }
 
-        trace_packet(packet, width, height, 1.0, false, buffer);
+        trace_packet(packet, 1.0, false, buffer);
     }
 }
 
-void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
-        float refractive, bool extras, unsigned char *buffer)
+void Raytracer::trace_packet(Packet packet, float refractive,
+        bool extras, unsigned char *buffer)
 {
     // these are just placeholders; trace_pixels finds its own starting ray
     Vector3 start_eye = Vector3(0.0, 0.0, 0.0);
@@ -384,7 +383,7 @@ void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
     Int2 ul = packet.ul;
     Int2 ur = packet.ur;
     Frustum frustum;
-    get_viewing_frustum(ll, lr, ul, ur, width, height, frustum);
+    get_viewing_frustum(ll, lr, ul, ur, frustum);
 
     // run frustum intersection test on every object in scene
     for (size_t i = 0; i < scene->num_geometries(); i++)
@@ -414,8 +413,8 @@ void Raytracer::trace_packet(Packet packet, size_t width, size_t height,
                 for (int x = ll.x; x <= lr.x; x++)
                 {
                     Int2 pixel = Int2(x, y);
-                    Color3 color = trace_pixel(pixel, width, height,
-                            0, start_eye, start_ray, 1.0, false);
+                    Color3 color = trace_pixel(pixel, 0, start_eye, start_ray,
+                            1.0, false);
                     color.to_array(&buffer[4 * (y * width + x)]);
                 }
             }

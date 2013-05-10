@@ -97,7 +97,7 @@ bool frustum_box_intersect(Frustum frustum, Vector3 box_min, Vector3 box_max)
             pos.z = box_max.z; 
         }
 
-		if (dot(pos - frustum.planes[i].point, frustum.planes[i].normal) < 0.0)
+		if (dot(pos - frustum.planes[i].point, frustum.planes[i].normal) > 0.0)
         {
             return false;
         }
