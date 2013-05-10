@@ -192,7 +192,7 @@ bool Sphere::intersect_frustum(Frustum frustum) const
         {
             // check if distance from center to plane is greater than radius
             // if so, then it doesn't intersect
-            float distance = dot(v, plane.normal) / length(plane.normal);
+            float distance = dot(point, plane.normal) / length(plane.normal);
 
             if (distance > radius)
             {
