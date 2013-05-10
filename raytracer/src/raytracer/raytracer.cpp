@@ -385,45 +385,48 @@ void Raytracer::trace_packet(Packet packet, float refractive,
     Frustum frustum;
     get_viewing_frustum(ll, lr, ul, ur, frustum);
 
-    int hit = 0;
+    bool hit = false;
 
     // extremely naive at the moment - test on everything, if no hits, 
-    // color blank
+    // color blank, else trace all pixels
     // TODO maybe pass in a bit vector of which geometries must be tested?
+    // or change trace_pixel to only intersect with a given object?
     for (size_t i = 0; i < scene->num_geometries(); i++)
     {
         if (scene->get_geometries()[i]->intersect_frustum(frustum))
         {
-            hit++;
+            hit = true;
+            break;
         }
+    }
 
-        if (!hit) // no intersection
+    if (false) // no intersection
+    //if (!hit) // no intersection
+    {
+        // TODO keep up/down straight
+        // TODO <=?
+        // TODO SIMD
+        // set all of packet's pixels to background color
+        Color3 color = scene->background_color;
+
+        for (int y = ll.y; y <= ul.y; y++)
         {
-            // TODO keep up/down straight
-            // TODO <=?
-            // TODO SIMD
-            // set all of packet's pixels to background color
-            Color3 color = scene->background_color;
-
-            for (int y = ll.y; y <= ul.y; y++)
+            for (int x = ll.x; x <= lr.x; x++)
             {
-                for (int x = ll.x; x <= lr.x; x++)
-                {
-                    color.to_array(&buffer[4 * (y * width + x)]);
-                }
+                color.to_array(&buffer[4 * (y * width + x)]);
             }
         }
-        else // trace each pixel in the packet
+    }
+    else // trace each pixel in the packet
+    {
+        for (int y = ll.y; y <= ul.y; y++)
         {
-            for (int y = ll.y; y <= ul.y; y++)
+            for (int x = ll.x; x <= lr.x; x++)
             {
-                for (int x = ll.x; x <= lr.x; x++)
-                {
-                    Int2 pixel = Int2(x, y);
-                    Color3 color = trace_pixel(pixel, 0, start_eye, start_ray,
-                            1.0, false);
-                    color.to_array(&buffer[4 * (y * width + x)]);
-                }
+                Int2 pixel = Int2(x, y);
+                Color3 color = trace_pixel(pixel, 0, start_eye, start_ray,
+                        1.0, false);
+                color.to_array(&buffer[4 * (y * width + x)]);
             }
         }
     }
