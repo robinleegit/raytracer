@@ -68,7 +68,15 @@ In addition, each packet can be easily mapped over a CPU core for high level par
 </p>
 
 <p>
-We are still improving our packet technique to fully utilize all source of parallelism on the CPU.
+We are exploring several avenues of parallelizing when it comes to packet based traversal. The first step in ray tracing is to traverse the BVH and determine which rays probably intersect which pixels. After a frustum test is used to determine that the packet intersects the BVH, intersection tests of each node can be done in SIMD across the whole packet, to determine which rays in the packet intersect that node of the BVH. As the packet descends the BVH, doing intersection tests in SIMD, rays that don't intersect are removed from the packet, until there is a list of rays and the triangles in the BVH they each intersect.
+</p>
+
+<p>
+At this point, the rays will reflect, and may not be a coherent packet any more. After that happens, it is hard to use SIMD rays that are no longer going in similar directions, so the rest of the computation is done using only a single lane of each core.
+</p>
+
+<p>
+This approach should decrease the amount of time spent doing intersection tests, and push a little more work towards the part of the code that actually computes the value of each pixel.
 </p>
 
 <div class="section">Results</div>
