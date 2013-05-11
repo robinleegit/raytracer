@@ -6,6 +6,7 @@
 #include "raytracer/bvh.hpp"
 #include "scene/model.hpp"
 
+#define STEP_SIZE 10
 #define LEAF_SIZE 4
 
 using namespace std;
@@ -163,6 +164,9 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end)
     Box *left_boxes = new Box[len];
     Box *right_boxes = new Box[len];
 
+    int step = (end - start) / STEP_SIZE;
+    step = step > 0 ? step : 1;
+
     for (int i = 0; i < 3; i++)
     {
         // Create partial sums of bounding boxes
@@ -175,7 +179,7 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end)
         }
 
         // Actually find the minimum cost partition using the partial sums
-        for (int j = 1; j < len; j++)
+        for (int j = 1; j < len; j += step)
         {
             float left_sa = left_boxes[j-1].get_surface_area();
             float right_sa = right_boxes[j].get_surface_area();

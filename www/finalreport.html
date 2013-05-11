@@ -87,6 +87,47 @@ The Happy Buddha image below contains over a million triangles and, with our cur
 
 <img alt="1 million triangle Buddha model"src="buddha.png">
 
+<p>
+Below is a table of our render times for both BVH building and traversal, for the different techniques we tried:
+</p>
+
+<center>
+<table>
+    <tr>
+        <th rowspan="2">BVH Type</th>
+        <th rowspan="2">Build</th>
+        <th colspan="3">Traversal</th>
+    </tr>
+    <tr>
+        <th>1 thread</th>
+        <th>4 threads</th>
+        <th>8 threads</th>
+    </tr>
+    <tr>
+        <td style="text-align: left">Median Split</td>
+        <td>1.04s</td>
+        <td>7.92s</td>
+        <td>2.21s</td>
+        <td>1.75s</td>
+    </tr>
+    <tr>
+        <td style="text-align: left">SAH</td>
+        <td>8.77s</td>
+        <td>3.95s</td>
+        <td>1.09s</td>
+        <td>0.87s</td>
+    </tr>
+</table>
+</center>
+
+<p>
+By simply doing the traversal/pixel color computation across 8 threads on an Intel i7-2630QM CPU (4 physical cores + hyperthreading) we were able to obtain over 4x speedup. Hyperthreading accounts for the fact that we don't get a huge amount more speedup with greater than 4 cores. The near linear speedup is expected, since the splitting up the screen across multiple cores is embarrasingly parallel; each thread can write to its own part of the output image buffer, and threads only have to read from shared data structures, so there is no heavy contention.
+</p>
+
+<p>
+We got a speedup of about 2x from moving to SAH from BVH in terms of BVH traversal time, but build time increased drastically. This slow down is acceptable to us since we are focusing on getting an interactive static scene, so we only have to build the BVH one time. If there is time we may optimize this build process by not trying so many different splits, and also by reducing dynamic memory allocation.
+</p>
+
 <div class="section">References</div>
 
 <p>I. Wald, S. Boulos, and P. Shirley, <em>Ray Tracing Deformable Scenes Using Dynamic Bounding Volume Hierarchies</em>, 2007</p>

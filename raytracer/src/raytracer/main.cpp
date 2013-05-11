@@ -186,13 +186,12 @@ void RaytracerApplication::update( real_t delta_time )
         if ( !raytrace_finished )
         {
             assert( buffer );
-            //for (int i = 1; i <= boost::thread::hardware_concurrency(); i++)
-            //{
-            //    cout << "Running with " << i << " threads" << endl;
-            //    raytrace_finished = raytracer.raytrace( buffer, &delta_time, extras, i );
-            //}
-            raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras,
-                                                   boost::thread::hardware_concurrency());
+            int thread_counts[] = {1, 4, 8};
+            for (int i = 0; i < 3; i++)
+            {
+                cout << "Running with " << thread_counts[i] << " threads" << endl;
+                raytrace_finished = raytracer.raytrace( buffer, &delta_time, extras, thread_counts[i] );
+            }
         }
     }
     else
