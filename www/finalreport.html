@@ -38,7 +38,7 @@ Ray tracing is a rendering technique that calculates the color displayed by an i
 Naive algorithms for ray tracing can easily take many hours to traverse simple scenes, and even highly-efficient ray tracers can take long lengths of time given a high degree of desired realism.  Our goal was to implement a ray tracer that provides a reasonable level of realistic detail at an interactive frame rate.  
 </p>
 <p>
-The ray tracing problem is embarassingly parallel in the sense that all rays are independent of one another, but the coherence of ray paths quickly breaks down within a typical scene and the resulting divergence can prove problematic for data parallel hardware such as GPUs.  In light of this, we chose to do our primary implementation on multi-core CPUs, where we can take advantage of separate cores that are able to gracefully handle branc instructions.
+The ray tracing problem is embarassingly parallel in the sense that all rays are independent of one another, but the coherence of ray paths quickly breaks down within a typical scene and the resulting divergence can prove problematic for data parallel hardware such as GPUs.  In light of this, we chose to do our primary implementation on multi-core CPUs, where we can take advantage of separate cores that are able to gracefully handle branch instructions.
 </p>
 
 <div class="section">Approach</div>
@@ -52,7 +52,7 @@ The creation of the BVH acceleration structure is done as a pre-processing step 
 </p>
 
 <p>
-At each node of the tree, the choice of how to partition the interior triangles into to child nodes is done by evaluating the Surface Area Heuristic, which roughly tries to balance the surface area of the triangles in each child node of the parent BVH node.
+At each node of the tree, the choice of how to partition the interior triangles into two child nodes is done by evaluating the Surface Area Heuristic, which roughly tries to balance the surface area of the triangles in each child node of the parent BVH node.
 </p>
 
 <p>
@@ -60,7 +60,7 @@ Since we restricted ourselves to static scenes for the purposes of this project,
 </p>
 
 <p>
-Packetization involves evaluating multiple rays at once.  The normal ray tracing algorithm loops over all pixels on the screen, and for each pixel loops over all scene objects to find intersections.  By packetizing, we group a block of screen pixels together and trace a frustum through the scene rather than individual pixels.  If the frustum does not intersect an object, then none of its interior rays will either, and the ray tracer can safely skip those rays in its computations. 
+Packetization involves evaluating multiple rays at once.  The normal ray tracing algorithm loops over all pixels on the screen, and for each pixel loops over all scene objects to find intersections.  By packetizing, we group a block of screen pixels together and trace a frustum through the scene rather than individual rays.  If the frustum does not intersect an object, then none of its interior rays will either, and the ray tracer can safely skip those rays in its computations. 
 </p>
 
 <p>
