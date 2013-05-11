@@ -75,8 +75,7 @@ bool Model::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
 
         // texture
         Vector2 tex_coord = min_alpha * mesh->get_vertices()[min_v0].tex_coord
-                            + min_beta * mesh->get_vertices()[min_v1].tex_coord
-                            + min_gamma * mesh->get_vertices()[min_v2].tex_coord;
+                            + min_beta * mesh->get_vertices()[min_v1].tex_coord + min_gamma * mesh->get_vertices()[min_v2].tex_coord;
         double dec_x = fmod(tex_coord.x, 1.0);
         double dec_y = fmod(tex_coord.y, 1.0);
         int width, height;
@@ -115,7 +114,8 @@ void Model::make_bounding_volume()
 
     double bvh_create_start = CycleTimer::currentSeconds();
 
-    bvh = new BvhNode(mesh, NULL, 0, 0);
+    ostringstream dummy;
+    bvh = new BvhNode(mesh, NULL, 0, 0, 0, dummy);
 
     double done = CycleTimer::currentSeconds();
 

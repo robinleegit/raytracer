@@ -2,6 +2,7 @@
 #define __BVH_H__
 
 #include <vector>
+#include <sstream>
 #include "scene/mesh.hpp"
 #include "geom_utils.hpp"
 
@@ -66,7 +67,8 @@ public:
     int end_triangle;
     bool root;
 
-    BvhNode(const Mesh *_mesh, std::vector<int> *_indices, int start, int end);
+    BvhNode(const Mesh *_mesh, std::vector<int> *_indices, int start, int end, 
+            int recursion_depth, std::ostringstream& parent_poss);
     ~BvhNode();
     bool intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
                        float &min_beta, float &min_gamma);
