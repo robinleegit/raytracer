@@ -37,7 +37,7 @@
 class CycleTimer
 {
 public:
-    typedef unsigned long long SysClock;
+    typedef unsigned long SysClock;
 
     //////////
     // Return the current CPU time, in terms of clock ticks.
@@ -53,8 +53,8 @@ public:
 #elif defined(__x86_64__)
         unsigned int a, d;
         asm volatile("rdtsc" : "=a" (a), "=d" (d));
-        return static_cast<unsigned long long>(a) |
-               (static_cast<unsigned long long>(d) << 32);
+        return static_cast<unsigned long>(a) |
+               (static_cast<unsigned long>(d) << 32);
 #elif defined(__ARM_NEON__) && 0 // mrc requires superuser.
         unsigned int val;
         asm volatile("mrc p15, 0, %0, c9, c13, 0" : "=r"(val));

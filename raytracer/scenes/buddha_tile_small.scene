@@ -103,6 +103,7 @@
         <ambient r="0.3" g="0.1" b="0.1"/>
         <diffuse r="0.2" g="0.4" b="0.9"/>
         <specular r="0.05" g="0.05" b="0.05"/>
+        <shininess v="100.0"/>
     </material>
 
     <mesh name="buddha" filename="models/buddha.obj"/>
