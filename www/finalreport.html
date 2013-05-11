@@ -10,21 +10,79 @@
 <div class="constrainedWidth">
   
 <div style="padding-bottom: 10px;">
-
-<div style="padding-bottom: 10px;">
-<div class="title smallTitle">CMU 15-418/618 (Spring 2013) Final Project Report</div>
+<div class="title smallTitle">CMU 15-418/618 (Spring 2013) Final Project:</div>
 <div class="title" style="width: 900px; padding-bottom: 6px; border-bottom: #000000 2px solid;">
-  [PROJECT TITLE HERE]
+    Interactive CPU-Based Ray Tracer
 </div>
 </div>
 
 <div class="boldText">
-<div>[YOUR NAMES HERE]</div>
+<div>Nathan Slobody, Adam Wright</div>
 </div>
 
-<div style="padding-top: 1em;"><a href="index.html">Main Project Page</a></div>
+<p><a href="proposal.html">Original Project Proposal</a></p>
+<p><a href="checkpoint.html">Checkpoint Report</a></p>
 
-<p class="comment">[Your final writeup goes here.]</p>
+<div class="section">Project Summary</div>
+
+<p>We have implemented a ray tracer utilizing bounding volume hierarchies and packetized traversal on the CPU.  On Monday we plan to demonstrate our ray tracer rendering detailed scenes at interactive or near-interactive rates.</p>
+
+<div class="section">Background</div>
+
+<p>
+Ray tracing is a rendering technique that calculates the color displayed by an image at each pixel by "tracing" a ray through the scene starting at that pixel.  Since a ray may intersect with multiple objects in the scene, finding the point of closest intersection is a search problem which can be highly computation-intensive given the detail in typical images.
+</p>
+<p>
+Naive algorithms for ray tracing can easily take many hours to traverse simple scenes, and even highly-efficient ray tracers can take long lengths of time given a high degree of desired realism.  Our goal was to implement a ray tracer that provides a reasonable level of realistic detail at an interactive frame rate.  
+</p>
+<p>
+The ray tracing problem is embarassingly parallel in the sense that all rays are independent of one another, but the coherence of ray paths quickly breaks down within a typical scene and the resulting divergence can prove problematic for data parallel hardware such as GPUs.  We chose to do our primary implementation on multi-core CPUs in light of this fact.
+</p>
+
+<div class="section">Approach</div>
+
+<p>
+There are two major axes of our implementation: a bounding volume hiearchy and packetization.
+</p>
+<p>
+The creation of the BVH acceleration structure is done as a pre-processing step before any rays are traced through the scene.  The structure creates a bounding box around an entire model (containing arbitrary numbers of triangles) and recursively sub-partitions the interior triangles into smaller bounding boxes.  The actual triangles are referenced at the leaf nodes, with each leaf holding up to a pre-set number of triangles, which in our case is set to optimize for the SIMD width of our processors.
+</p>
+<p>
+At each node of the tree, the choice of how to partition the interior triangles into to child nodes is done by evaluating the Surface Area Heuristic, which roughly tries to balance the surface area of the triangles in each child node of the parent BVH node.
+</p>
+<p>
+Since we restricted ourselves to static scenes for the purposes of this project, we only have to build the BVH once.
+</p>
+<p>
+Packetization involves evaluating multiple rays at once.  The normal ray tracing algorithm loops over all pixels on the screen, and for each pixel loops over all scene objects to find intersections.  By packeting, we group a block of screen pixels together and trace a frustum through the scene rather than individual pixels.  If the frustum does not intersect an object, then none of its interior rays will either and they can disregard it.
+</p>
+<p>
+In addition, each packet can be easily mapped over a CPU core for high level parallelism by putting all packets into a shared work queue.  This seems to have the additional benefit of slightly reducing contention compared to individual pixels because of the larger granularity of queue items.
+</p>
+<p>
+We are still improving our packet technique as of right now.
+</p>
+
+<div class="section">Results</div>
+
+<p>The Happy Buddha image below contains over a million triangles and rendered in less than a second on our laptops (disregarding BVH build time).  We are continuing to iterate and hope to have this down considerably further by Monday as there are still a number of optimizations to make.  We anticipate a render rate of a few frames per second on scenes like this one.</p>
+
+<img src="buddha.png">
+
+<div class="section">References</div>
+
+<p>I. Wald, S. Boulos, and P. Shirley, <em>Ray Tracing Deformable Scenes Using Dynamic Bounding Volume Hierarchies</em>, 2007</p>
+
+<p>I. Wald et al, <em>State of the Art in Ray Tracing Animated Scenes</em>, 2007</p>
+
+<p>I. Wald, T. Ize, and S. Parker, <em>Fast, Parallel, and Asynchronous Construction of BVHs for Ray Tracing Animated Scenes</em>, 2007</p>
+
+<p>Special thanks to Nico Feltman.</p>
+
+
+<div class="section">List of Work By Each Student</div>
+
+<p>We pair-programmed a good deal of the project and did roughly equal work.  Adam handled more of the BVH construction and Nathan more of the packetization.</p>
 
 </div>
 
