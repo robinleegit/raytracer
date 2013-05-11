@@ -99,6 +99,8 @@ public:
     bool raytracing;
     // false if there is more raytracing to do
     bool raytrace_finished;
+
+    bool raytrace_key_update;
 };
 
 bool RaytracerApplication::initialize()
@@ -186,13 +188,17 @@ void RaytracerApplication::update( real_t delta_time )
         if ( !raytrace_finished )
         {
             assert( buffer );
-            //for (int i = 1; i <= boost::thread::hardware_concurrency(); i++)
-            //{
-            //    cout << "Running with " << i << " threads" << endl;
-            //    raytrace_finished = raytracer.raytrace( buffer, &delta_time, extras, i );
-            //}
             raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras,
                                                    boost::thread::hardware_concurrency());
+        }
+
+        else if (raytrace_key_update)
+        {
+            camera_control.update( delta_time );
+            scene.camera = camera_control.camera;
+            raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras,
+                                                   boost::thread::hardware_concurrency());
+            raytrace_key_update = false;
         }
     }
     else
@@ -247,10 +253,9 @@ void RaytracerApplication::handle_event( const SDL_Event& event )
 {
     int width, height;
 
-    if ( !raytracing )
-    {
-        camera_control.handle_event( this, event );
-    }
+    camera_control.handle_event( this, event );
+    if (raytracing)
+        raytrace_key_update = true;
 
     switch ( event.type )
     {
