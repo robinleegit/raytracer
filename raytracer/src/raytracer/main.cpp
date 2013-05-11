@@ -99,6 +99,8 @@ public:
     bool raytracing;
     // false if there is more raytracing to do
     bool raytrace_finished;
+
+    bool raytrace_key_update;
 };
 
 bool RaytracerApplication::initialize()
@@ -109,6 +111,7 @@ bool RaytracerApplication::initialize()
 
     try
     {
+        cout << "hello" << endl;
         Material* const* materials = scene.get_materials();
         Mesh* const* meshes = scene.get_meshes();
 
@@ -170,6 +173,8 @@ bool RaytracerApplication::initialize()
         glLightModeli( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
     }
 
+    toggle_raytracing(options.width, options.height);
+
     return true;
 }
 
@@ -186,12 +191,17 @@ void RaytracerApplication::update( real_t delta_time )
         if ( !raytrace_finished )
         {
             assert( buffer );
-            int thread_counts[] = {1, 4, 8};
-            for (int i = 0; i < 3; i++)
-            {
-                cout << "Running with " << thread_counts[i] << " threads" << endl;
-                raytrace_finished = raytracer.raytrace( buffer, &delta_time, extras, thread_counts[i] );
-            }
+            raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras,
+                                                   boost::thread::hardware_concurrency());
+        }
+
+        else if (raytrace_key_update)
+        {
+            camera_control.update( delta_time );
+            scene.camera = camera_control.camera;
+            raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras,
+                                                   boost::thread::hardware_concurrency());
+            raytrace_key_update = false;
         }
     }
     else
@@ -246,10 +256,9 @@ void RaytracerApplication::handle_event( const SDL_Event& event )
 {
     int width, height;
 
-    if ( !raytracing )
-    {
-        camera_control.handle_event( this, event );
-    }
+    camera_control.handle_event( this, event );
+    if (raytracing)
+        raytrace_key_update = true;
 
     switch ( event.type )
     {
@@ -605,12 +614,11 @@ int main( int argc, char* argv[] )
         const char* title = "CMU 15-618 Final Project - Parallel Ray Tracer";
         // start a new application
         return Application::start_application( &app, opt.width, opt.height, fps, title );
-
     }
     else
     {
         app.initialize();
-        app.toggle_raytracing( opt.width, opt.height );
+        //app.toggle_raytracing( opt.width, opt.height );
         if ( !app.raytracing )
         {
             return 1; // some error occurred
@@ -621,7 +629,6 @@ int main( int argc, char* argv[] )
         // output result
         app.output_image();
         return 0;
-
     }
 }
 

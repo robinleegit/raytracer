@@ -51,6 +51,8 @@ There are two major axes of our implementation: a bounding volume hiearchy and p
 The creation of the BVH acceleration structure is done as a pre-processing step before any rays are traced through the scene.  The structure creates a bounding box around an entire model (containing arbitrary numbers of triangles) and recursively sub-partitions the interior triangles into smaller bounding boxes.  The actual triangles are referenced at the leaf nodes, with each leaf holding up to a pre-set number of triangles, which in our case is set to optimize for the SIMD width of our processors.
 </p>
 
+<img alt="Bounding Volume Hierarchy"src="bvh.png">
+
 <p>
 At each node of the tree, the choice of how to partition the interior triangles into two child nodes is done by evaluating the Surface Area Heuristic, which roughly tries to balance the surface area of the triangles in each child node of the parent BVH node.
 </p>
