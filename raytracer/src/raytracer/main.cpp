@@ -111,7 +111,6 @@ bool RaytracerApplication::initialize()
 
     try
     {
-        cout << "hello" << endl;
         Material* const* materials = scene.get_materials();
         Mesh* const* meshes = scene.get_meshes();
 
@@ -195,7 +194,7 @@ void RaytracerApplication::update( real_t delta_time )
                                                    boost::thread::hardware_concurrency());
         }
 
-        else if (raytrace_key_update)
+        else if (raytrace_key_update) // comment stuff after else on this line for cotinuous tracing
         {
             camera_control.update( delta_time );
             scene.camera = camera_control.camera;
@@ -257,7 +256,7 @@ void RaytracerApplication::handle_event( const SDL_Event& event )
     int width, height;
 
     camera_control.handle_event( this, event );
-    if (raytracing)
+    if (raytracing) // comment these two lines for continuous tracing
         raytrace_key_update = true;
 
     switch ( event.type )

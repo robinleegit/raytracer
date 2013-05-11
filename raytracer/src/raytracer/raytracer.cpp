@@ -54,7 +54,7 @@ bool Raytracer::initialize(Scene* _scene, size_t _width, size_t _height)
         cout << "Created bounding volume for geometry " << i << endl;
     }
 
-    cout << scene->camera.orientation << endl;
+    //cout << scene->camera.orientation << endl;
 
     return true;
 }
@@ -463,14 +463,6 @@ bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, bool extras, i
             Int2 ur(xmax, ymax);
             Packet packet(ll, lr, ul, ur);
             packet_queue.Push(packet);
-
-            /*
-            cout << "ll: (" << ll.x << ", " << ll.y << "), ";
-            cout << "lr: (" << lr.x << ", " << lr.y << "), ";
-            cout << "ul: (" << ul.x << ", " << ul.y << "), ";
-            cout << "ur: (" << ur.x << ", " << ur.y << ")";
-            cout << endl;
-            */
         }
     }
 
