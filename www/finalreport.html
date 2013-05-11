@@ -36,7 +36,7 @@ Ray tracing is a rendering technique that calculates the color displayed by an i
 Naive algorithms for ray tracing can easily take many hours to traverse simple scenes, and even highly-efficient ray tracers can take long lengths of time given a high degree of desired realism.  Our goal was to implement a ray tracer that provides a reasonable level of realistic detail at an interactive frame rate.  
 </p>
 <p>
-The ray tracing problem is embarassingly parallel in the sense that all rays are independent of one another, but the coherence of ray paths quickly breaks down within a typical scene and the resulting divergence can prove problematic for data parallel hardware such as GPUs.  We chose to do our primary implementation on multi-core CPUs in light of this fact.
+The ray tracing problem is embarassingly parallel in the sense that all rays are independent of one another, but the coherence of ray paths quickly breaks down within a typical scene and the resulting divergence can prove problematic for data parallel hardware such as GPUs.  In light of this, we chose to do our primary implementation on multi-core CPUs (an elegant weapon for a more civilized age).
 </p>
 
 <div class="section">Approach</div>

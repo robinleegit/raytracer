@@ -606,7 +606,7 @@ int main( int argc, char* argv[] )
     {
 
         real_t fps = 30.0;
-        const char* title = "15462 Project 2 - Raytracer";
+        const char* title = "CMU 15-618 Final Project - Parallel Ray Tracer";
         // start a new application
         return Application::start_application( &app, opt.width, opt.height, fps, title );
 
