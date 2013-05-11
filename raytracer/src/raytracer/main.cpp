@@ -109,7 +109,6 @@ bool RaytracerApplication::initialize()
 
     try
     {
-
         Material* const* materials = scene.get_materials();
         Mesh* const* meshes = scene.get_meshes();
 
@@ -132,7 +131,6 @@ bool RaytracerApplication::initialize()
                 return false;
             }
         }
-
     }
     catch ( std::bad_alloc const& )
     {
@@ -604,7 +602,6 @@ int main( int argc, char* argv[] )
     // either launch a window or do a full raytrace without one, depending on the option
     if ( opt.open_window )
     {
-
         real_t fps = 30.0;
         const char* title = "CMU 15-618 Final Project - Parallel Ray Tracer";
         // start a new application
@@ -613,7 +610,6 @@ int main( int argc, char* argv[] )
     }
     else
     {
-
         app.initialize();
         app.toggle_raytracing( opt.width, opt.height );
         if ( !app.raytracing )
