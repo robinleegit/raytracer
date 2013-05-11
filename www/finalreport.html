@@ -25,7 +25,9 @@
 
 <div class="section">Project Summary</div>
 
-<p>We have implemented a ray tracer utilizing bounding volume hierarchies and packetized traversal on the CPU.  On Monday we plan to demonstrate our ray tracer rendering detailed scenes at interactive or near-interactive rates.</p>
+<p>
+We have implemented a ray tracer utilizing bounding volume hierarchies (BVH) and packetized traversal on the CPU.  The BVH is built using the surface area heuristic (SAH) to produce BVHs that are inexpensive to traverse.  On Monday we plan to demonstrate our ray tracer rendering detailed scenes at interactive or near-interactive rates.
+</p>
 
 <div class="section">Background</div>
 
@@ -36,7 +38,7 @@ Ray tracing is a rendering technique that calculates the color displayed by an i
 Naive algorithms for ray tracing can easily take many hours to traverse simple scenes, and even highly-efficient ray tracers can take long lengths of time given a high degree of desired realism.  Our goal was to implement a ray tracer that provides a reasonable level of realistic detail at an interactive frame rate.  
 </p>
 <p>
-The ray tracing problem is embarassingly parallel in the sense that all rays are independent of one another, but the coherence of ray paths quickly breaks down within a typical scene and the resulting divergence can prove problematic for data parallel hardware such as GPUs.  In light of this, we chose to do our primary implementation on multi-core CPUs (an elegant weapon for a more civilized age).
+The ray tracing problem is embarassingly parallel in the sense that all rays are independent of one another, but the coherence of ray paths quickly breaks down within a typical scene and the resulting divergence can prove problematic for data parallel hardware such as GPUs.  In light of this, we chose to do our primary implementation on multi-core CPUs, where we can take advantage of separate cores that are able to gracefully handle branc instructions.
 </p>
 
 <div class="section">Approach</div>
@@ -44,30 +46,38 @@ The ray tracing problem is embarassingly parallel in the sense that all rays are
 <p>
 There are two major axes of our implementation: a bounding volume hiearchy and packetization.
 </p>
+
 <p>
 The creation of the BVH acceleration structure is done as a pre-processing step before any rays are traced through the scene.  The structure creates a bounding box around an entire model (containing arbitrary numbers of triangles) and recursively sub-partitions the interior triangles into smaller bounding boxes.  The actual triangles are referenced at the leaf nodes, with each leaf holding up to a pre-set number of triangles, which in our case is set to optimize for the SIMD width of our processors.
 </p>
+
 <p>
 At each node of the tree, the choice of how to partition the interior triangles into to child nodes is done by evaluating the Surface Area Heuristic, which roughly tries to balance the surface area of the triangles in each child node of the parent BVH node.
 </p>
+
 <p>
 Since we restricted ourselves to static scenes for the purposes of this project, we only have to build the BVH once.
 </p>
+
 <p>
-Packetization involves evaluating multiple rays at once.  The normal ray tracing algorithm loops over all pixels on the screen, and for each pixel loops over all scene objects to find intersections.  By packeting, we group a block of screen pixels together and trace a frustum through the scene rather than individual pixels.  If the frustum does not intersect an object, then none of its interior rays will either and they can disregard it.
+Packetization involves evaluating multiple rays at once.  The normal ray tracing algorithm loops over all pixels on the screen, and for each pixel loops over all scene objects to find intersections.  By packetizing, we group a block of screen pixels together and trace a frustum through the scene rather than individual pixels.  If the frustum does not intersect an object, then none of its interior rays will either, and the ray tracer can safely skip those rays in its computations. 
 </p>
+
 <p>
-In addition, each packet can be easily mapped over a CPU core for high level parallelism by putting all packets into a shared work queue.  This seems to have the additional benefit of slightly reducing contention compared to individual pixels because of the larger granularity of queue items.
+In addition, each packet can be easily mapped over a CPU core for high level parallelism by putting all packets into a shared work queue.  This seems to have the additional benefit of slightly reducing contention compared to individual pixels because of the larger compute time for each work item.
 </p>
+
 <p>
-We are still improving our packet technique as of right now.
+We are still improving our packet technique to fully utilize all source of parallelism on the CPU.
 </p>
 
 <div class="section">Results</div>
 
-<p>The Happy Buddha image below contains over a million triangles and rendered in less than a second on our laptops (disregarding BVH build time).  We are continuing to iterate and hope to have this down considerably further by Monday as there are still a number of optimizations to make.  We anticipate a render rate of a few frames per second on scenes like this one.</p>
+<p>
+The Happy Buddha image below contains over a million triangles and rendered in less than a second on our laptops (disregarding BVH build time).  We are continuing to iterate and hope to have this down considerably further by Monday as there are still a number of optimizations to make.  We anticipate a render rate of a few frames per second on scenes like this one.
+</p>
 
-<img src="buddha.png">
+<img alt="1 million triangle Buddha model"src="buddha.png">
 
 <div class="section">References</div>
 
