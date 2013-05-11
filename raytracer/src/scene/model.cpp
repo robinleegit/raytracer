@@ -43,8 +43,50 @@ void Model::intersect_packet(Packet& packet) const
 {
     if (intersect_frustum(packet.frustum))
     {
-        bvh->intersect_packet(packet.ray_packet);
+        RayPacket& ray_packet = packet.ray_packet;
+        bvh->intersect_packet(ray_packet);
+
+        for (int i = 0; i < rays_per_packet; i++)
+        {
+            fill_info(ray_packet.eye, ray_packet.rays[i], &ray_packet.infos[i]);
+        }
     }
+}
+
+void Model::fill_info(Vector3& eye, Vector3& ray, intersect_info *info) const
+{
+    float min_time = info->i_time;
+    float min_beta = info->i_beta;
+    float min_gamma = info->i_gamma;
+    size_t min_index = info->i_index;
+
+    float min_alpha;
+    size_t min_v0 = mesh->get_triangles()[min_index].vertices[0];
+    size_t min_v1 = mesh->get_triangles()[min_index].vertices[1];
+    size_t min_v2 = mesh->get_triangles()[min_index].vertices[2];
+    Vector3 normal0 = mesh->get_vertices()[min_v0].normal;
+    Vector3 normal1 = mesh->get_vertices()[min_v1].normal;
+    Vector3 normal2 = mesh->get_vertices()[min_v2].normal;
+    min_alpha = 1.0 - min_gamma - min_beta;
+    Vector3 normal = min_alpha * normal0 + min_beta * normal1 + min_gamma * normal2;
+    info->i_normal = normalize(normal_matrix * normal);
+    info->i_ambient = material->ambient;
+    info->i_diffuse = material->diffuse;
+    info->i_specular = material->specular;
+    info->i_refractive = material->refractive_index;
+    info->i_time = min_time;
+
+    // texture
+    Vector2 tex_coord = min_alpha * mesh->get_vertices()[min_v0].tex_coord
+                        + min_beta * mesh->get_vertices()[min_v1].tex_coord
+                        + min_gamma * mesh->get_vertices()[min_v2].tex_coord;
+    double dec_x = fmod(tex_coord.x, 1.0);
+    double dec_y = fmod(tex_coord.y, 1.0);
+    int width, height;
+    material->get_texture_size(&width, &height);
+    dec_x *= width;
+    dec_y *= height;
+    info->i_texture = material->get_texture_pixel(dec_x, dec_y);
 }
 
 bool Model::intersect_ray(Vector3& eye, Vector3& ray, intersect_info *info) const
@@ -53,46 +95,16 @@ bool Model::intersect_ray(Vector3& eye, Vector3& ray, intersect_info *info) cons
     Vector3 instance_eye = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
 
-    float min_time = INFINITY, min_beta = INFINITY, min_gamma = INFINITY;
-    size_t min_index = 0;
-
-    if (!bvh->intersect_ray(instance_eye, instance_ray, min_time, min_index,
-                        min_beta, min_gamma))
+    if (!bvh->intersect_ray(instance_eye, instance_ray, info->i_time, info->i_index,
+                            info->i_beta, info->i_gamma))
     {
         return false;
     }
 
-
     // find the info of minimum if any were hit
-    if (min_time > 0)
+    if (info->i_time > 0)
     {
-        float min_alpha;
-        size_t min_v0 = mesh->get_triangles()[min_index].vertices[0];
-        size_t min_v1 = mesh->get_triangles()[min_index].vertices[1];
-        size_t min_v2 = mesh->get_triangles()[min_index].vertices[2];
-        Vector3 normal0 = mesh->get_vertices()[min_v0].normal;
-        Vector3 normal1 = mesh->get_vertices()[min_v1].normal;
-        Vector3 normal2 = mesh->get_vertices()[min_v2].normal;
-        min_alpha = 1.0 - min_gamma - min_beta;
-        Vector3 normal = min_alpha * normal0 + min_beta * normal1 + min_gamma * normal2;
-        info->i_normal = normalize(normal_matrix * normal);
-        info->i_ambient = material->ambient;
-        info->i_diffuse = material->diffuse;
-        info->i_specular = material->specular;
-        info->i_refractive = material->refractive_index;
-        info->i_time = min_time;
-
-        // texture
-        Vector2 tex_coord = min_alpha * mesh->get_vertices()[min_v0].tex_coord
-                            + min_beta * mesh->get_vertices()[min_v1].tex_coord
-                            + min_gamma * mesh->get_vertices()[min_v2].tex_coord;
-        double dec_x = fmod(tex_coord.x, 1.0);
-        double dec_y = fmod(tex_coord.y, 1.0);
-        int width, height;
-        material->get_texture_size(&width, &height);
-        dec_x *= width;
-        dec_y *= height;
-        info->i_texture = material->get_texture_pixel(dec_x, dec_y);
+        fill_info(eye, ray, info);
     }
     // if none hit, return false
     else

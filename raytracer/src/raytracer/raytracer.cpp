@@ -399,8 +399,11 @@ void Raytracer::trace_packet(Packet& packet, float refractive, bool extras, unsi
         }
         else // trace each pixel in the packet
         {
-            Color3 color = trace_pixel(pixel, 0, ray_packet.eye, 
-                                            ray_packet.rays[i], refractive, extras);
+            Color3 color = trace_pixel_end(ray_packet.infos[i],
+                                           pixel, 0, 
+                                           ray_packet.eye, 
+                                           ray_packet.rays[i], 
+                                           refractive, extras);
             color.to_array(&buffer[4 * (y * width + x)]);
         }
     }

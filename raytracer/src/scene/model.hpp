@@ -23,6 +23,7 @@ public:
     Model();
     virtual ~Model();
 
+    void fill_info(Vector3& eye, Vector3& ray, intersect_info *info) const;
     virtual void render() const;
     virtual bool intersect_ray(Vector3& eye, Vector3& ray, intersect_info *info) const;
     virtual bool shadow_test(Vector3& eye, Vector3& ray) const;

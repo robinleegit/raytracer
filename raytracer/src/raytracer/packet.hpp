@@ -33,7 +33,7 @@ struct RayPacket
     RayPacket()
     {
         for (int i = 0; i < rays_per_packet; i++)
-            active[i] = true;
+            active[i] = false;
     }
     Vector3        eye;
     Vector3        rays[rays_per_packet];

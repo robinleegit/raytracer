@@ -413,7 +413,7 @@ void BvhNode::intersect_packet(RayPacket& ray_packet)
 
     for (int i = 0; i < rays_per_packet; i++)
     {
-        ray_packet.active[i] = left_active[i] || right_active[i];
+        ray_packet.active[i] = ray_packet.active[i] || left_active[i] || right_active[i];
     }
 }
 
