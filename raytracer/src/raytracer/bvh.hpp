@@ -4,6 +4,7 @@
 #include <vector>
 #include "scene/mesh.hpp"
 #include "geom_utils.hpp"
+#include "raytracer.hpp"
 
 namespace _462
 {
@@ -68,10 +69,14 @@ public:
 
     BvhNode(const Mesh *_mesh, std::vector<int> *_indices, int start, int end);
     ~BvhNode();
-    bool intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
+    bool intersect_leaf(Vector3& eye, Vector3& ray, float &min_time, size_t& min_index,
                        float &min_beta, float &min_gamma);
-    bool shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
-                     float &min_beta, float &min_gamma);
+    bool intersect_ray(Vector3& eye, Vector3& ray, float &min_time, size_t& min_index,
+                       float &min_beta, float &min_gamma);
+    void intersect_packet(RayPacket& ray_packet);
+    void intersect_packet(RayPacket& ray_packet, bool active[rays_per_packet]);
+    bool shadow_test(Vector3& eye, Vector3& ray, float& min_time, size_t& min_index,
+                     float& min_beta, float& min_gamma);
     void print();
 };
 

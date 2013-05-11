@@ -44,7 +44,7 @@ void Triangle::render() const
 }
 
 
-bool Triangle::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
+bool Triangle::intersect_ray(Vector3& eye, Vector3& ray, intersect_info *info) const
 {
     Vector3 instance_e = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
@@ -140,7 +140,7 @@ bool Triangle::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) con
     return true;
 }
 
-bool Triangle::shadow_test(Vector3 eye, Vector3 ray) const
+bool Triangle::shadow_test(Vector3& eye, Vector3& ray) const
 {
     Vector3 instance_e = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
@@ -194,7 +194,19 @@ void Triangle::make_bounding_volume()
     return;
 }
 
-bool Triangle::intersect_frustum(Frustum frustum) const
+void Triangle::intersect_packet(Packet& packet) const
+{
+    if (intersect_frustum(packet.frustum))
+    {
+        RayPacket& ray_packet = packet.ray_packet;
+        for (int i = 0; i < rays_per_packet; i++)
+        {
+            ray_packet.active[i] = intersect_ray(ray_packet.eye, ray_packet.rays[i], &ray_packet.infos[i]);
+        }
+    }
+}
+
+bool Triangle::intersect_frustum(Frustum& frustum) const
 {
     Frustum instance_frustum;
     int right_side = 0;

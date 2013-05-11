@@ -8,6 +8,7 @@
 #include "scene/model.hpp"
 #include "scene/material.hpp"
 #include "raytracer/bvh.hpp"
+#include "raytracer/packet.hpp"
 #include "raytracer/CycleTimer.hpp"
 
 #include <iostream>
@@ -38,7 +39,15 @@ void Model::render() const
         material->reset_gl_state();
 }
 
-bool Model::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
+void Model::intersect_packet(Packet& packet) const
+{
+    if (intersect_frustum(packet.frustum))
+    {
+        bvh->intersect_packet(packet.ray_packet);
+    }
+}
+
+bool Model::intersect_ray(Vector3& eye, Vector3& ray, intersect_info *info) const
 {
     // first check intersection with bounding box
     Vector3 instance_eye = inverse_transform_matrix.transform_point(eye);
@@ -94,7 +103,7 @@ bool Model::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
     return true;
 }
 
-bool Model::shadow_test(Vector3 eye, Vector3 ray) const
+bool Model::shadow_test(Vector3& eye, Vector3& ray) const
 {
     Vector3 instance_eye = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
@@ -122,7 +131,7 @@ void Model::make_bounding_volume()
     cout << "Bvh creation took       " << (done - bvh_create_start) << "s" << endl;
 }
 
-bool Model::intersect_frustum(Frustum frustum) const
+bool Model::intersect_frustum(Frustum& frustum) const
 {
     Frustum instance_frustum;
 

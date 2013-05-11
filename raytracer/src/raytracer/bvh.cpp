@@ -292,36 +292,44 @@ void BvhNode::print()
     cout << "}";
 }
 
-bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
+bool BvhNode::intersect_leaf(Vector3& eye, Vector3& ray, float& min_time, size_t& min_index,
+                            float& min_beta, float& min_gamma)
+{
+    bool ret = false;
+
+    //TODO SIMD
+    for (size_t s = start_triangle; s < end_triangle; s++)
+    {
+        unsigned int v0, v1, v2;
+        Vector3 p0, p1, p2;
+
+        MeshTriangle triangle = mesh->get_triangles()[indices[0][s]];
+        v0 = triangle.vertices[0];
+        v1 = triangle.vertices[1];
+        v2 = triangle.vertices[2];
+        p0 = mesh->get_vertices()[v0].position;
+        p1 = mesh->get_vertices()[v1].position;
+        p2 = mesh->get_vertices()[v2].position;
+
+        if (triangle_ray_intersect(eye, ray, p0, p1, p2, min_time,
+                                   min_gamma, min_beta))
+        {
+            min_index = indices[0][s];
+            ret = true;
+        }
+    }
+
+    return ret;
+}
+
+bool BvhNode::intersect_ray(Vector3& eye, Vector3& ray, float &min_time, size_t &min_index,
                             float &min_beta, float &min_gamma)
 {
     bool ret = false;
 
     if (!left && !right)
     {
-        //TODO SIMD
-        for (size_t s = start_triangle; s < end_triangle; s++)
-        {
-            unsigned int v0, v1, v2;
-            Vector3 p0, p1, p2;
-
-            MeshTriangle triangle = mesh->get_triangles()[indices[0][s]];
-            v0 = triangle.vertices[0];
-            v1 = triangle.vertices[1];
-            v2 = triangle.vertices[2];
-            p0 = mesh->get_vertices()[v0].position;
-            p1 = mesh->get_vertices()[v1].position;
-            p2 = mesh->get_vertices()[v2].position;
-
-            if (triangle_ray_intersect(eye, ray, p0, p1, p2, min_time,
-                                       min_gamma, min_beta))
-            {
-                min_index = indices[0][s];
-                ret = true;
-            }
-        }
-
-        return ret;
+        return intersect_leaf(eye, ray, min_time, min_index, min_beta, min_gamma);
     }
 
     if (left_bbox.intersect_ray(eye, ray))
@@ -341,8 +349,76 @@ bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &m
     return ret;
 }
 
+void BvhNode::intersect_packet(RayPacket& ray_packet, bool active[rays_per_packet])
+{
+    if (left == NULL && right == NULL)
+    {
+        for (int i = 0; i < rays_per_packet; i++)
+        {
+            if (active[i])
+            {
+                ray_packet.active[i] = intersect_leaf(
+                        ray_packet.eye, 
+                        ray_packet.rays[i], 
+                        ray_packet.infos[i].i_time, 
+                        ray_packet.infos[i].i_index, 
+                        ray_packet.infos[i].i_beta, 
+                        ray_packet.infos[i].i_gamma);
+            }
+        }
+
+        return;
+    }
+
+    bool left_active[rays_per_packet];
+    for (int i = 0; i < rays_per_packet; i++)
+    {
+        if (active[i])
+        {
+            left_active[i] = left_bbox.intersect_ray(ray_packet.eye, ray_packet.rays[i]);
+        }
+    }
+
+    intersect_packet(ray_packet, left_active);
+
+    bool right_active[rays_per_packet];
+    for (int i = 0; i < rays_per_packet; i++)
+    {
+        if (active[i])
+        {
+            right_active[i] = right_bbox.intersect_ray(ray_packet.eye, ray_packet.rays[i]);
+        }
+    }
+
+    intersect_packet(ray_packet, right_active);
+}
+
+void BvhNode::intersect_packet(RayPacket& ray_packet)
+{
+    bool left_active[rays_per_packet];
+    for (int i = 0; i < rays_per_packet; i++)
+    {
+        left_active[i] = left_bbox.intersect_ray(ray_packet.eye, ray_packet.rays[i]);
+    }
+
+    intersect_packet(ray_packet, left_active);
+
+    bool right_active[rays_per_packet];
+    for (int i = 0; i < rays_per_packet; i++)
+    {
+        right_active[i] = right_bbox.intersect_ray(ray_packet.eye, ray_packet.rays[i]);
+    }
+
+    intersect_packet(ray_packet, right_active);
+
+    for (int i = 0; i < rays_per_packet; i++)
+    {
+        ray_packet.active[i] = left_active[i] || right_active[i];
+    }
+}
+
 // this test will exit early if any triangle is hit
-bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
+bool BvhNode::shadow_test(Vector3& eye, Vector3& ray, float &min_time, size_t &min_index,
                           float &min_beta, float &min_gamma)
 {
     bool ret = false;
@@ -395,6 +471,5 @@ bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min
 
     return ret;
 }
-
 
 }

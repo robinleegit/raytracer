@@ -8,22 +8,12 @@
 #include "scene/material.hpp"
 #include "scene/mesh.hpp"
 #include "raytracer/geom_utils.hpp"
+#include "raytracer/packet.hpp"
 #include <string>
 #include <vector>
 
 namespace _462
 {
-
-struct intersect_info
-{
-    float i_time;
-    Vector3 i_normal;
-    Color3 i_ambient;
-    Color3 i_diffuse;
-    Color3 i_specular;
-    Color3 i_texture;
-    real_t i_refractive;
-};
 
 class Geometry
 {
@@ -57,10 +47,10 @@ public:
      * Renders this geometry using OpenGL in the local coordinate space.
      */
     virtual void render() const = 0;
-    virtual bool intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const = 0;
-    virtual bool shadow_test(Vector3 eye, Vector3 ray) const = 0;
+    virtual bool intersect_ray(Vector3& eye, Vector3& ray, intersect_info *info) const = 0;
+    virtual bool shadow_test(Vector3& eye, Vector3& ray) const = 0;
     virtual void make_bounding_volume() = 0;
-    virtual bool intersect_frustum(Frustum frustum) const = 0;
+    virtual void intersect_packet(Packet& packet) const = 0;
 };
 
 struct PointLight

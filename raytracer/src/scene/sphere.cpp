@@ -94,7 +94,7 @@ void Sphere::render() const
         material->reset_gl_state();
 }
 
-bool Sphere::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
+bool Sphere::intersect_ray(Vector3& eye, Vector3& ray, intersect_info *info) const
 {
     Vector3 instance_eye = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
@@ -142,7 +142,7 @@ bool Sphere::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
     return true;
 }
 
-bool Sphere::shadow_test(Vector3 eye, Vector3 ray) const
+bool Sphere::shadow_test(Vector3& eye, Vector3& ray) const
 {
     Vector3 instance_eye = inverse_transform_matrix.transform_point(eye);
     Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
@@ -171,7 +171,19 @@ void Sphere::make_bounding_volume()
     return;
 }
 
-bool Sphere::intersect_frustum(Frustum frustum) const
+void Sphere::intersect_packet(Packet& packet) const
+{
+    if (intersect_frustum(packet.frustum))
+    {
+        RayPacket& ray_packet = packet.ray_packet;
+        for (int i = 0; i < rays_per_packet; i++)
+        {
+            ray_packet.active[i] = intersect_ray(ray_packet.eye, ray_packet.rays[i], &ray_packet.infos[i]);
+        }
+    }
+}
+
+bool Sphere::intersect_frustum(Frustum& frustum) const
 {
     Frustum instance_frustum;
 
