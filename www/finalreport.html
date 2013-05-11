@@ -68,11 +68,11 @@ In addition, each packet can be easily mapped over a CPU core for high level par
 </p>
 
 <p>
-We are exploring several avenues of parallelizing when it comes to packet based traversal. The first step in ray tracing is to traverse the BVH and determine which rays probably intersect which pixels. After a frustum test is used to determine that the packet intersects the BVH, intersection tests of each node can be done in SIMD across the whole packet, to determine which rays in the packet intersect that node of the BVH. As the packet descends the BVH, doing intersection tests in SIMD, rays that don't intersect are removed from the packet, until there is a list of rays and the triangles in the BVH they each intersect.
+We are exploring several strategies for paraellizing packet traversal. The first step is to traverse the BVH and determine which rays can possibly intersect which objects. A frustum test is used to determine that the packet intersects the BVH; if it doesn't, all its rays can be disregarded for that object.  Packet-node intersection tests can be done in SIMD to determine which rays in the packet intersect that node.  As the packet descends into the BVH, rays that don't intersect are removed from the packet until there is a list of rays and the triangles in the BVH they each intersect.
 </p>
 
 <p>
-At this point, the rays will reflect, and may not be a coherent packet any more. After that happens, it is hard to use SIMD rays that are no longer going in similar directions, so the rest of the computation is done using only a single lane of each core.
+Once an intersection is found, the rays will reflect or refract, at which point the packet may no longer be coherent (the rays may not be tightly packed or going in similar directions).  From there the computation is done on a single lane of each core to minimized the effects of the resulting divergence.  
 </p>
 
 <p>
@@ -82,7 +82,7 @@ This approach should decrease the amount of time spent doing intersection tests,
 <div class="section">Results</div>
 
 <p>
-The Happy Buddha image below contains over a million triangles and rendered in less than a second on our laptops (disregarding BVH build time).  We are continuing to iterate and hope to have this down considerably further by Monday as there are still a number of optimizations to make.  We anticipate a render rate of a few frames per second on scenes like this one.
+The Happy Buddha image below contains over a million triangles and, with our current implementation, rendered in less than a second on our laptops (disregarding BVH build time, which only happens once).  We are continuing to iterate and hope to have this down considerably further by Monday as there are still a number of optimizations to make.  We anticipate a render rate of a few frames per second on scenes like this one.
 </p>
 
 <img alt="1 million triangle Buddha model"src="buddha.png">
