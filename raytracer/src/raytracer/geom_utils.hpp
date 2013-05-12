@@ -1,11 +1,19 @@
 #ifndef __GEOM_UTILS_H__
 #define __GEOM_UTILS_H__
 
-#include "math/vector.hpp"
 #include <cstring>
+#include "math/vector.hpp"
+#include "raytracer/ray.hpp"
 
 namespace _462
 {
+
+struct Int2
+{
+    int x, y;
+    Int2() : x(0), y(0) { }
+    Int2(int _x, int _y) : x(_x), y(_y) { }
+};
 
 enum frustum_sides {FRONT, BACK, TOP, BOTTOM, LEFT, RIGHT};
 

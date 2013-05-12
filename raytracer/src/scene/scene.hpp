@@ -7,61 +7,13 @@
 #include "math/camera.hpp"
 #include "scene/material.hpp"
 #include "scene/mesh.hpp"
+#include "scene/geometry.hpp"
 #include "raytracer/geom_utils.hpp"
 #include <string>
 #include <vector>
 
 namespace _462
 {
-
-struct intersect_info
-{
-    float i_time;
-    Vector3 i_normal;
-    Color3 i_ambient;
-    Color3 i_diffuse;
-    Color3 i_specular;
-    Color3 i_texture;
-    real_t i_refractive;
-};
-
-class Geometry
-{
-public:
-    Geometry();
-    virtual ~Geometry();
-
-    /*
-       World transformation are applied in the following order:
-       1. Scale
-       2. Orientation
-       3. Position
-    */
-
-    // The world position of the object.
-    Vector3 position;
-
-    // The world orientation of the object.
-    // Use Quaternion::to_matrix to get the rotation matrix.
-    Quaternion orientation;
-
-    // The world scale of the object.
-    Vector3 scale;
-
-    // transformation matrices to precalculate in intialization
-    Matrix4 inverse_transform_matrix;
-    Matrix4 transform_matrix;
-    Matrix3 normal_matrix;
-
-    /**
-     * Renders this geometry using OpenGL in the local coordinate space.
-     */
-    virtual void render() const = 0;
-    virtual bool intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const = 0;
-    virtual bool shadow_test(Vector3 eye, Vector3 ray) const = 0;
-    virtual void make_bounding_volume() = 0;
-    virtual bool intersect_frustum(Frustum frustum) const = 0;
-};
 
 struct PointLight
 {

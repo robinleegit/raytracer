@@ -74,51 +74,33 @@ bool Raytracer::initialize(Scene* _scene, size_t _width, size_t _height)
  * @param extras Whether to turn extras on
  * @return The color of that pixel in the final image.
  */
-Color3 Raytracer::trace_pixel(Int2 pixel, int recursions,
-        Vector3 start_eye, Vector3 start_ray, float refractive, bool extras)
+Color3 Raytracer::trace_pixel(Int2 pixel, int recursions, const Ray& ray, 
+        float refractive, bool extras)
 {
     assert(0 <= pixel.x && pixel.x < width);
     assert(0 <= pixel.y && pixel.y < height);
 
     int max_recursion_depth = 3;
-    float eps = 0.0001; // "slop factor"
     Vector3 eye; // origin of our viewing ray
     Vector3 ray; // viewing ray
     size_t num_geometries = scene->num_geometries();
     bool hit = false;
-    intersect_info info; // everything we're calculating from intersection
+    IsectInfo min_info; // everything we're calculating from intersection
     float min_time = -1.0;
-    Vector3 min_normal = Vector3::Zero;
-    Color3 min_ambient = Color3::Black;
-    Color3 min_diffuse = Color3::Black;
-    Color3 min_specular = Color3::Black;
-    Color3 min_texture = Color3::Black;
-    real_t min_refractive = 0.0;
     Vector3 intersection_point = Vector3::Zero;
-    eye = start_eye;
-    ray = start_ray;
 
     // run intersection test on every object in scene
     for (size_t i = 0; i < num_geometries; i++)
     {
+        IsectInfo info;
         // intersect returns true if there's a hit, false if not, and sets
         //  values in info struct
-        hit = scene->get_geometries()[i]->intersect_ray(eye, ray, &info);
+        hit = scene->get_geometries()[i]->intersect_ray(ray, info);
 
-        if (hit && info.i_time > eps)
+        if (hit && info.i_time > eps && info.time < min_info.time)
         {
-            // check for new min hit time or if it's the first object hit
-            if (info.i_time < min_time || min_time == -1.0)
-            {
-                min_time = info.i_time;
-                min_normal = info.i_normal;
-                min_ambient = info.i_ambient;
-                min_diffuse = info.i_diffuse;
-                min_specular = info.i_specular;
-                min_texture = info.i_texture;
-                min_refractive = info.i_refractive;
-                intersection_point = eye + (min_time * ray);
-            }
+            min_info = info;
+            intersection_point = eye + (min_time * ray);
         }
     }
 

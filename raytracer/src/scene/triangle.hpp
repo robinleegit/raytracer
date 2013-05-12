@@ -30,13 +30,15 @@ public:
     // the triangle's vertices, in CCW order
     Vertex vertices[3];
 
+    bool intersect_frustum(const Frustum& frustum) const;
+
     Triangle();
     virtual ~Triangle();
     virtual void render() const;
-    virtual bool intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const;
-    virtual bool shadow_test(Vector3 eye, Vector3 ray) const;
+    virtual void intersect_packet(const Packet& packet, IsectInfo *infos, bool *intersected) const;
+    virtual bool intersect_ray(const Ray& ray, IsectInfo& info) const;
+    virtual bool shadow_test(const Ray& ray) const;
     virtual void make_bounding_volume();
-    virtual bool intersect_frustum(Frustum frustum) const;
 };
 
 

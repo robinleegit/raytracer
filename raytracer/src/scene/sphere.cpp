@@ -94,10 +94,28 @@ void Sphere::render() const
         material->reset_gl_state();
 }
 
-bool Sphere::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
+void Sphere::intersect_packet(const Packet& packet, IsectInfo *infos, bool *intersected) const
 {
-    Vector3 instance_eye = inverse_transform_matrix.transform_point(eye);
-    Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
+    if (intersect_frustum(packet.frustum))
+    {
+        for (int i = 0; i < rays_per_packet; i++)
+        {
+            intersected[i] = intersect_ray(packet.rays[i], infos[i]);
+        }
+    }
+    else
+    {
+        for (int i = 0; i < rays_per_packet; i++)
+        {
+            intersected[i] = false;
+        }
+    }
+}
+
+bool Sphere::intersect_ray(const Ray& ray, IsectInfo& info) const
+{
+    Vector3 instance_eye = inverse_transform_matrix.transform_point(ray.eye);
+    Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray.dir);
 
     // spheres are centered at zero in object space
     float discriminant = pow(dot(instance_ray, instance_eye), 2)
@@ -121,12 +139,12 @@ bool Sphere::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
 
     // return info
     Vector3 normal = (instance_eye + t * instance_ray) / radius;
-    info->i_normal = normalize(normal_matrix * normal);
-    info->i_ambient = material->ambient;
-    info->i_diffuse = material->diffuse;
-    info->i_specular = material->specular;
-    info->i_refractive = material->refractive_index;
-    info->i_time = t;
+    info.normal = normalize(normal_matrix * normal);
+    info.ambient = material->ambient;
+    info.diffuse = material->diffuse;
+    info.specular = material->specular;
+    info.refractive = material->refractive_index;
+    info.time = t;
 
     // texture
     real_t theta = acos(normal.y);
@@ -137,15 +155,15 @@ bool Sphere::intersect_ray(Vector3 eye, Vector3 ray, intersect_info *info) const
     material->get_texture_size(&width, &height);
     tex_u *= width;
     tex_v *= height;
-    info->i_texture = material->get_texture_pixel(tex_u, tex_v);
+    info.texture = material->get_texture_pixel(tex_u, tex_v);
 
     return true;
 }
 
-bool Sphere::shadow_test(Vector3 eye, Vector3 ray) const
+bool Sphere::shadow_test(const Ray& ray) const
 {
-    Vector3 instance_eye = inverse_transform_matrix.transform_point(eye);
-    Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray);
+    Vector3 instance_eye = inverse_transform_matrix.transform_point(ray.eye);
+    Vector3 instance_ray = inverse_transform_matrix.transform_vector(ray.dir);
 
     float discriminant = pow(dot(instance_ray, instance_eye), 2)
                          - dot(instance_ray, instance_ray) * (dot(instance_eye, instance_eye) - pow(radius, 2));
@@ -171,7 +189,7 @@ void Sphere::make_bounding_volume()
     return;
 }
 
-bool Sphere::intersect_frustum(Frustum frustum) const
+bool Sphere::intersect_frustum(const Frustum& frustum) const
 {
     Frustum instance_frustum;
 

@@ -5,6 +5,7 @@
 #include "raytracer/CycleTimer.hpp"
 #include "raytracer/bvh.hpp"
 #include "scene/model.hpp"
+#include "raytracer/geom_utils.hpp"
 
 #define STEP_SIZE 10
 #define LEAF_SIZE 4
@@ -37,6 +38,10 @@ float Box::get_surface_area()
     ret += diag.z * diag.x;
 
     return ret * 2;
+}
+
+void intersect_packet(const Packet& ray, BvhNode::IsectInfo *info, bool *intersected)
+{
 }
 
 bool Box::intersect_ray(Vector3 eye, Vector3 ray) const
@@ -157,7 +162,7 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end)
 
     ///////////////////////////////////
     // Do SAH to choose partition
-    int mid_tri_id, len = end - start, axis;
+    int mid_idx, mid_tri_id, len = end - start, axis;
     float mid_val;
     float mincost = numeric_limits<float>::max();
 
@@ -276,8 +281,6 @@ void BvhNode::print()
                 cout << " ";
         }
     }
-    else
-        cout << mid_idx;
     if (!(left == NULL && right == NULL))
     {
         if (left != NULL)
@@ -292,8 +295,7 @@ void BvhNode::print()
     cout << "}";
 }
 
-bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
-                            float &min_beta, float &min_gamma)
+bool BvhNode::intersect_ray(const Ray& ray, BvhNode::IsectInfo& info)
 {
     bool ret = false;
 
@@ -313,10 +315,10 @@ bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &m
             p1 = mesh->get_vertices()[v1].position;
             p2 = mesh->get_vertices()[v2].position;
 
-            if (triangle_ray_intersect(eye, ray, p0, p1, p2, min_time,
-                                       min_gamma, min_beta))
+            if (triangle_ray_intersect(ray.eye, ray.dir, p0, p1, p2, info.time,
+                                       info.gamma, info.beta))
             {
-                min_index = indices[0][s];
+                info.index = indices[0][s];
                 ret = true;
             }
         }
@@ -324,17 +326,15 @@ bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &m
         return ret;
     }
 
-    if (left_bbox.intersect_ray(eye, ray))
+    if (left_bbox.intersect_ray(ray.eye, ray.dir))
     {
-        bool l_inter = left->intersect_ray(eye, ray, min_time, min_index,
-                                           min_beta, min_gamma);
+        bool l_inter = left->intersect_ray(ray, info);
         ret = ret || l_inter;
     }
 
-    if (right_bbox.intersect_ray(eye, ray))
+    if (right_bbox.intersect_ray(ray.eye, ray.dir))
     {
-        bool r_inter = right->intersect_ray(eye, ray, min_time, min_index,
-                                            min_beta, min_gamma);
+        bool r_inter = right->intersect_ray(ray, info);
         ret = ret || r_inter;
     }
 
@@ -342,10 +342,10 @@ bool BvhNode::intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &m
 }
 
 // this test will exit early if any triangle is hit
-bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
-                          float &min_beta, float &min_gamma)
+bool BvhNode::shadow_test(const Ray& ray)
 {
     bool ret = false;
+    BvhNode::IsectInfo info;
 
     if (!left && !right)
     {
@@ -362,8 +362,8 @@ bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min
             p1 = mesh->get_vertices()[v1].position;
             p2 = mesh->get_vertices()[v2].position;
 
-            if (triangle_ray_intersect(eye, ray, p0, p1, p2, min_time,
-                                       min_gamma, min_beta))
+            if (triangle_ray_intersect(ray.eye, ray.dir, p0, p1, p2, info.time,
+                                       info.gamma, info.beta))
             {
                 return true;
             }
@@ -372,10 +372,9 @@ bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min
         return false;
     }
 
-    if (left_bbox.intersect_ray(eye, ray))
+    if (left_bbox.intersect_ray(ray.eye, ray.dir))
     {
-        bool l_inter = left->intersect_ray(eye, ray, min_time, min_index,
-                                           min_beta, min_gamma);
+        bool l_inter = left->intersect_ray(ray, info);
         ret = ret || l_inter;
 
     }
@@ -386,15 +385,13 @@ bool BvhNode::shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min
         return true;
     }
 
-    if (right_bbox.intersect_ray(eye, ray))
+    if (right_bbox.intersect_ray(ray.eye, ray.dir))
     {
-        bool r_inter = right->intersect_ray(eye, ray, min_time, min_index,
-                                            min_beta, min_gamma);
+        bool r_inter = right->intersect_ray(ray, info);
         ret = ret || r_inter;
     }
 
     return ret;
 }
-
 
 }

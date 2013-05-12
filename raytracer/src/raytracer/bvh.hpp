@@ -4,24 +4,10 @@
 #include <vector>
 #include "scene/mesh.hpp"
 #include "geom_utils.hpp"
+#include "raytracer/ray.hpp"
 
 namespace _462
 {
-
-struct partition_tester
-{
-    const Mesh* mesh;
-    size_t part_axis;
-    float mid_val;
-
-    partition_tester(const Mesh* _mesh, size_t _part_axis, float _mid_val)
-        : mesh(_mesh), part_axis(_part_axis), mid_val(_mid_val) { }
-
-    bool operator()(int i)
-    {
-        return mesh->get_triangle_centroid(i)[part_axis] < mid_val;
-    }
-};
 
 struct triangle_less
 {
@@ -57,21 +43,26 @@ public:
 class BvhNode
 {
 public:
+    struct IsectInfo
+    {
+        float time;
+        int index;
+        float beta;
+        float gamma;
+    };
     std::vector<int> *indices;
     const Mesh *mesh;
     BvhNode *left, *right;
     Box left_bbox, right_bbox;
-    int mid_idx;
     int start_triangle;
     int end_triangle;
     bool root;
 
     BvhNode(const Mesh *_mesh, std::vector<int> *_indices, int start, int end);
     ~BvhNode();
-    bool intersect_ray(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
-                       float &min_beta, float &min_gamma);
-    bool shadow_test(Vector3 eye, Vector3 ray, float &min_time, size_t &min_index,
-                     float &min_beta, float &min_gamma);
+    void intersect_packet(const Packet& ray, BvhNode::IsectInfo *info, bool *intersected);
+    bool intersect_ray(const Ray& ray, BvhNode::IsectInfo& info);
+    bool shadow_test(const Ray& ray);
     void print();
 };
 

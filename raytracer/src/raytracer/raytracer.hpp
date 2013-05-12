@@ -1,6 +1,7 @@
 #ifndef _462_RAYTRACER_HPP_
 #define _462_RAYTRACER_HPP_
 
+#include "raytracer/ray.hpp"
 #include "math/color.hpp"
 #include "scene/scene.hpp"
 #include "tsqueue.hpp"
@@ -8,31 +9,6 @@
 
 namespace _462
 {
-
-struct Int2
-{
-    int x, y;
-    Int2()
-    {
-        x = 0;
-        y = 0;
-    }
-    Int2(int _x, int _y) : x(_x), y(_y) { }
-};
-
-struct Packet
-{
-    Int2 ll, lr, ul, ur;
-    Packet()
-    {
-        ll = Int2(0, 0);
-        lr = Int2(0, 0);
-        ul = Int2(0, 0);
-        ur = Int2(0, 0);
-    }
-    Packet(Int2 _ll, Int2 _lr, Int2 _ul, Int2 _ur) :
-        ll(_ll), lr(_lr), ul( _ul), ur(_ur) { }
-};
 
 class Scene;
 

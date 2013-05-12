@@ -7,6 +7,7 @@
 
 #include "application/scene_loader.hpp"
 
+#include "scene/geometry.hpp"
 #include "scene/scene.hpp"
 #include "scene/sphere.hpp"
 #include "scene/model.hpp"
