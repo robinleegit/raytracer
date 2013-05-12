@@ -34,7 +34,7 @@ public:
     Color3 trace_pixel(int recursions, const Ray& ray, float refractive);
 
     Color3 trace_pixel_end(int recursions, const Ray& ray, float refractive,
-            IsectInfo infos);
+            IsectInfo min_info);
 
     Color3 get_diffuse(Vector3 intersection_point, Vector3 min_normal,
                        Color3 min_diffuse, float eps);

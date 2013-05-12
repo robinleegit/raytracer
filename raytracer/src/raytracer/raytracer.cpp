@@ -67,11 +67,9 @@ bool Raytracer::initialize(Scene* _scene, size_t _width, size_t _height, bool _e
  */
 Color3 Raytracer::trace_pixel(int recursions, const Ray& ray, float refractive)
 {
-    int max_recursion_depth = 3;
     size_t num_geometries = scene->num_geometries();
     bool hit_any = false; // if any geometries were hit
     IsectInfo min_info; // everything we're calculating from intersection
-    float min_time = -1.0;
     Vector3 intersection_point = Vector3::Zero;
 
     // run intersection test on every object in scene
@@ -82,10 +80,10 @@ Color3 Raytracer::trace_pixel(int recursions, const Ray& ray, float refractive)
         // values in info struct
         bool hit = scene->get_geometries()[i]->intersect_ray(ray, info);
 
-        if (hit && info.time < min_info.time)
+        if (hit && info.time < min_info.time) // min_info.time initializes to inf
         {
             min_info = info;
-            intersection_point = ray.eye + (min_time * ray.dir);
+            intersection_point = ray.eye + (min_info.time * ray.dir);
         }
     }
 
@@ -170,6 +168,88 @@ Color3 Raytracer::trace_pixel(int recursions, const Ray& ray, float refractive)
         return scene->background_color;
     }
 }
+
+
+Color3 Raytracer::trace_pixel_end(int recursions, const Ray& ray, float refractive, 
+        IsectInfo min_info)
+{
+    Color3 direct;
+    Color3 diffuse = Color3::Black;
+    Color3 ambient = scene->ambient_light * min_info.ambient;
+    float angle = dot(ray.dir, min_info.normal);
+
+    // compute reflected ray
+    Vector3 intersection_point = ray.eye + (min_info.time * ray.dir);
+    Ray incident_ray;
+    incident_ray.dir = ray.dir - 2 * angle * min_info.normal;
+    incident_ray.dir = normalize(incident_ray.dir);
+    incident_ray.eye = intersection_point + eps * incident_ray.dir;
+
+    // no-refraction case
+    if (min_info.refractive == 0.0)
+    {
+        diffuse = get_diffuse(incident_ray.eye, min_info.normal,
+                min_info.diffuse, eps);
+        direct = min_info.texture * (ambient + diffuse);
+
+        // return direct light and reflected light if we have recursions left
+        if (recursions >= max_recursion_depth)
+        {
+            return direct;
+        }
+
+        return direct + min_info.texture * min_info.specular *
+            trace_pixel(recursions + 1, incident_ray, refractive);
+
+    }
+    // refraction case
+    else
+    {
+        // return black if no more recursions
+        if (recursions >= max_recursion_depth)
+        {
+            return Color3::Black;
+        }
+
+        float c;
+        Ray transmitted_ray;
+        float refract_ratio = refractive / min_info.refractive;
+
+        // negative dot product between ray and normal indicates entering object
+        if (angle < 0.0)
+        {
+            refract(ray.dir, min_info.normal, refract_ratio, &transmitted_ray.dir);
+            c = dot(-1.0 * ray.dir, min_info.normal);
+        }
+        else
+        {
+            // exiting object
+            if (refract(ray.dir, (-1.0 * min_info.normal), min_info.refractive,
+                        &transmitted_ray.dir))
+            {
+                c = dot(transmitted_ray.dir, min_info.normal);
+            }
+            // total internal reflection
+            else
+            {
+                return trace_pixel(recursions + 1, incident_ray, refractive);
+            }
+        }
+
+        // schlick approximation to fresnel equations
+        float R_0 = pow(refract_ratio - 1, 2) / pow(refract_ratio + 1, 2);
+        float R = R_0 + (1 - R_0) * pow(1 - c, 5);
+        transmitted_ray.eye = intersection_point + eps * transmitted_ray.dir;
+
+        // return reflected and refracted rays
+        return R * trace_pixel(recursions + 1, incident_ray, refractive) +
+            (1.0 - R) * trace_pixel(recursions + 1, transmitted_ray,
+                    min_info.refractive);
+    }
+}
+
+
+
 
 // calculate direction of initial viewing ray from camera
 Vector3 Raytracer::get_viewing_ray(Int2 pixel)
