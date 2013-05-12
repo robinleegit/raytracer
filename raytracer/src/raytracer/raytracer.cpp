@@ -67,8 +67,6 @@ bool Raytracer::initialize(Scene* _scene, size_t _width, size_t _height, bool _e
  */
 Color3 Raytracer::trace_pixel(int recursions, const Ray& ray, float refractive)
 {
-    if (recursions > 1) {cout << recursions << endl;}
-    
     size_t num_geometries = scene->num_geometries();
     bool hit_any = false; // if any geometries were hit
     IsectInfo min_info; // everything we're calculating from intersection
@@ -86,6 +84,7 @@ Color3 Raytracer::trace_pixel(int recursions, const Ray& ray, float refractive)
         {
             min_info = info;
             intersection_point = ray.eye + (min_info.time * ray.dir);
+            hit_any = true;
         }
     }
 
