@@ -10,8 +10,6 @@
 namespace _462
 {
 
-class Scene;
-
 class Raytracer
 {
 public:
@@ -20,27 +18,28 @@ public:
 
     ~Raytracer();
 
-    bool initialize(Scene* _scene, size_t _width, size_t _height);
+    bool initialize(Scene* _scene, size_t _width, size_t _height, bool _extras);
 
-    Color3 trace_pixel(Int2 pixel, int recursions, Vector3 start_eye,
-            Vector3 start_ray, float refractive, bool extras);
+    bool raytrace(unsigned char* buffer, real_t* max_time, int numthreads);
 
-    void trace_packet_worker(tsqueue<Packet> *packet_queue, unsigned char *buffer);
+    void trace_packet_worker(tsqueue<PacketRegion> *packet_queue, unsigned char *buffer);
 
-    bool raytrace(unsigned char* buffer, real_t* max_time, bool extras, int numthreads);
-
-    Vector3 get_viewing_ray(Int2 pixel);
+    void trace_packet(PacketRegion packet, float refractive, unsigned char* buffer);
 
     void get_viewing_frustum(Int2 ll, Int2 lr, Int2 ul, Int2 ur,
                              Frustum& frustum);
+
+    Vector3 get_viewing_ray(Int2 pixel);
+
+    Color3 trace_pixel(int recursions, const Ray& ray, float refractive);
+
+    Color3 trace_pixel_end(int recursions, const Ray& ray, float refractive,
+            IsectInfo infos);
 
     Color3 get_diffuse(Vector3 intersection_point, Vector3 min_normal,
                        Color3 min_diffuse, float eps);
 
     bool refract(Vector3 d, Vector3 normal, float n, Vector3 *t);
-
-    void trace_packet(Packet packet, float refractive, bool extras,
-            unsigned char* buffer);
 
 private:
 
@@ -49,6 +48,9 @@ private:
 
     // the dimensions of the image to trace
     size_t width, height;
+
+    // for things like anti-aliasing
+    bool extras;
 };
 
 } /* _462 */

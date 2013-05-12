@@ -108,6 +108,7 @@ bool RaytracerApplication::initialize()
     // copy camera into camera control so it can be moved via mouse
     camera_control.camera = scene.camera;
     bool load_gl = options.open_window;
+    options.numthreads = boost::thread::hardware_concurrency();
 
     try
     {
@@ -190,16 +191,14 @@ void RaytracerApplication::update( real_t delta_time )
         if ( !raytrace_finished )
         {
             assert( buffer );
-            raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras,
-                                                   boost::thread::hardware_concurrency());
+            raytrace_finished = raytracer.raytrace(buffer, &delta_time, options.numthreads);
         }
 
         else if (raytrace_key_update) // comment stuff after else on this line for cotinuous tracing
         {
             camera_control.update( delta_time );
             scene.camera = camera_control.camera;
-            raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras,
-                                                   boost::thread::hardware_concurrency());
+            raytrace_finished = raytracer.raytrace(buffer, &delta_time, options.numthreads);
             raytrace_key_update = false;
         }
     }
@@ -304,7 +303,7 @@ void RaytracerApplication::toggle_raytracing( int width, int height )
         // initialize the raytracer (first make sure camera aspect is correct)
         scene.camera.aspect = real_t( width ) / real_t( height );
 
-        if ( !raytracer.initialize( &scene, width, height ) )
+        if ( !raytracer.initialize(&scene, width, height, extras) )
         {
             std::cout << "Raytracer initialization failed.\n";
             return; // leave untoggled since initialization failed.
@@ -585,6 +584,7 @@ int main( int argc, char* argv[] )
     Options opt;
     opt.width = 0;
     opt.height = 0;
+    opt.numthreads = boost::thread::hardware_concurrency();
 
     Matrix3 mat;
     Matrix4 trn;
@@ -624,7 +624,7 @@ int main( int argc, char* argv[] )
         }
         assert( app.buffer );
         // raytrace until done
-        app.raytracer.raytrace( app.buffer, 0, extras, 8 );
+        app.raytracer.raytrace( app.buffer, 0, opt.numthreads);
         // output result
         app.output_image();
         return 0;

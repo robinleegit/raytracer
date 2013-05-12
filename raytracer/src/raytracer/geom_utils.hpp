@@ -3,7 +3,6 @@
 
 #include <cstring>
 #include "math/vector.hpp"
-#include "raytracer/ray.hpp"
 
 namespace _462
 {

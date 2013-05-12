@@ -1,4 +1,5 @@
 #include "geom_utils.hpp"
+#include "raytracer/ray.hpp"
 
 using namespace std;
 

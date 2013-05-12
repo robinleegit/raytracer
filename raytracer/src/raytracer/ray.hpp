@@ -19,11 +19,18 @@ struct Ray
 
 struct PacketRegion
 {
+    PacketRegion() {}
     PacketRegion(Int2 _ll, Int2 _lr, Int2 _ul, Int2 _ur)
                 : ll(_ll), lr(_lr), ul(_ul), ur(_ur)
     {
     }
     Int2 ll, lr, ul, ur;
+};
+
+struct Packet
+{
+    Frustum frustum;
+    Ray rays[rays_per_packet];
 };
 
 struct IsectInfo
@@ -40,12 +47,6 @@ struct IsectInfo
     Color3 specular;
     Color3 texture;
     real_t refractive;
-};
-
-struct Packet
-{
-    Frustum frustum;
-    Ray rays[rays_per_packet];
 };
 
 }

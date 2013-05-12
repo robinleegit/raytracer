@@ -21,6 +21,7 @@ SRCS = \
 	math/quaternion.cpp \
 	math/matrix.cpp \
 	math/camera.cpp \
+	scene/geometry.cpp \
 	scene/material.cpp \
 	scene/mesh.cpp \
 	scene/scene.cpp \

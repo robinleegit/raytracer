@@ -27,11 +27,12 @@ Raytracer::~Raytracer() { }
  * @return true on success, false on error. The raytrace will abort if
  *  false is returned.
  */
-bool Raytracer::initialize(Scene* _scene, size_t _width, size_t _height)
+bool Raytracer::initialize(Scene* _scene, size_t _width, size_t _height, bool _extras)
 {
     this->scene = _scene;
     this->width = _width;
     this->height = _height;
+    this->extras = _extras;
 
     size_t num_geometries = scene->num_geometries();
 
@@ -63,28 +64,12 @@ bool Raytracer::initialize(Scene* _scene, size_t _width, size_t _height)
 /**
  * Performs a raytrace on the given pixel on the current scene.
  * The pixel is relative to the bottom-left corner of the image.
- * @param scene The scene to trace.
- * @param pixel The x and y screen coordinates of the pixel to trace.
- * @param width The width of the screen in pixels.
- * @param height The height of the screen in pixels.
- * @param recursions The number of times the function has been called.
- * @param start_eye The ray origin
- * @param start_ray The ray direction
- * @param refractive The index of refraction surrounding the ray
- * @param extras Whether to turn extras on
- * @return The color of that pixel in the final image.
  */
-Color3 Raytracer::trace_pixel(Int2 pixel, int recursions, const Ray& ray, 
-        float refractive, bool extras)
+Color3 Raytracer::trace_pixel(int recursions, const Ray& ray, float refractive)
 {
-    assert(0 <= pixel.x && pixel.x < width);
-    assert(0 <= pixel.y && pixel.y < height);
-
     int max_recursion_depth = 3;
-    Vector3 eye; // origin of our viewing ray
-    Vector3 ray; // viewing ray
     size_t num_geometries = scene->num_geometries();
-    bool hit = false;
+    bool hit_any = false; // if any geometries were hit
     IsectInfo min_info; // everything we're calculating from intersection
     float min_time = -1.0;
     Vector3 intersection_point = Vector3::Zero;
@@ -94,33 +79,35 @@ Color3 Raytracer::trace_pixel(Int2 pixel, int recursions, const Ray& ray,
     {
         IsectInfo info;
         // intersect returns true if there's a hit, false if not, and sets
-        //  values in info struct
-        hit = scene->get_geometries()[i]->intersect_ray(ray, info);
+        // values in info struct
+        bool hit = scene->get_geometries()[i]->intersect_ray(ray, info);
 
-        if (hit && info.i_time > eps && info.time < min_info.time)
+        if (hit && info.time < min_info.time)
         {
             min_info = info;
-            intersection_point = eye + (min_time * ray);
+            intersection_point = ray.eye + (min_time * ray.dir);
         }
     }
 
     // found a hit
-    if (min_time > 0)
+    if (hit_any)
     {
         Color3 direct;
         Color3 diffuse = Color3::Black;
-        Color3 ambient = scene->ambient_light * min_ambient;
-        float angle = dot(ray, min_normal);
+        Color3 ambient = scene->ambient_light * min_info.ambient;
+        float angle = dot(ray.dir, min_info.normal);
         // compute reflected ray
-        Vector3 incident_ray = ray - 2 * angle * min_normal;
-        incident_ray = normalize(incident_ray);
-        Vector3 reflection_point = intersection_point + eps * incident_ray;
+        Ray incident_ray;
+        incident_ray.dir = ray.dir - 2 * angle * min_info.normal;
+        incident_ray.dir = normalize(incident_ray.dir);
+        incident_ray.eye = intersection_point + eps * incident_ray.dir;
 
         // no-refraction case
-        if (min_refractive == 0.0)
+        if (min_info.refractive == 0.0)
         {
-            diffuse = get_diffuse(intersection_point, min_normal, min_diffuse, eps);
-            direct = min_texture * (ambient + diffuse);
+            diffuse = get_diffuse(incident_ray.eye, min_info.normal,
+                    min_info.diffuse, eps);
+            direct = min_info.texture * (ambient + diffuse);
 
             // return direct light and reflected light if we have recursions left
             if (recursions >= max_recursion_depth)
@@ -128,9 +115,8 @@ Color3 Raytracer::trace_pixel(Int2 pixel, int recursions, const Ray& ray,
                 return direct;
             }
 
-            return direct + min_texture * min_specular * trace_pixel( pixel,
-                    recursions + 1, reflection_point,
-                    incident_ray, refractive, extras);
+            return direct + min_info.texture * min_info.specular *
+                trace_pixel(recursions + 1, incident_ray, refractive);
 
         }
         // refraction case
@@ -143,40 +129,39 @@ Color3 Raytracer::trace_pixel(Int2 pixel, int recursions, const Ray& ray,
             }
 
             float c;
-            Vector3 transmitted_ray;
-            float refract_ratio = refractive / min_refractive;
+            Ray transmitted_ray;
+            float refract_ratio = refractive / min_info.refractive;
 
             // negative dot product between ray and normal indicates entering object
             if (angle < 0.0)
             {
-                refract(ray, min_normal, refract_ratio, &transmitted_ray);
-                c = dot(-1.0 * ray, min_normal);
+                refract(ray.dir, min_info.normal, refract_ratio, &transmitted_ray.dir);
+                c = dot(-1.0 * ray.dir, min_info.normal);
             }
             else
             {
                 // exiting object
-                if (refract(ray, (-1.0 * min_normal), min_refractive, &transmitted_ray))
+                if (refract(ray.dir, (-1.0 * min_info.normal), min_info.refractive,
+                            &transmitted_ray.dir))
                 {
-                    c = dot(transmitted_ray, min_normal);
+                    c = dot(transmitted_ray.dir, min_info.normal);
                 }
                 // total internal reflection
                 else
                 {
-                    return trace_pixel(pixel, recursions + 1,
-                                       reflection_point, incident_ray, refractive, extras);
+                    return trace_pixel(recursions + 1, incident_ray, refractive);
                 }
             }
 
             // schlick approximation to fresnel equations
             float R_0 = pow(refract_ratio - 1, 2) / pow(refract_ratio + 1, 2);
             float R = R_0 + (1 - R_0) * pow(1 - c, 5);
-            Vector3 refraction_point = intersection_point + eps * transmitted_ray;
+            transmitted_ray.eye = intersection_point + eps * transmitted_ray.dir;
 
             // return reflected and refracted rays
-            return R * trace_pixel(pixel, recursions + 1,
-                                   reflection_point, incident_ray, refractive, extras) +
-                   (1.0 - R) * trace_pixel(pixel, recursions + 1,
-                                           refraction_point, transmitted_ray, min_refractive, extras);
+            return R * trace_pixel(recursions + 1, incident_ray, refractive) +
+                (1.0 - R) * trace_pixel(recursions + 1, transmitted_ray,
+                        min_info.refractive);
         }
     }
     // didn't hit anything - return background color
@@ -277,6 +262,9 @@ Color3 Raytracer::get_diffuse(Vector3 intersection_point, Vector3 min_normal,
         light_direction_norm = normalize(light_direction);
         front_face = std::max(dot(min_normal,
                                   light_direction_norm), 0.0);
+        Ray shadow_ray;
+        shadow_ray.eye = intersection_point + (eps * light_direction);
+        shadow_ray.dir = light_direction; 
 
         // first check if it's front facing the light
         if (front_face > 0)
@@ -285,8 +273,7 @@ Color3 Raytracer::get_diffuse(Vector3 intersection_point, Vector3 min_normal,
             for (size_t k = 0; k < num_geometries; k++)
             {
                 //  send a ray from intersection point to that light
-                in_shadow = scene->get_geometries()[k]->shadow_test(intersection_point
-                            + (eps * light_direction), light_direction);
+                in_shadow = scene->get_geometries()[k]->shadow_test(shadow_ray);
 
                 //  if any object blocks the ray, that light contributes 0
                 if (in_shadow)
@@ -328,76 +315,65 @@ bool Raytracer::refract(Vector3 d, Vector3 normal, float n, Vector3 *t)
     return true;
 }
 
-void Raytracer::trace_packet_worker(tsqueue<Packet> *packet_queue, unsigned char *buffer)
+void Raytracer::trace_packet_worker(tsqueue<PacketRegion> *packet_queue, unsigned char *buffer)
 {
     while (true)
     {
         bool empty;
-        Packet packet = packet_queue->Pop(empty);
+        PacketRegion packet = packet_queue->Pop(empty);
 
         if (empty)
         {
             break;
         }
 
-        trace_packet(packet, 1.0, false, buffer);
+        trace_packet(packet, 1.0, buffer);
     }
 }
 
-void Raytracer::trace_packet(Packet packet, float refractive,
-        bool extras, unsigned char *buffer)
+void Raytracer::trace_packet(PacketRegion region, float refractive, unsigned char *buffer)
 {
-    Int2 ll = packet.ll;
-    Int2 lr = packet.lr;
-    Int2 ul = packet.ul;
-    Int2 ur = packet.ur;
-    Frustum frustum;
-    get_viewing_frustum(ll, lr, ul, ur, frustum);
+    Int2 ll = region.ll;
+    Int2 lr = region.lr;
+    Int2 ul = region.ul;
+    Int2 ur = region.ur;
 
-    bool hit = false;
+    IsectInfo infos[rays_per_packet];
+    bool intersected[rays_per_packet];
+    Packet packet;
+    get_viewing_frustum(ll, lr, ul, ur, packet.frustum);
+    Vector3 eye = scene->camera.get_position();
+    Int2 pixels[rays_per_packet];
+    int r = 0; // counter for rays in packet
 
-    // extremely naive at the moment - test on everything, if no hits, 
-    // color blank, else trace all pixels
-    // TODO maybe pass in a bit vector of which geometries must be tested?
-    // or change trace_pixel to only intersect with a given object?
+    for (int y = ll.y; y <= ul.y; y++)
+    {
+        for (int x = ll.x; x <= lr.x; x++)
+        {
+            Int2 pixel(x, y);
+            packet.rays[r].eye = eye;
+            packet.rays[r].dir = get_viewing_ray(pixel);
+            pixels[r] = pixel;
+            r++;
+        }
+    }
+
     for (size_t i = 0; i < scene->num_geometries(); i++)
     {
-        if (scene->get_geometries()[i]->intersect_frustum(frustum))
-        {
-            hit = true;
-            break;
-        }
+        scene->get_geometries()[i]->intersect_packet(packet, infos, intersected);
     }
 
-    //if (false) // no intersection
-    if (!hit) // no intersection
+    for (int i = 0; i < rays_per_packet; i++)
     {
-        // TODO SIMD
-        // set all of packet's pixels to background color
-        Color3 color = scene->background_color;
-
-        for (int y = ll.y; y <= ul.y; y++)
+        if (intersected[i])
         {
-            for (int x = ll.x; x <= lr.x; x++)
-            {
-                color.to_array(&buffer[4 * (y * width + x)]);
-            }
+            Color3 color = trace_pixel_end(0, packet.rays[i], refractive, infos[i]);
+            color.to_array(&buffer[4 * (pixels[i].y * width + pixels[i].x)]);
         }
-    }
-    else // trace each pixel in the packet
-    {
-        Vector3 start_eye = scene->camera.get_position();
-
-        for (int y = ll.y; y <= ul.y; y++)
+        else
         {
-            for (int x = ll.x; x <= lr.x; x++)
-            {
-                Int2 pixel = Int2(x, y);
-                Vector3 start_ray = get_viewing_ray(pixel);
-                Color3 color = trace_pixel(pixel, 0, start_eye, start_ray,
-                        1.0, false);
-                color.to_array(&buffer[4 * (y * width + x)]);
-            }
+            Color3 color = scene->background_color;
+            color.to_array(&buffer[4 * (pixels[i].y * width + pixels[i].x)]);
         }
     }
 }
@@ -414,10 +390,10 @@ void Raytracer::trace_packet(Packet packet, float refractive,
  * @return true if the raytrace is complete, false if there is more
  *  work to be done.
  */
-bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, bool extras, int numthreads)
+bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, int numthreads)
 {
     boost::thread *thread = new boost::thread[numthreads];
-    tsqueue<Packet> packet_queue;
+    tsqueue<PacketRegion> packet_queue;
 
     double tot_start = CycleTimer::currentSeconds();
 
@@ -443,7 +419,7 @@ bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, bool extras, i
             Int2 lr(xmax, y);
             Int2 ul(x, ymax);
             Int2 ur(xmax, ymax);
-            Packet packet(ll, lr, ul, ur);
+            PacketRegion packet(ll, lr, ul, ur);
             packet_queue.Push(packet);
         }
     }
