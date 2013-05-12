@@ -41,19 +41,42 @@ void Model::intersect_packet(const Packet& packet, IsectInfo *infos, bool *inter
 {
     if (intersect_frustum(packet.frustum))
     {
+        /*
         BvhNode::IsectInfo bvh_infos[rays_per_packet];
 
         // SIMD inside
         bvh->intersect_packet(packet, bvh_infos, intersected);
 
+
+
+
         // TODO make this simd
         for (int i = 0; i < rays_per_packet; i++)
         {
-            if (intersected[i] && bvh_infos[i].time < infos[i].time && bvh_infos[i].time > eps)
+            if (intersected[i] && bvh_infos[i].time < infos[i].time)
             {
                 compute_ray_info(bvh_infos[i], infos[i]);
             }
         }
+        */
+
+
+
+        for (int i = 0; i < rays_per_packet; i++)
+        {
+            BvhNode::IsectInfo temp_info;
+            intersected[i] = bvh->intersect_ray(packet.rays[i], temp_info);
+
+            if (intersected[i])
+            {
+                compute_ray_info(temp_info, infos[i]);
+            }
+        }
+
+
+
+
+
     }
     else
     {

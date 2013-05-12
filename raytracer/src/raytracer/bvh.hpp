@@ -2,6 +2,7 @@
 #define __BVH_H__
 
 #include <vector>
+#include <limits>
 #include "scene/mesh.hpp"
 #include "geom_utils.hpp"
 #include "raytracer/ray.hpp"
@@ -46,13 +47,19 @@ public:
     struct IsectInfo
     {
         float time;
-        int index;
+        size_t index;
         float beta;
         float gamma;
+
+        IsectInfo() : time(INFINITY), index(std::numeric_limits<size_t>::max()),
+        beta(INFINITY), gamma(INFINITY) 
+        {}
     };
+
+
     std::vector<int> *indices;
     const Mesh *mesh;
-    BvhNode *left, *right;
+    BvhNode *left_node, *right_node;
     Box left_bbox, right_bbox;
     int start_triangle;
     int end_triangle;
@@ -62,6 +69,9 @@ public:
     ~BvhNode();
     void intersect_packet(const Packet& ray, BvhNode::IsectInfo *info, bool *intersected);
     bool intersect_ray(const Ray& ray, BvhNode::IsectInfo& info);
+    bool intersect_leaf(const Vector3& eye, const Vector3& ray, float& min_time, size_t& min_index,
+                            float& min_beta, float& min_gamma);
+
     bool shadow_test(const Ray& ray);
     void print();
 };

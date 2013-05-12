@@ -40,10 +40,6 @@ float Box::get_surface_area()
     return ret * 2;
 }
 
-void intersect_packet(const Packet& ray, BvhNode::IsectInfo *info, bool *intersected)
-{
-}
-
 bool Box::intersect_ray(Vector3 eye, Vector3 ray) const
 {
     double tmin = -INFINITY, tmax = INFINITY;
@@ -148,8 +144,8 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end)
              << "Root bvh setup took     " << (done - root_create_start ) << "s" << endl;
     }
 
-    left = NULL;
-    right = NULL;
+    left_node = NULL;
+    right_node = NULL;
 
     if (end - start <= LEAF_SIZE)
     {
@@ -253,16 +249,16 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end)
         }
     }
 
-    left = new BvhNode(mesh, indices, start, mid_idx);
-    right = new BvhNode(mesh, indices, mid_idx, end);
+    left_node = new BvhNode(mesh, indices, start, mid_idx);
+    right_node = new BvhNode(mesh, indices, mid_idx, end);
 }
 
 BvhNode::~BvhNode()
 {
-    if (left)
-        delete left;
-    if (right)
-        delete right;
+    if (left_node)
+        delete left_node;
+    if (right_node)
+        delete right_node;
 
     if (indices && root)
         delete [] indices;
@@ -271,7 +267,7 @@ BvhNode::~BvhNode()
 void BvhNode::print()
 {
     cout << "{";
-    if (!left && !right)
+    if (!left_node && !right_node)
     {
         for (int i = start_triangle; i < end_triangle; i++)
         {
@@ -281,25 +277,117 @@ void BvhNode::print()
                 cout << " ";
         }
     }
-    if (!(left == NULL && right == NULL))
+    if (!(left_node == NULL && right_node == NULL))
     {
-        if (left != NULL)
+        if (left_node != NULL)
         {
-            left->print();
+            left_node->print();
         }
-        if (right != NULL)
+        if (right_node != NULL)
         {
-            right->print();
+            right_node->print();
         }
     }
     cout << "}";
 }
 
+
+///////////////////////////////
+
+void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, bool *intersected)
+{
+    // leaf node
+    if (!left_node && !right_node)
+    {
+        for (int i = 0; i < rays_per_packet; i++)
+        {
+            if (intersected[i])
+            {
+                intersected[i] = intersect_leaf(
+                        packet.rays[i].eye, 
+                        packet.rays[i].dir, 
+                        info[i].time, 
+                        info[i].index, 
+                        info[i].beta, 
+                        info[i].gamma);
+            }
+        }
+
+        return;
+    }
+
+    bool left_active[rays_per_packet];
+
+    for (int i = 0; i < rays_per_packet; i++)
+    {
+        if (intersected[i])
+        {
+            left_active[i] = left_active[i] ||
+                left_bbox.intersect_ray(packet.rays[i].eye, packet.rays[i].dir);
+        }
+    }
+
+    intersect_packet(packet, info, left_active);
+
+    bool right_active[rays_per_packet];
+
+    for (int i = 0; i < rays_per_packet; i++)
+    {
+        if (intersected[i])
+        {
+            right_active[i] = right_active[i] ||
+                right_bbox.intersect_ray(packet.rays[i].eye, packet.rays[i].dir);
+        }
+    }
+
+    intersect_packet(packet, info, right_active);
+
+    for (int i = 0; i < rays_per_packet; i++)
+    {
+        intersected[i] = intersected[i] || left_active[i] || right_active[i];
+    }
+}
+
+bool BvhNode::intersect_leaf(const Vector3& eye, const Vector3& ray,
+                             float& min_time, size_t& min_index,
+                             float& min_beta, float& min_gamma)
+{
+    bool ret = false;
+
+    //TODO SIMD
+    for (size_t s = start_triangle; s < end_triangle; s++)
+    {
+        unsigned int v0, v1, v2;
+        Vector3 p0, p1, p2;
+
+        MeshTriangle triangle = mesh->get_triangles()[indices[0][s]];
+        v0 = triangle.vertices[0];
+        v1 = triangle.vertices[1];
+        v2 = triangle.vertices[2];
+        p0 = mesh->get_vertices()[v0].position;
+        p1 = mesh->get_vertices()[v1].position;
+        p2 = mesh->get_vertices()[v2].position;
+
+        if (triangle_ray_intersect(eye, ray, p0, p1, p2, min_time,
+                                   min_gamma, min_beta))
+        {
+            min_index = indices[0][s];
+            ret = true;
+        }
+    }
+
+    return ret;
+}
+
+/////////////////////////////////////////////
+
+
 bool BvhNode::intersect_ray(const Ray& ray, BvhNode::IsectInfo& info)
 {
     bool ret = false;
 
-    if (!left && !right)
+    // leaf node case
+    if (!left_node && !right_node)
     {
         //TODO SIMD
         for (size_t s = start_triangle; s < end_triangle; s++)
@@ -328,13 +416,13 @@ bool BvhNode::intersect_ray(const Ray& ray, BvhNode::IsectInfo& info)
 
     if (left_bbox.intersect_ray(ray.eye, ray.dir))
     {
-        bool l_inter = left->intersect_ray(ray, info);
+        bool l_inter = left_node->intersect_ray(ray, info);
         ret = ret || l_inter;
     }
 
     if (right_bbox.intersect_ray(ray.eye, ray.dir))
     {
-        bool r_inter = right->intersect_ray(ray, info);
+        bool r_inter = right_node->intersect_ray(ray, info);;
         ret = ret || r_inter;
     }
 
@@ -347,7 +435,7 @@ bool BvhNode::shadow_test(const Ray& ray)
     bool ret = false;
     BvhNode::IsectInfo info;
 
-    if (!left && !right)
+    if (!left_node && !right_node)
     {
         for (size_t s = start_triangle; s < end_triangle; s++)
         {
@@ -374,7 +462,7 @@ bool BvhNode::shadow_test(const Ray& ray)
 
     if (left_bbox.intersect_ray(ray.eye, ray.dir))
     {
-        bool l_inter = left->intersect_ray(ray, info);
+        bool l_inter = left_node->intersect_ray(ray, info);
         ret = ret || l_inter;
 
     }
@@ -387,7 +475,7 @@ bool BvhNode::shadow_test(const Ray& ray)
 
     if (right_bbox.intersect_ray(ray.eye, ray.dir))
     {
-        bool r_inter = right->intersect_ray(ray, info);
+        bool r_inter = right_node->intersect_ray(ray, info);
         ret = ret || r_inter;
     }
 
