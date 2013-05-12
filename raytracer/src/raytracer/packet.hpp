@@ -1,6 +1,8 @@
 #ifndef __PACKET_H__
 #define __PACKET_H__
 
+#include<iostream>
+
 namespace _462
 {
 
@@ -33,7 +35,10 @@ struct RayPacket
     RayPacket()
     {
         for (int i = 0; i < rays_per_packet; i++)
+        {
             active[i] = false;
+            infos[i].i_time = INFINITY;
+        }
     }
     Vector3        eye;
     Vector3        rays[rays_per_packet];

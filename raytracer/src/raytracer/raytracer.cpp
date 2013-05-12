@@ -82,9 +82,11 @@ Color3 Raytracer::trace_pixel(Int2 pixel, int recursions,
     size_t num_geometries = scene->num_geometries();
     bool hit = false;
     intersect_info min_info, info; // everything we're calculating from intersection
-    min_info.i_time = INFINITY;
     Vector3 intersection_point = Vector3::Zero;
 
+    min_info.i_time = INFINITY;
+
+    bool really_hit = false;
     // run intersection test on every object in scene
     for (size_t i = 0; i < num_geometries; i++)
     {
@@ -92,18 +94,23 @@ Color3 Raytracer::trace_pixel(Int2 pixel, int recursions,
         //  values in info struct
         hit = scene->get_geometries()[i]->intersect_ray(eye, ray, &info);
 
-        if (hit && info.i_time > eps)
+        if (hit && info.i_time > eps && info.i_time < min_info.i_time)
         {
-            // check for new min hit time or if it's the first object hit
-            if (info.i_time < min_info.i_time)
-            {
-                min_info = info;
-                intersection_point = eye + (min_info.i_time * ray);
-            }
+            really_hit = true;
+            assert(info.i_time > eps);
+            min_info = info;
+            intersection_point = eye + (min_info.i_time * ray);
         }
     }
 
-    return trace_pixel_end(min_info, pixel, recursions, intersection_point, ray, refractive, extras);
+    assert(min_info.i_time > eps);
+
+    if (really_hit)
+    {
+        return trace_pixel_end(min_info, pixel, recursions, intersection_point, ray, refractive, extras);
+    }
+
+    return scene->background_color;
 }
 
 Color3 Raytracer::trace_pixel_end(intersect_info min_info, Int2 pixel, int recursions,
@@ -117,7 +124,10 @@ Color3 Raytracer::trace_pixel_end(intersect_info min_info, Int2 pixel, int recur
     Color3 min_texture = min_info.i_texture;
     float min_refractive = min_info.i_refractive;
 
+    //assert(min_info.i_time > eps);
+    //assert(min_time > eps);
 
+    /*
     cout << "min_time: " << min_time << endl;
     cout << "min_normal: " <<  min_normal << endl;
     cout << "min_ambient: " << min_ambient << endl;
@@ -126,6 +136,7 @@ Color3 Raytracer::trace_pixel_end(intersect_info min_info, Int2 pixel, int recur
     cout << "min_texture: " << min_texture << endl;
     cout << "min_refractive: " << min_refractive << endl;
     cout << endl;
+    */
 
 
 
@@ -400,11 +411,11 @@ void Raytracer::trace_packet(Packet& packet, float refractive, bool extras, unsi
     //            value from trace_pixel
     for (int i = 0; i < rays_per_packet; i++)
     {
-
-
         Int2 pixel = ray_packet.pixels[i];
         int x = pixel.x;
         int y = pixel.y;
+
+        assert(ray_packet.active[i] == 0 || ray_packet.active[i] == 1);
 
         if (!ray_packet.active[i]) // no intersection
         {
@@ -414,9 +425,14 @@ void Raytracer::trace_packet(Packet& packet, float refractive, bool extras, unsi
         }
         else // trace each pixel in the packet
         {
+            Vector3 intersection_point = ray_packet.eye +
+                (ray_packet.infos[i].i_time * ray_packet.rays[i]);
+
+            //assert(ray_packet.infos[i].i_time > eps);
+
             Color3 color = trace_pixel_end(ray_packet.infos[i],
                                            pixel, 0, 
-                                           ray_packet.eye, 
+                                           intersection_point, 
                                            ray_packet.rays[i], 
                                            refractive, extras);
             color.to_array(&buffer[4 * (y * width + x)]);

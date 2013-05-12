@@ -357,14 +357,35 @@ void BvhNode::intersect_packet(RayPacket& ray_packet, bool active[rays_per_packe
         {
             if (active[i])
             {
-                ray_packet.active[i] = intersect_leaf(
+                intersect_info temp_info;
+
+                bool hit = intersect_leaf(
                         ray_packet.eye, 
                         ray_packet.rays[i], 
-                        ray_packet.infos[i].i_time, 
-                        ray_packet.infos[i].i_index, 
-                        ray_packet.infos[i].i_beta, 
-                        ray_packet.infos[i].i_gamma);
+                        temp_info.i_time, 
+                        temp_info.i_index, 
+                        temp_info.i_beta, 
+                        temp_info.i_gamma);
+
+                if (hit && temp_info.i_time > eps)
+                {
+                    // check for new min hit time
+                    if (temp_info.i_time < ray_packet.infos[i].i_time)
+                    {
+                        ray_packet.infos[i].i_time = temp_info.i_time;
+                        ray_packet.infos[i].i_index = temp_info.i_index;
+                        ray_packet.infos[i].i_beta = temp_info.i_beta;
+                        ray_packet.infos[i].i_gamma = temp_info.i_gamma;
+                        ray_packet.active[i] = true;
+                    }
+                }
+            
+                assert(ray_packet.infos[i].i_time > 0.0);
+
             }
+
+            assert(ray_packet.active[i] == 0 || ray_packet.active[i] == 1);
+
         }
 
         return;
@@ -410,11 +431,6 @@ void BvhNode::intersect_packet(RayPacket& ray_packet)
     }
 
     intersect_packet(ray_packet, right_active);
-
-    for (int i = 0; i < rays_per_packet; i++)
-    {
-        ray_packet.active[i] = ray_packet.active[i] || left_active[i] || right_active[i];
-    }
 }
 
 // this test will exit early if any triangle is hit
