@@ -47,6 +47,7 @@ void Triangle::intersect_packet(const Packet& packet, IsectInfo *infos, bool *in
 {
     if (intersect_frustum(packet.frustum))
     {
+        // TODO simd
         for (int i = 0; i < rays_per_packet; i++)
         {
             intersected[i] = intersected[i] || intersect_ray(packet.rays[i], infos[i]);
@@ -80,7 +81,7 @@ bool Triangle::intersect_ray(const Ray& ray, IsectInfo& info) const
     float m = a * ei_minus_hf + b * gf_minus_di + c * dh_minus_eg;
     float t = -1.0 * (f * ak_minus_jb + e * jc_minus_al + d * bl_minus_kc) / m;
 
-    if (t < eps)
+    if (t < eps || t > info.time)
     {
         return false;
     }

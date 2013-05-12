@@ -112,7 +112,8 @@ bool Sphere::intersect_ray(const Ray& ray, IsectInfo& info) const
 
     // spheres are centered at zero in object space
     float discriminant = pow(dot(instance_ray, instance_eye), 2)
-                         - dot(instance_ray, instance_ray) * (dot(instance_eye, instance_eye) - pow(radius, 2));
+                         - dot(instance_ray, instance_ray) *
+                         (dot(instance_eye, instance_eye) - pow(radius, 2));
 
     if (discriminant < 0)
     {
@@ -124,13 +125,13 @@ bool Sphere::intersect_ray(const Ray& ray, IsectInfo& info) const
               / dot(instance_ray, instance_ray);
 
     // if t is negative, try the other t (we might be inside sphere)
-    if (t < eps)
+    if (t < eps || t > info.time)
     {
         t = (-1.0 * dot(instance_ray, instance_eye) + sqrt(discriminant))
             / dot(instance_ray, instance_ray);
     }
 
-    if (t < eps)
+    if (t < eps || t > info.time)
     {
         return false;
     }

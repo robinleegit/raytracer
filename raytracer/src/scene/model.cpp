@@ -55,7 +55,7 @@ void Model::intersect_packet(const Packet& packet, IsectInfo *infos, bool *inter
         BvhNode::IsectInfo bvh_infos[rays_per_packet];
 
         // SIMD inside
-        bvh->intersect_packet(packet, bvh_infos, intersected);
+        bvh->intersect_packet(intersect_packet, bvh_infos, intersected);
 
         // TODO make this simd
         for (int i = 0; i < rays_per_packet; i++)
@@ -63,6 +63,7 @@ void Model::intersect_packet(const Packet& packet, IsectInfo *infos, bool *inter
             if (intersected[i] && bvh_infos[i].time < infos[i].time)
             {
                 compute_ray_info(bvh_infos[i], infos[i]);
+                intersected[i] = intersected[i] || temp_intersected[i];
             }
         }
         */
