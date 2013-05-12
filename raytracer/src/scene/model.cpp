@@ -41,6 +41,8 @@ void Model::intersect_packet(const Packet& packet, IsectInfo *infos, bool *inter
 {
     if (intersect_frustum(packet.frustum))
     {
+        BvhNode::IsectInfo temp_info[rays_per_packet];
+        bool temp_intersected[rays_per_packet];
         Packet instance_packet;
         
         for (int i = 0; i < rays_per_packet; i++)
@@ -49,35 +51,32 @@ void Model::intersect_packet(const Packet& packet, IsectInfo *infos, bool *inter
                 inverse_transform_matrix.transform_point(packet.rays[i].eye);
             instance_packet.rays[i].dir = 
                 inverse_transform_matrix.transform_vector(packet.rays[i].dir);
+            temp_intersected[i] = true;
         }
 
         /*
-        BvhNode::IsectInfo bvh_infos[rays_per_packet];
-
         // SIMD inside
-        bvh->intersect_packet(intersect_packet, bvh_infos, intersected);
+        bvh->intersect_packet(instance_packet, temp_info, intersected);
 
         // TODO make this simd
         for (int i = 0; i < rays_per_packet; i++)
         {
-            if (intersected[i] && bvh_infos[i].time < infos[i].time)
+            if (intersected[i] && temp_info[i].time < infos[i].time)
             {
-                compute_ray_info(bvh_infos[i], infos[i]);
+                compute_ray_info(temp_info[i], infos[i]);
                 intersected[i] = intersected[i] || temp_intersected[i];
             }
         }
         */
 
-        bool temp_intersected[rays_per_packet];
-
+        // non-packetized version for debugging
         for (int i = 0; i < rays_per_packet; i++)
         {
-            BvhNode::IsectInfo temp_info;
-            temp_intersected[i] = bvh->intersect_ray(instance_packet.rays[i], temp_info);
+            temp_intersected[i] = bvh->intersect_ray(instance_packet.rays[i], temp_info[i]);
 
             if (temp_intersected[i])
             {
-                compute_ray_info(temp_info, infos[i]);
+                compute_ray_info(temp_info[i], infos[i]);
                 intersected[i] = intersected[i] || temp_intersected[i];
             }
 
