@@ -115,7 +115,20 @@ Color3 Raytracer::trace_pixel_end(intersect_info min_info, Int2 pixel, int recur
     Color3 min_diffuse = min_info.i_diffuse;
     Color3 min_specular = min_info.i_specular;
     Color3 min_texture = min_info.i_texture;
-    float min_refractive = min_info.i_refractive ;
+    float min_refractive = min_info.i_refractive;
+
+
+    cout << "min_time: " << min_time << endl;
+    cout << "min_normal: " <<  min_normal << endl;
+    cout << "min_ambient: " << min_ambient << endl;
+    cout << "min_diffuse: " << min_diffuse << endl;
+    cout << "min_specular: " <<  min_specular << endl;
+    cout << "min_texture: " << min_texture << endl;
+    cout << "min_refractive: " << min_refractive << endl;
+    cout << endl;
+
+
+
     // found a hit
     if (min_time > 0)
     {
@@ -387,6 +400,8 @@ void Raytracer::trace_packet(Packet& packet, float refractive, bool extras, unsi
     //            value from trace_pixel
     for (int i = 0; i < rays_per_packet; i++)
     {
+
+
         Int2 pixel = ray_packet.pixels[i];
         int x = pixel.x;
         int y = pixel.y;
