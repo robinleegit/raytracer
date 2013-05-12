@@ -41,14 +41,21 @@ void Model::intersect_packet(const Packet& packet, IsectInfo *infos, bool *inter
 {
     if (intersect_frustum(packet.frustum))
     {
+        Packet instance_packet;
+        
+        for (int i = 0; i < rays_per_packet; i++)
+        {
+            instance_packet.rays[i].eye = 
+                inverse_transform_matrix.transform_point(packet.rays[i].eye);
+            instance_packet.rays[i].dir = 
+                inverse_transform_matrix.transform_vector(packet.rays[i].dir);
+        }
+
         /*
         BvhNode::IsectInfo bvh_infos[rays_per_packet];
 
         // SIMD inside
         bvh->intersect_packet(packet, bvh_infos, intersected);
-
-
-
 
         // TODO make this simd
         for (int i = 0; i < rays_per_packet; i++)
@@ -60,24 +67,22 @@ void Model::intersect_packet(const Packet& packet, IsectInfo *infos, bool *inter
         }
         */
 
-
+        bool temp_intersected[rays_per_packet];
 
         for (int i = 0; i < rays_per_packet; i++)
         {
             BvhNode::IsectInfo temp_info;
-            intersected[i] = bvh->intersect_ray(packet.rays[i], temp_info);
+            temp_intersected[i] = bvh->intersect_ray(instance_packet.rays[i], temp_info);
 
-            if (intersected[i])
+            if (temp_intersected[i])
             {
                 compute_ray_info(temp_info, infos[i]);
+                intersected[i] = intersected[i] || temp_intersected[i];
             }
+
         }
-
-
-
-
-
     }
+    /*
     else
     {
         // TODO make this simd
@@ -86,6 +91,7 @@ void Model::intersect_packet(const Packet& packet, IsectInfo *infos, bool *inter
             intersected[i] = false;
         }
     }
+    */
 }
 
 void Model::compute_ray_info(const BvhNode::IsectInfo& bvh_info, IsectInfo& info) const

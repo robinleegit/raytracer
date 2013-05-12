@@ -100,14 +100,7 @@ void Sphere::intersect_packet(const Packet& packet, IsectInfo *infos, bool *inte
     {
         for (int i = 0; i < rays_per_packet; i++)
         {
-            intersected[i] = intersect_ray(packet.rays[i], infos[i]);
-        }
-    }
-    else
-    {
-        for (int i = 0; i < rays_per_packet; i++)
-        {
-            intersected[i] = false;
+            intersected[i] = intersected[i] || intersect_ray(packet.rays[i], infos[i]);
         }
     }
 }

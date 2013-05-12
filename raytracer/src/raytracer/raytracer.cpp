@@ -434,6 +434,7 @@ void Raytracer::trace_packet(PacketRegion region, float refractive, unsigned cha
             packet.rays[r].eye = eye;
             packet.rays[r].dir = get_viewing_ray(pixel);
             pixels[r] = pixel;
+            intersected[r] = false;
             r++;
         }
     }
