@@ -108,6 +108,7 @@ bool RaytracerApplication::initialize()
     // copy camera into camera control so it can be moved via mouse
     camera_control.camera = scene.camera;
     bool load_gl = options.open_window;
+    options.numthreads =  boost::thread::hardware_concurrency(); 
 
     try
     {
@@ -191,7 +192,7 @@ void RaytracerApplication::update( real_t delta_time )
         {
             assert( buffer );
             raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras,
-                                                   boost::thread::hardware_concurrency());
+                                                   options.numthreads);
         }
 
         else if (raytrace_key_update) // comment stuff after else on this line for cotinuous tracing
@@ -199,7 +200,7 @@ void RaytracerApplication::update( real_t delta_time )
             camera_control.update( delta_time );
             scene.camera = camera_control.camera;
             raytrace_finished = raytracer.raytrace(buffer, &delta_time, extras,
-                                                   boost::thread::hardware_concurrency());
+                                                   options.numthreads);
             raytrace_key_update = false;
         }
     }
