@@ -194,7 +194,7 @@ void RaytracerApplication::update( real_t delta_time )
             raytrace_finished = raytracer.raytrace(buffer, &delta_time, options.numthreads);
         }
 
-        else if (raytrace_key_update) // comment stuff after else on this line for cotinuous tracing
+        else if (raytrace_key_update) // comment stuff after else on this line for continuous tracing
         {
             camera_control.update( delta_time );
             scene.camera = camera_control.camera;

@@ -79,7 +79,6 @@ void Model::intersect_packet(const Packet& packet, IsectInfo *infos, bool *inter
                 compute_ray_info(temp_info[i], infos[i]);
                 intersected[i] = intersected[i] || temp_intersected[i];
             }
-
         }
     }
     /*
