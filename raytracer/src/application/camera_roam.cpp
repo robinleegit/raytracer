@@ -38,7 +38,8 @@ void CameraRoamControl::set_dir( bool pressed, int index, Direction newdir )
         direction[index] = DZERO;
 }
 
-void CameraRoamControl::handle_event( const Application* app, const SDL_Event& event )
+void CameraRoamControl::handle_event(const Application* app, const SDL_Event& event,
+        bool& raytrace_mouse_update)
 {
     int width, height;
     app->get_dimension( &width, &height );
@@ -84,6 +85,9 @@ void CameraRoamControl::handle_event( const Application* app, const SDL_Event& e
         {
             set_dir( event.key.state == SDL_PRESSED, newidx, newdir );
         }
+
+        // disgusting hack, fix this someday
+        raytrace_mouse_update = true;
         break;
 
     case SDL_MOUSEBUTTONDOWN:
@@ -92,6 +96,7 @@ void CameraRoamControl::handle_event( const Application* app, const SDL_Event& e
             rotation = RPITCHYAW;
         else if ( event.button.button == SDL_BUTTON_MIDDLE )
             rotation = RROLL;
+        raytrace_mouse_update = true;
         break;
 
     case SDL_MOUSEBUTTONUP:
@@ -100,6 +105,7 @@ void CameraRoamControl::handle_event( const Application* app, const SDL_Event& e
             rotation = RNONE;
         else if ( event.button.button == SDL_BUTTON_MIDDLE && rotation == RROLL )
             rotation = RNONE;
+        raytrace_mouse_update = false;
         break;
 
     case SDL_MOUSEMOTION:
