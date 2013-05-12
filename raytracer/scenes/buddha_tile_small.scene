@@ -99,16 +99,47 @@
 
 
 
-    <material name="buddha">
-        <ambient r="0.3" g="0.1" b="0.1"/>
-        <diffuse r="0.2" g="0.4" b="0.9"/>
+    <material name="jade1">
+        <ambient r="0.135" g="0.2225" b="0.1575"/>
+        <diffuse r="0.54" g="0.89" b="0.63"/>
         <specular r="0.05" g="0.05" b="0.05"/>
-        <shininess v="100.0"/>
+        <shininess v="12.8"/>
     </material>
+
+    <material name="gold1">
+        <ambient r="0.24725" g="0.2245" b="0.0645"/>
+        <diffuse r="0.34615" g="0.3143" b="0.0903"/>
+        <specular r="0.797357" g="0.723991" b="0.208006"/>
+        <shininess v="83.2"/>
+    </material>
+
+    <material name="gold2">
+        <ambient r="0.24725" g="0.1995" b="0.0745"/>
+        <diffuse r="0.75164" g="0.60648" b="0.22648"/>
+        <specular r="0.20" g="0.20" b="0.1"/>
+        <shininess v="51.2"/>
+    </material>
+
+
+    <material name="copper">
+        <ambient r="0.19125" g="0.0735" b="0.0225"/>
+        <diffuse r="0.7038" g="0.27048" b="0.0828"/>
+        <specular r="0.256777" g="0.137622" b="0.086014"/>
+        <shininess v="12.8"/>
+    </material>
+
+
+    <material name="bronze">
+        <ambient r="0.2125" g="0.1275" b="0.054"/>
+        <diffuse r="0.714" g="0.4248" b="0.18144"/>
+        <specular r="0.256777" g="0.137622" b="0.086014"/>
+        <shininess v="25.6"/>
+    </material>
+
 
     <mesh name="buddha" filename="models/buddha.obj"/>
 
-    <model material="buddha" mesh="buddha">
+    <model material="jade1" mesh="buddha">
         <position x="0.0" y="2.25" z="0.0"/>
         <scale x="5.0" y="5.0" z="5.0"/>
         <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
@@ -117,3 +148,4 @@
 
 
 </scene>
+
