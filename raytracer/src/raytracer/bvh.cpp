@@ -7,6 +7,12 @@
 #include "scene/model.hpp"
 #include "raytracer/geom_utils.hpp"
 
+#define ISPC
+
+#ifdef ISPC
+#include "raytracer/utils.h"
+#endif
+
 #define STEP_SIZE 10
 #define LEAF_SIZE 4
 
@@ -124,10 +130,14 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end)
 
         for (int i = 0; i < 3; i++)
         {
+#ifdef ISPC
+            ispc::set_indices((int *)&indices[i][0], num_triangles);
+#else
             for (int j = 0; j < num_triangles; j++)
             {
                 indices[i][j] = j;
             }
+#endif
         }
 
         double sort_start = CycleTimer::currentSeconds();

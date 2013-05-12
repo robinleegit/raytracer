@@ -10,6 +10,9 @@ ifeq ($(MODE),)
 	MODE = release
 endif
 
+ISPC_SRCS = raytracer/utils.ispc
+ISPC_DEPS = $(addprefix $(SRC_DIR)/,$(ISPC_SRCS:.ispc=.h))
+
 SRCS = \
 	application/application.cpp \
 	application/imageio.cpp \
@@ -71,8 +74,10 @@ CURR_DIR = $(shell pwd)
 
 # global compiler flags
 CXX = clang++
+ISPC = ispc
+ISPCFLAGS=-O2 --target=avx-x2 --arch=x86-64
 
-CXXFLAGS += -Wall -pedantic -I"$(CURR_DIR)/include" -I"$(CURR_DIR)/$(SRC_DIR)"
+CXXFLAGS += -Wall -pedantic -I"$(CURR_DIR)/include" -I"$(CURR_DIR)/$(SRC_DIR)" -I"$(CURR_DIR)/$(TOP_OBJ_DIR)"
 
 LDFLAGS = -lSDLmain -lSDL -lpng -lpthread
 
@@ -100,7 +105,7 @@ endif
 OBJ_DIR = $(TOP_OBJ_DIR)/$(SUB_OBJ_DIR)
 
 # list of all object files
-OBJS = $(SRCS:.cpp=.o)
+OBJS = $(SRCS:.cpp=.o) $(ISPC_SRCS:.ispc=.o)
 # list of all dep files
 DEPS = $(OBJS:.o=.d)
 # full list of paths to all objs
@@ -132,6 +137,12 @@ $(OBJ_DIR)/%.d: $(SRC_DIR)/%.cpp
 # don't need to mkdir for object files since d files already exist
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.ispc 
+	$(ISPC) $(ISPCFLAGS) $< -o $@
+
+$(SRC_DIR)/%.h: $(SRC_DIR)/%.ispc
+	$(ISPC) $(ISPCFLAGS) $< -h $@
 
 ifneq ($(MAKECMDGOALS),clean)
 -include $(DEPS_FULL)
