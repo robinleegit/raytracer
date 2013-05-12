@@ -21,8 +21,9 @@ public:
     CameraRoamControl();
     ~CameraRoamControl();
 
-    void update( real_t dt );
-    void handle_event( const Application* app, const SDL_Event& event );
+    void update(real_t dt);
+    void handle_event(const Application* app, const SDL_Event& event,
+            bool& raytrace_mouse_update);
 
     // the camera of this control
     Camera camera;

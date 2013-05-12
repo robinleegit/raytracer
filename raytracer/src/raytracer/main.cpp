@@ -250,12 +250,13 @@ void RaytracerApplication::render()
     }
 }
 
-void RaytracerApplication::handle_event( const SDL_Event& event )
+void RaytracerApplication::handle_event(const SDL_Event& event)
 {
     int width, height;
+    bool raytrace_mouse_update = false; // disgusting hack, fix this someday
 
-    camera_control.handle_event( this, event );
-    if (raytracing) // comment these two lines for continuous tracing
+    camera_control.handle_event(this, event, raytrace_mouse_update);
+    if (raytracing && raytrace_mouse_update) // comment these two lines for continuous tracing
         raytrace_key_update = true;
 
     switch ( event.type )
