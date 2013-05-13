@@ -45,7 +45,7 @@ bool triangle_ray_intersect(Vector3 eye, Vector3 ray, Vector3 p0, Vector3 p1,
     float m = a * ei_minus_hf + b * gf_minus_di + c * dh_minus_eg;
     t = -1.0 * (f * ak_minus_jb + e * jc_minus_al + d * bl_minus_kc) / m;
 
-    if (t < 0.0)
+    if (t < eps)
     {
         return false;
     }

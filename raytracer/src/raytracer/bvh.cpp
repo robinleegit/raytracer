@@ -383,7 +383,7 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
 
     for (int i = 0; i < rays_per_packet; i++)
     {
-        intersected[i] = left_active[i] || right_active[i];
+        intersected[i] = intersected[i] || left_active[i] || right_active[i];
     }
 }
 
