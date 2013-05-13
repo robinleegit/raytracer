@@ -307,13 +307,9 @@ void BvhNode::print()
 
 void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, bool *intersected)
 {
-    //cout << "entering intersect packet" << endl;
-
     // leaf node
     if (!left_node && !right_node)
     {
-        cout << "leaf" << endl;
-
 #ifdef ISPC
         intersect_leaf_simd(packet, info, intersected);
 #else
@@ -335,8 +331,6 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
         return;
     }
 
-    //cout << "evaluating left node" << endl;
-
     // left node
     bool left_active[rays_per_packet];
     bool any_active_left = false;
@@ -347,14 +341,11 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
 
         if (intersected[i])
         {
-            //cout << "left_bbox_intersect before" << endl;
             left_active[i] = 
                 left_bbox.intersect_ray(packet.rays[i].eye, packet.rays[i].dir);
-            //cout << "left_bbox_intersect after" << endl;
 
             if (left_active[i])
             {
-                //cout << "check left_active after" << endl;
                 any_active_left = true;
             }
         }
@@ -362,12 +353,8 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
 
     if (any_active_left)
     {
-        //cout << "intersect_packet before (left)" << endl;
-        intersect_packet(packet, info, left_active);
-        //cout << "intersect_packet after (left)" << endl;
+        left_node->intersect_packet(packet, info, left_active);
     }
-
-    //cout << "evaluating right node" << endl;
 
     // right node
     bool right_active[rays_per_packet];
@@ -379,33 +366,25 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
 
         if (intersected[i])
         {
-            //cout << "right_bbox_intersect before" << endl;
             right_active[i] =
                 right_bbox.intersect_ray(packet.rays[i].eye, packet.rays[i].dir);
-            //cout << "right_bbox_intersect after" << endl;
 
             if (right_active[i])
             {
-                //cout << "check right_active before" << endl;
                 any_active_right = true;
-                //cout << "check right_active after" << endl;
             }
         }
     }
 
     if (any_active_right)
     {
-        cout << "intersect_packet before (right)" << endl;
-        intersect_packet(packet, info, right_active);
-        cout << "intersect_packet after (right)" << endl;
+        right_node->intersect_packet(packet, info, right_active);
     }
 
     for (int i = 0; i < rays_per_packet; i++)
     {
         intersected[i] = left_active[i] || right_active[i];
     }
-
-    //cout << "exiting stack frame" << endl;
 }
 
 bool BvhNode::intersect_leaf(const Vector3& eye, const Vector3& ray,
