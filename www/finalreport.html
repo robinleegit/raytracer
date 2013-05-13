@@ -70,7 +70,7 @@ In addition, each packet can be easily mapped over a CPU core for high level par
 </p>
 
 <p>
-We are exploring several strategies for paraellizing packet traversal. The first step is to traverse the BVH and determine which rays can possibly intersect which objects. A frustum test is used to determine that the packet intersects the BVH; if it doesn't, all its rays can be disregarded for that object.  Packet-node intersection tests can be done in SIMD to determine which rays in the packet intersect that node.  As the packet descends into the BVH, rays that don't intersect are removed from the packet until there is a list of rays and the triangles in the BVH they each intersect.
+For packet intersection, we traverse the BVH and determine which rays can possibly intersect which objects. A frustum test is used to determine that the packet intersects the BVH; if it doesn't, all its rays can be disregarded for that object. Once the packet passes the frustum test for a node, the intersect function recurses on that node. As the packet descends into the BVH, rays that don't intersect are marked as inactive until there is a list of active rays and the triangles in the BVH they each active ray intersect. Our first packet based implementations just looped over each packet for intersection tests with bounding boxes and triangles. We then created an implementation that loops over all triangles at the leaf and intersects each ray in SIMD with that iteration's triangle. 
 </p>
 
 <p>
@@ -171,14 +171,31 @@ Here is a table showing rays/second for our techniques:
 
 
 
-
 <p>
 By simply doing the traversal/pixel color computation across 8 threads on an Intel i7-2630QM CPU (4 physical cores + hyperthreading) we were able to obtain over 4x speedup. Hyperthreading accounts for the fact that we don't get a huge amount more speedup with greater than 4 cores. The near linear speedup is expected, since the splitting up the screen across multiple cores is embarrasingly parallel; each thread can write to its own part of the output image buffer, and threads only have to read from shared data structures, so there is no heavy contention.
 </p>
 
-<!-- Graph: Speedup from threads, also have the SIMD results -->
+<p>
+Using ISPC for leaf intersection with a packet ended up slowing down execution by about 60%. Since our data structures are all Vector3 types, with x, y, and z floating point members and operator overloading, we had difficulties simply passing our data into ISPC. Converting from our data structures to an ISPC readable structure takes some time, and all of the gather/scatter operations required to service our array of structures (AOS) data will cause a big slow down.
+</p>
 
-<!-- Profiling data: show that crazy kind of bar graph -->
+Below is our profiling data. Intersecting primary rays takes a smaller percentage of the time than trace pixel, but reducing either would help significantly.
+
+<center>
+    <p>
+    <table>
+        <tr>
+            <td><img src="sah_bvh_create_breakdown.png" /></td>
+            <td><img src="trace_packet_breakdown.png" /></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                The left chart shows the breakdown for the creation of the Surface Area Heuristic BVH. Note that the time for "New Scratch" is so small it is diffcult to see. The creation time is dominated by choosing partition. The right chart shows the time breakdown for tracing a single packet. Both steps take significant time, but trace pixel is the bulk of the work.
+            </td>
+        </tr>
+    </table>
+    </p>
+</center>
 
 <p>
 We got a speedup of about 2x from moving to SAH from BVH in terms of BVH traversal time, but build time increased drastically. This slow down is acceptable to us since we are focusing on getting an interactive static scene, so we only have to build the BVH one time. If there is time we may optimize this build process by not trying so many different splits, and also by reducing dynamic memory allocation.
@@ -195,7 +212,6 @@ BVH traversal is limited by intersection,
     <li>SIMD: Convert data structures to be ISPC friendly and do packet intersection in SIMD</li>
     <li>Make tree 8-ary, traverse in parallel?</li>
     <li>Bring frustum test into BVH, more early exit</li>
-    <li>Ray re-ordering</li>
 </ul>
 
 <div class="subsection">System Architecture</div>
@@ -206,13 +222,13 @@ BVH traversal is limited by intersection,
 
 <div class="subsection">BVH Build</div>
 
-<p>If we got to the point where we have gotten as much performance as possible out of interactive tracing, a good next step would be to support animation. The big barrier to doing this is the BVH build time (as well as perhaps any data load times). Since nodes access disjoint data, the build can be split without too much worry for contention.</p>
+<!-- Object load time also a bottleneck (though I feel like this won't be as big of a deal once the data's loaded into memory) -->
 
-<p>As shown in Figure FIGBREAKDOWN to our implementation, the act of choosing the partition using SAH takes most of the time. This part of the algorithm requires doing partial sums of bounding boxes, and then computing the cost (as in equation SURFACEAREA_EQUATION). This could see some benefit from doing a prefix sum on the GPU, but good implementations top out at about 6x speedup [REFERENCE_TO_CUDA_SCAN].</p>
+If we got to the point where we have gotten as much performance as possible out of interactive tracing, a good next step would be to support animation. The big barrier to doing this is the BVH build time. Since nodes access disjoint data, the build can be split without too much worry for contention. 
 
-<p>The other option would be to do some kind of parallelization of building subtrees. For example, for a CPU with 8 cores, spawn off a new thread to continue the sub-tree traversal at depth 3, when there are 8 separate subtrees.</p>
+As shown in the breakdown for Trace Packet, the act of choosing the partition using SAH takes most of the time. This part of the algorithm requires doing partial sums of bounding boxes, and then computing the cost (as in equation SURFACEAREA_EQUATION). This could see some benefit from doing a prefix sum on the GPU, but good implementations top out at about 6x speedup [REFERENCE_TO_CUDA_SCAN].
 
-<p>An interesting avenue for future work would be to traverse the tree for one frame on the CPU while building the tree for the next asynchronously on the GPU (or vice versa, perhaps).  This might be especially viable on a system with tightly coupled CPU and GPU such as newer Intel chips.</p>
+The other option would be to do some kind of parallelization of building subtrees. For example, for a CPU with 8 cores, spawn off a new thread to continue the sub-tree traversal at depth 3, when there are 8 separate subtrees.
 
 <div class="section">References</div>
 
