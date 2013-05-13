@@ -67,11 +67,11 @@ public:
 
     BvhNode(const Mesh *_mesh, std::vector<int> *_indices, int start, int end);
     ~BvhNode();
-    void intersect_packet(const Packet& ray, BvhNode::IsectInfo *info, bool *intersected);
+    void intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, bool *intersected);
     bool intersect_ray(const Ray& ray, BvhNode::IsectInfo& info);
     bool intersect_leaf(const Vector3& eye, const Vector3& ray, float& min_time, size_t& min_index,
                             float& min_beta, float& min_gamma);
-
+    void intersect_leaf_simd(const Packet& packet, BvhNode::IsectInfo *infos, bool *intersected);
     bool shadow_test(const Ray& ray);
     void print();
 };

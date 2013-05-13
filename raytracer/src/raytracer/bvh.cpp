@@ -8,6 +8,7 @@
 #include "raytracer/geom_utils.hpp"
 
 #define ISPC
+#undef ISPC
 
 #ifdef ISPC
 #include "raytracer/utils.h"
@@ -309,19 +310,23 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
     // leaf node
     if (!left_node && !right_node)
     {
+#ifdef ISPC
+        intersect_leaf_simd(packet, info, intersected);
+#else
         for (int i = 0; i < rays_per_packet; i++)
         {
             if (intersected[i])
             {
                 intersected[i] = intersect_leaf(
-                        packet.rays[i].eye, 
-                        packet.rays[i].dir, 
-                        info[i].time, 
-                        info[i].index, 
-                        info[i].beta, 
+                        packet.rays[i].eye,
+                        packet.rays[i].dir,
+                        info[i].time,
+                        info[i].index,
+                        info[i].beta,
                         info[i].gamma);
             }
         }
+#endif
 
         return;
     }
@@ -388,6 +393,89 @@ bool BvhNode::intersect_leaf(const Vector3& eye, const Vector3& ray,
 
     return ret;
 }
+
+#ifdef ISPC
+inline void to_ispc(const Vector3& v, float *ret)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        ret[i] = v[i];
+    }
+}
+
+inline void from_ispc(float *ret, const Vector3& v)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        ret[i] = v[i];
+    }
+}
+
+inline void to_ispc(const Ray& ray, ispc::Ray& ret)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        ret.eye[i] = ray.eye[i];
+        ret.dir[i] = ray.dir[i];
+    }
+}
+
+inline void from_ispc(const ispc::Ray& ray, Ray& ret)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        ret.eye[i] = ray.eye[i];
+        ret.dir[i] = ray.dir[i];
+    }
+}
+
+inline void to_ispc(const BvhNode::IsectInfo& info, ispc::IsectInfo& ret)
+{
+    ret.time = info.time;
+    ret.gamma = info.gamma;
+    ret.beta = info.beta;
+}
+
+inline void from_ispc(const ispc::IsectInfo& info, BvhNode::IsectInfo& ret)
+{
+    ret.time = info.time;
+    ret.gamma = info.gamma;
+    ret.beta = info.beta;
+}
+
+void BvhNode::intersect_leaf_simd(const Packet& packet, BvhNode::IsectInfo *infos, bool *intersected)
+{
+    for (size_t s = start_triangle; s < end_triangle; s++)
+    {
+        unsigned int v0, v1, v2;
+        ispc::Ray simd_rays[rays_per_packet];
+        ispc::IsectInfo simd_infos[rays_per_packet];
+        float p0[3], p1[3], p2[3];
+
+        MeshTriangle triangle = mesh->get_triangles()[indices[0][s]];
+        v0 = triangle.vertices[0];
+        v1 = triangle.vertices[1];
+        v2 = triangle.vertices[2];
+
+        to_ispc(mesh->get_vertices()[v0].position, p0);
+        to_ispc(mesh->get_vertices()[v1].position, p1);
+        to_ispc(mesh->get_vertices()[v2].position, p2);
+
+        for (int i = 0; i < rays_per_packet; i++)
+        {
+            to_ispc(packet.rays[i], simd_rays[i]);
+            to_ispc(infos[i], simd_infos[i]);
+        }
+
+        ispc::triangle_packet_intersect(simd_rays, simd_infos, (signed char *)intersected, rays_per_packet, p0, p1, p2);
+
+        for (int i = 0; i < rays_per_packet; i++)
+        {
+            from_ispc(simd_infos[i], infos[i]);
+        }
+    }
+}
+#endif
 
 /////////////////////////////////////////////
 
