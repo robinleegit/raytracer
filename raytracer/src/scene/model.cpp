@@ -54,7 +54,7 @@ void Model::intersect_packet(const Packet& packet, IsectInfo *infos, bool *inter
             temp_intersected[i] = true;
         }
 
-        // packetized version that currently doesn't work
+        // packetized version
         bvh->intersect_packet(instance_packet, temp_info, temp_intersected);
 
         // TODO make this simd
