@@ -126,13 +126,35 @@ By simply doing the traversal/pixel color computation across 8 threads on an Int
 </p>
 
 <p>
+<center>
+    <table>
+        <tr>
+            <td><img src="execution_time_vs_cores_graph.png" /></td>
+            <td><img src="speedup_vs_cores_graph.png" /></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                The left plot shows the execution time on 800x600 Buddha with SAH and packets for varying number of threads. The right plot show the speedup over the one threaded version using the same parameters.
+            </td>
+        </tr>
+    </table>
+</center>
+</p>
+
+<p>
+We got a speedup of about 2x from moving to SAH from BVH in terms of BVH traversal time, but build time increased drastically. This slow down is acceptable to us since we are focusing on getting an interactive static scene, so we only have to build the BVH one time. If there is time we may optimize this build process by not trying so many different splits, and also by reducing dynamic memory allocation.
+</p>
+
+<p>
 Using ISPC for leaf intersection with a packet ended up slowing down execution by about 60%. Since our data structures are all Vector3 types, with x, y, and z floating point members and operator overloading, we had difficulties simply passing our data into ISPC. Converting from our data structures to an ISPC readable structure takes some time, and all of the gather/scatter operations required to service our array of structures (AOS) data will cause a big slow down.
 </p>
 
-Below is our profiling data. Intersecting primary rays takes a smaller percentage of the time than trace pixel, but reducing either would help significantly.
+<p>
+Below is our profiling data. Note on the right graph that intersecting primary rays takes a smaller percentage of the time than trace pixel, but reducing either would help significantly, so doing packet intersection should provide good speedup. The problem of improving trace pixel's performance is a harder one. Rays will become incoherent quickly, making it difficult to speed up this part with SIMD. Doing some kind of batching implementation that gathered packets of incident rays and did one recursive step in SIMD seems promising.
+</p>
 
+<p>
 <center>
-    <p>
     <table>
         <tr>
             <td><img src="sah_bvh_create_breakdown.png" /></td>
@@ -144,41 +166,48 @@ Below is our profiling data. Intersecting primary rays takes a smaller percentag
             </td>
         </tr>
     </table>
-    </p>
 </center>
-
-<p>
-We got a speedup of about 2x from moving to SAH from BVH in terms of BVH traversal time, but build time increased drastically. This slow down is acceptable to us since we are focusing on getting an interactive static scene, so we only have to build the BVH one time. If there is time we may optimize this build process by not trying so many different splits, and also by reducing dynamic memory allocation.
 </p>
 
 <div class="section">Future Work</div>
 
+<p>
 There are several strategies that would be worth pursuing to improve performance for interactive ray tracing.
+</p>
 
 <div class="subsection">BVH Traversal</div>
 
-BVH traversal is limited by intersection,
-<ul>
-    <li>SIMD: Convert data structures to be ISPC friendly and do packet intersection in SIMD</li>
-    <li>Make tree 8-ary, traverse in parallel?</li>
-    <li>Bring frustum test into BVH, more early exit</li>
-</ul>
+<p>
+There are a few things we could do to speed up the BVH traversal. As mentioned above, getting SIMD to work with data that is properly laid out in memory would improve packet traversal. The other imrpovement to packet intersection would be to pull the frustum intersection test into the BVH. This approach might allow earlier exit of all rays in the packet with a given BVH child node. 
+</p>
+
+<p>
+Another more significant change would be to make the tree an 8-ary tree instead of binary. Doing this would allow for testing a single ray in SIMD with all 8 children of a given BVH node. An 8-ary tree could be used either with a packet of rays, iterating over each ray and testing it with all children, or with single rays.
+</p>
 
 <div class="subsection">System Architecture</div>
-<ul>
-    <li>Do load balancing on the GPU and CPU: a piece of work is one call to trace pixel, if we can get large enough chunks of work (a large number of trace pixel requests), we can do chunks of them using SIMD (either GPU or ISPC). These SIMD operations could set some bit vectors (incident rays etc..)</li>
-    <li>Shadow tests are more data parallel, since they don't recurse. This could potentially be done on the GPU, but still has some issues with SIMD since it involves BVH traversal</li>
-</ul>
+
+<p>
+Do load balancing on the GPU and CPU: a piece of work is one call to trace pixel, if we can get large enough chunks of work (a large number of trace pixel requests), we can do chunks of them using SIMD (either GPU or ISPC). These SIMD operations could set some bit vectors (incident rays etc..)
+</p>
+
+Shadow tests are more data parallel, since they don't recurse. This could potentially be done on the GPU, but still has some issues with SIMD since it involves BVH traversal
 
 <div class="subsection">BVH Build</div>
 
 <!-- Object load time also a bottleneck (though I feel like this won't be as big of a deal once the data's loaded into memory) -->
 
+<p>
 If we got to the point where we have gotten as much performance as possible out of interactive tracing, a good next step would be to support animation. The big barrier to doing this is the BVH build time. Since nodes access disjoint data, the build can be split without too much worry for contention. 
+</p>
 
-As shown in the breakdown for Trace Packet, the act of choosing the partition using SAH takes most of the time. This part of the algorithm requires doing partial sums of bounding boxes, and then computing the cost (as in equation SURFACEAREA_EQUATION). This could see some benefit from doing a prefix sum on the GPU, but good implementations top out at about 6x speedup [REFERENCE_TO_CUDA_SCAN].
+<p>
+As shown in the breakdown for Trace Packet, the act of choosing the partition using SAH takes most of the time. This part of the algorithm requires doing partial sums of bounding boxes, and then computing the cost. <!--This could see some benefit from doing a prefix sum on the GPU, but good implementations top out at about 6x speedup [REFERENCE_TO_CUDA_SCAN].-->
+</p>
 
-The other option would be to do some kind of parallelization of building subtrees. For example, for a CPU with 8 cores, spawn off a new thread to continue the sub-tree traversal at depth 3, when there are 8 separate subtrees.
+<p>
+The other option would be to do some kind of parallelization of building subtrees. For example, for a CPU with 8 cores, spawn off a new thread to continue the sub-tree traversal at depth 3, when there are 8 separate subtrees and have those threads continue the tree build.
+</p>
 
 <div class="section">References</div>
 
