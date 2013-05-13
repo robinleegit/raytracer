@@ -8,7 +8,7 @@
 #include "raytracer/geom_utils.hpp"
 
 #define ISPC
-#undef ISPC
+//#undef ISPC
 
 #ifdef ISPC
 #include "raytracer/utils.h"
@@ -427,7 +427,7 @@ inline void to_ispc(const Vector3& v, float *ret)
     }
 }
 
-inline void from_ispc(float *ret, const Vector3& v)
+inline void from_ispc(const Vector3& v, float *ret)
 {
     for (int i = 0; i < 3; i++)
     {
@@ -491,11 +491,26 @@ void BvhNode::intersect_leaf_simd(const Packet& packet, BvhNode::IsectInfo *info
             to_ispc(infos[i], simd_infos[i]);
         }
 
-        ispc::triangle_packet_intersect(simd_rays, simd_infos, (signed char *)intersected, rays_per_packet, p0, p1, p2);
+        signed char tmp_isect[rays_per_packet];
+
+        ispc::triangle_packet_intersect(simd_rays, simd_infos, (signed char *)tmp_isect, rays_per_packet, p0, p1, p2);
 
         for (int i = 0; i < rays_per_packet; i++)
         {
-            from_ispc(simd_infos[i], infos[i]);
+            if (tmp_isect[i])
+            {
+                cout << "simd_info: " 
+                     << simd_infos[i].time << ", " 
+                     << simd_infos[i].gamma << ", " 
+                     << simd_infos[i].beta << endl;
+                cout << "info: " 
+                     << infos[i].time << ", " 
+                     << infos[i].gamma << ", " 
+                     << infos[i].beta << endl;
+                from_ispc(simd_infos[i], infos[i]);
+                infos[i].index = indices[0][s];
+                intersected[i] = true;
+            }
         }
     }
 }
