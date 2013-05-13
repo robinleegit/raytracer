@@ -330,6 +330,8 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
 
     for (int i = 0; i < rays_per_packet; i++)
     {
+        left_active[i] = false;
+
         if (intersected[i])
         {
             left_active[i] = left_active[i] ||
@@ -343,6 +345,8 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
 
     for (int i = 0; i < rays_per_packet; i++)
     {
+        right_active[i] = false;
+
         if (intersected[i])
         {
             right_active[i] = right_active[i] ||
