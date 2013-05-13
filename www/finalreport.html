@@ -119,8 +119,58 @@ Below is a table of our render times for both BVH building and traversal, for th
         <td>1.09s</td>
         <td>0.87s</td>
     </tr>
+    <tr>
+        <td style="text-align: left">Packets + SAH</td>
+        <td>8.77s</td>
+        <td>2.91s</td>
+        <td>0.79s</td>
+        <td>0.60s</td>
+    </tr>
 </table>
 </center>
+
+<p>
+Here is a table showing rays/second for our techniques:
+</p>
+
+<center>
+<table>
+    <tr>
+        <th rowspan="2">Technique</th>
+        <th colspan="3">Traversal</th>
+    </tr>
+    <tr>
+        <th>1 thread</th>
+        <th>4 threads</th>
+        <th>8 threads</th>
+    </tr>
+    <tr>
+        <td style="text-align: left">Median Split</td>
+        <td>60600</td>
+        <td>217200</td>
+        <td>274300</td>
+    </tr>
+    <tr>
+        <td style="text-align: left">SAH</td>
+        <td>121500</td>
+        <td>440300</td>
+        <td>551700</td>
+    </tr>
+    <tr>
+        <td style="text-align: left">Packets + SAH</td>
+        <td>165000</td>
+        <td>607600</td>
+        <td>800000</td>
+    </tr>
+</table>
+</center>
+
+
+
+
+
+
+
 
 <p>
 By simply doing the traversal/pixel color computation across 8 threads on an Intel i7-2630QM CPU (4 physical cores + hyperthreading) we were able to obtain over 4x speedup. Hyperthreading accounts for the fact that we don't get a huge amount more speedup with greater than 4 cores. The near linear speedup is expected, since the splitting up the screen across multiple cores is embarrasingly parallel; each thread can write to its own part of the output image buffer, and threads only have to read from shared data structures, so there is no heavy contention.
