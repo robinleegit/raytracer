@@ -38,8 +38,6 @@ export void triangle_packet_intersect(uniform Ray rays[],
         float beta = 0.0, gamma = 0.0;
         float t;
 
-        intersected[r] = 1;
-
         x0 = p0[0];
         y0 = p0[1];
         z0 = p0[2];
@@ -73,30 +71,20 @@ export void triangle_packet_intersect(uniform Ray rays[],
         float m = a * ei_minus_hf + b * gf_minus_di + c * dh_minus_eg;
         t = -1.0 * (f * ak_minus_jb + e * jc_minus_al + d * bl_minus_kc) / m;
 
-        if (t < eps)
-        {
-            intersected[r] = 0;
-        }
-
         gamma = (i * ak_minus_jb + h * jc_minus_al + g * bl_minus_kc) / m;
-
-        if (gamma < 0.0 || gamma > 1.0)
-        {
-            intersected[r] = 0;
-        }
-
         beta = (j * ei_minus_hf + k * gf_minus_di + l * dh_minus_eg) / m;
+        float alpha = 1 - beta - gamma;
 
-        if (beta < 0.0 || beta > 1.0 - gamma)
-        {
-            intersected[r] = 0;
-        }
+        bool gamma_ok = gamma >= 0.0 && gamma <= 1.0;
+        bool beta_ok = beta >= 0.0 && beta <= 1.0;
+        bool alpha_ok = alpha >= 0.0 && alpha <= 1.0;
+        bool t_better = t < infos[r].time && t > eps;
 
-        if (intersected[r] && t < infos[r].time && t > eps)
-        {
-            infos[r].time = t;
-            infos[r].gamma = gamma;
-            infos[r].beta = beta;
-        }
+        bool replace = alpha_ok && gamma_ok && beta_ok && t_better;
+
+        intersected[r] = replace;
+        infos[r].time  = t;
+        infos[r].gamma = gamma;
+        infos[r].beta  = beta;
     }
 }

@@ -8,7 +8,10 @@
 #include "raytracer/geom_utils.hpp"
 
 #define ISPC
-#undef ISPC
+//#undef ISPC
+
+#define VERBOSE
+#undef VERBOSE
 
 #ifdef ISPC
 #include "raytracer/utils.h"
@@ -499,6 +502,7 @@ void BvhNode::intersect_leaf_simd(const Packet& packet, BvhNode::IsectInfo *info
         {
             if (tmp_isect[i])
             {
+#ifdef VERBOSE
                 cout << "simd_info: " 
                      << simd_infos[i].time << ", " 
                      << simd_infos[i].gamma << ", " 
@@ -507,6 +511,7 @@ void BvhNode::intersect_leaf_simd(const Packet& packet, BvhNode::IsectInfo *info
                      << infos[i].time << ", " 
                      << infos[i].gamma << ", " 
                      << infos[i].beta << endl;
+#endif
                 from_ispc(simd_infos[i], infos[i]);
                 infos[i].index = indices[0][s];
                 intersected[i] = true;
