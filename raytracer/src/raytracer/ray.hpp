@@ -7,7 +7,7 @@
 namespace _462
 {
 
-const int packet_dim = 16;
+const int packet_dim = 2;
 const int rays_per_packet = (packet_dim * packet_dim);
 const float eps = 0.0001; // "slop factor"
 const int max_recursion_depth = 3;

@@ -125,7 +125,7 @@ bool Sphere::intersect_ray(const Ray& ray, IsectInfo& info) const
               / dot(instance_ray, instance_ray);
 
     // if t is negative, try the other t (we might be inside sphere)
-    if (t < eps || t > info.time)
+    if (t < 0.0)
     {
         t = (-1.0 * dot(instance_ray, instance_eye) + sqrt(discriminant))
             / dot(instance_ray, instance_ray);

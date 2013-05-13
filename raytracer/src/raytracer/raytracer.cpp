@@ -6,8 +6,6 @@
 #include "raytracer.hpp"
 #include "CycleTimer.hpp"
 
-#define PACKET_DIM 16
-
 using namespace std;
 
 namespace _462
@@ -479,18 +477,18 @@ bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, int numthreads
 
     double tot_start = CycleTimer::currentSeconds();
 
-    for (size_t y = 0; y < height; y += PACKET_DIM)
+    for (size_t y = 0; y < height; y += packet_dim)
     {
-        int ymax = y + PACKET_DIM - 1;
+        int ymax = y + packet_dim - 1;
 
         if (ymax >= height)
         {
             ymax = height - 1;
         }
 
-        for (size_t x = 0; x < width; x += PACKET_DIM )
+        for (size_t x = 0; x < width; x += packet_dim )
         {
-            int xmax = x + PACKET_DIM - 1;
+            int xmax = x + packet_dim - 1;
 
             if (xmax >= width)
             {
