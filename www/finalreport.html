@@ -145,6 +145,7 @@ BVH traversal is limited by intersection,
     <li>SIMD: Convert data structures to be ISPC friendly and do packet intersection in SIMD</li>
     <li>Make tree 8-ary, traverse in parallel?</li>
     <li>Bring frustum test into BVH, more early exit</li>
+    <li>Ray re-ordering</li>
 </ul>
 
 <div class="subsection">System Architecture</div>
@@ -155,13 +156,13 @@ BVH traversal is limited by intersection,
 
 <div class="subsection">BVH Build</div>
 
-<!-- Object load time also a bottleneck (though I feel like this won't be as big of a deal once the data's loaded into memory) -->
+<p>If we got to the point where we have gotten as much performance as possible out of interactive tracing, a good next step would be to support animation. The big barrier to doing this is the BVH build time (as well as perhaps any data load times). Since nodes access disjoint data, the build can be split without too much worry for contention.</p>
 
-If we got to the point where we have gotten as much performance as possible out of interactive tracing, a good next step would be to support animation. The big barrier to doing this is the BVH build time. Since nodes access disjoint data, the build can be split without too much worry for contention. 
+<p>As shown in Figure FIGBREAKDOWN to our implementation, the act of choosing the partition using SAH takes most of the time. This part of the algorithm requires doing partial sums of bounding boxes, and then computing the cost (as in equation SURFACEAREA_EQUATION). This could see some benefit from doing a prefix sum on the GPU, but good implementations top out at about 6x speedup [REFERENCE_TO_CUDA_SCAN].</p>
 
-As shown in Figure FIGBREAKDOWN to our implementation, the act of choosing the partition using SAH takes most of the time. This part of the algorithm requires doing partial sums of bounding boxes, and then computing the cost (as in equation SURFACEAREA_EQUATION). This could see some benefit from doing a prefix sum on the GPU, but good implementations top out at about 6x speedup [REFERENCE_TO_CUDA_SCAN].
+<p>The other option would be to do some kind of parallelization of building subtrees. For example, for a CPU with 8 cores, spawn off a new thread to continue the sub-tree traversal at depth 3, when there are 8 separate subtrees.</p>
 
-The other option would be to do some kind of parallelization of building subtrees. For example, for a CPU with 8 cores, spawn off a new thread to continue the sub-tree traversal at depth 3, when there are 8 separate subtrees.
+<p>An interesting avenue for future work would be to traverse the tree for one frame on the CPU while building the tree for the next asynchronously on the GPU (or vice versa, perhaps).  This might be especially viable on a system with tightly coupled CPU and GPU such as newer Intel chips.</p>
 
 <div class="section">References</div>
 
@@ -172,7 +173,6 @@ The other option would be to do some kind of parallelization of building subtree
 <p>I. Wald, T. Ize, and S. Parker, <em>Fast, Parallel, and Asynchronous Construction of BVHs for Ray Tracing Animated Scenes</em>, 2007</p>
 
 <p>Special thanks to Nico Feltman.</p>
-
 
 <div class="section">List of Work By Each Student</div>
 
