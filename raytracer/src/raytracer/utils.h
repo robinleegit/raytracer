@@ -14,6 +14,17 @@
 #ifdef __cplusplus
 namespace ispc { /* namespace */
 #endif // __cplusplus
+struct Ray {
+    float eye[3];
+    float dir[3];
+};
+
+struct IsectInfo {
+    float time;
+    float gamma;
+    float beta;
+};
+
 
 ///////////////////////////////////////////////////////////////////////////
 // Functions exported from ispc code
@@ -22,6 +33,7 @@ namespace ispc { /* namespace */
 extern "C" {
 #endif // __cplusplus
     extern void set_indices(int32_t * a, int32_t length);
+    extern void triangle_packet_intersect(struct Ray * rays, struct IsectInfo * infos, int8_t * intersected, int32_t num_rays, float * p0, float * p1, float * p2);
 #if defined(__cplusplus) && !defined(__ISPC_NO_EXTERN_C)
 } /* end extern C */
 #endif // __cplusplus
