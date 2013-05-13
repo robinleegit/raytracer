@@ -39,58 +39,46 @@ void Model::render() const
 
 void Model::intersect_packet(const Packet& packet, IsectInfo *infos, bool *intersected) const
 {
+    cout << "Trying frustum" << endl;
     if (intersect_frustum(packet.frustum))
     {
+        cout << "Packet intersect start" << endl;
         BvhNode::IsectInfo temp_info[rays_per_packet];
         bool temp_intersected[rays_per_packet];
         Packet instance_packet;
-        
+        cout << "rays_per_packet " << rays_per_packet << endl;
+
         for (int i = 0; i < rays_per_packet; i++)
         {
+            assert(temp_info[i].time == INFINITY);
+
+#if 1
             instance_packet.rays[i].eye = 
                 inverse_transform_matrix.transform_point(packet.rays[i].eye);
             instance_packet.rays[i].dir = 
                 inverse_transform_matrix.transform_vector(packet.rays[i].dir);
-            temp_intersected[i] = true;
-        }
+#else
+            instance_packet.rays[i].eye = packet.rays[i].eye;
+            instance_packet.rays[i].dir = packet.rays[i].dir;
+#endif
+            //temp_intersected[i] = true;
 
-        // SIMD inside
-        bvh->intersect_packet(instance_packet, temp_info, intersected);
-
-        // TODO make this simd
-        for (int i = 0; i < rays_per_packet; i++)
-        {
-            if (intersected[i] && temp_info[i].time < infos[i].time)
-            {
-                compute_ray_info(temp_info[i], infos[i]);
-                intersected[i] = intersected[i] || temp_intersected[i];
-            }
-        }
-
-        /*
-        // non-packetized version for debugging
-        for (int i = 0; i < rays_per_packet; i++)
-        {
-            temp_intersected[i] = bvh->intersect_ray(instance_packet.rays[i], temp_info[i]);
+            temp_intersected[i] = bvh->intersect_ray(packet.rays[i], temp_info[i]);
 
             if (temp_intersected[i] && temp_info[i].time < infos[i].time)
             {
                 compute_ray_info(temp_info[i], infos[i]);
-                intersected[i] = intersected[i] || temp_intersected[i];
+                intersected[i] = true;
+
+                assert(infos[i].time != INFINITY);
             }
         }
-        */
+        cout << "Packet intersect end" << endl;
     }
-    /*
     else
     {
-        // TODO make this simd
-        for (int i = 0; i < rays_per_packet; i++)
-        {
-            intersected[i] = false;
-        }
+        cout << "No dice" << endl;
     }
-    */
 }
 
 void Model::compute_ray_info(const BvhNode::IsectInfo& bvh_info, IsectInfo& info) const

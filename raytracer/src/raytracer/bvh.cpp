@@ -51,7 +51,6 @@ bool Box::intersect_ray(Vector3 eye, Vector3 ray) const
 {
     double tmin = -INFINITY, tmax = INFINITY;
 
-
     if (ray.x != 0.0)
     {
         double tx1 = (min_corner.x - eye.x) / ray.x;
@@ -216,6 +215,14 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end)
     delete [] left_boxes;
     ///////////////////////////////////
 
+    if (root)
+    {
+        cout << "Partition info:" << endl
+             << "mid_idx = " << mid_idx << endl
+             << "mid_val = " << mid_val << endl
+             << "axis    = " << axis << endl;
+    }
+
     // partition
     for (int i = 0; i < 3; i++)
     {
@@ -341,8 +348,7 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
 
         if (intersected[i])
         {
-            left_active[i] = left_active[i] ||
-                left_bbox.intersect_ray(packet.rays[i].eye, packet.rays[i].dir);
+            left_active[i] = left_bbox.intersect_ray(packet.rays[i].eye, packet.rays[i].dir);
 
             if (left_active[i])
             {
@@ -366,8 +372,7 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
 
         if (intersected[i])
         {
-            right_active[i] = right_active[i] ||
-                right_bbox.intersect_ray(packet.rays[i].eye, packet.rays[i].dir);
+            right_active[i] = right_bbox.intersect_ray(packet.rays[i].eye, packet.rays[i].dir);
 
             if (right_active[i])
             {
@@ -383,7 +388,7 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
 
     for (int i = 0; i < rays_per_packet; i++)
     {
-        intersected[i] = intersected[i] || left_active[i] || right_active[i];
+        intersected[i] = left_active[i] || right_active[i];
     }
 }
 

@@ -438,6 +438,8 @@ void Raytracer::trace_packet(PacketRegion region, float refractive, unsigned cha
         }
     }
 
+    assert(r == rays_per_packet);
+
     for (size_t i = 0; i < scene->num_geometries(); i++)
     {
         scene->get_geometries()[i]->intersect_packet(packet, infos, intersected);
@@ -445,16 +447,20 @@ void Raytracer::trace_packet(PacketRegion region, float refractive, unsigned cha
 
     for (int i = 0; i < rays_per_packet; i++)
     {
+        Color3 color;
+
+        assert(intersected[i] == (infos[i].time != INFINITY));
+
         if (intersected[i])
         {
-            Color3 color = trace_pixel_end(0, packet.rays[i], refractive, infos[i]);
-            color.to_array(&buffer[4 * (pixels[i].y * width + pixels[i].x)]);
+            color = trace_pixel_end(0, packet.rays[i], refractive, infos[i]);
         }
         else
         {
-            Color3 color = scene->background_color;
-            color.to_array(&buffer[4 * (pixels[i].y * width + pixels[i].x)]);
+            color = scene->background_color;
         }
+
+        color.to_array(&buffer[4 * (pixels[i].y * width + pixels[i].x)]);
     }
 }
 
