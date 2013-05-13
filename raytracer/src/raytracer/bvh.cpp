@@ -326,7 +326,9 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
         return;
     }
 
+    // left node
     bool left_active[rays_per_packet];
+    bool any_active_left = false;
 
     for (int i = 0; i < rays_per_packet; i++)
     {
@@ -336,12 +338,22 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
         {
             left_active[i] = left_active[i] ||
                 left_bbox.intersect_ray(packet.rays[i].eye, packet.rays[i].dir);
+
+            if (left_active[i])
+            {
+                any_active_left = true;
+            }
         }
     }
 
-    intersect_packet(packet, info, left_active);
+    if (any_active_left)
+    {
+        intersect_packet(packet, info, left_active);
+    }
 
+    // right node
     bool right_active[rays_per_packet];
+    bool any_active_right = false;
 
     for (int i = 0; i < rays_per_packet; i++)
     {
@@ -351,10 +363,18 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
         {
             right_active[i] = right_active[i] ||
                 right_bbox.intersect_ray(packet.rays[i].eye, packet.rays[i].dir);
+
+            if (right_active[i])
+            {
+                any_active_right = true;
+            }
         }
     }
 
-    intersect_packet(packet, info, right_active);
+    if (any_active_right)
+    {
+        intersect_packet(packet, info, right_active);
+    }
 
     for (int i = 0; i < rays_per_packet; i++)
     {
