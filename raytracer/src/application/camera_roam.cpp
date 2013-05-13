@@ -13,7 +13,7 @@ namespace _462
 {
 
 static const real_t DirectionTable[] = { 0.0, 1.0, -1.0 };
-static const real_t TranslationSpeed = 2.0;
+static const real_t TranslationSpeed = 5.0;
 static const real_t RotationSpeed = 0.02;
 
 CameraRoamControl::CameraRoamControl()

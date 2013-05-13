@@ -195,7 +195,7 @@ void RaytracerApplication::update( real_t delta_time )
             raytrace_finished = raytracer.raytrace(buffer, &delta_time, options.numthreads);
         }
 
-        else if (raytrace_key_update) // comment stuff after else on this line for continuous tracing
+        else //if (raytrace_key_update) // comment stuff after else on this line for continuous tracing
         {
             camera_control.update( delta_time );
             scene.camera = camera_control.camera;
@@ -257,8 +257,8 @@ void RaytracerApplication::handle_event(const SDL_Event& event)
     bool raytrace_mouse_update = false; // disgusting hack, fix this someday
 
     camera_control.handle_event(this, event, raytrace_mouse_update);
-    if (raytracing && raytrace_mouse_update) // comment these two lines for continuous tracing
-        raytrace_key_update = true;
+    //if (raytracing && raytrace_mouse_update) // comment these two lines for continuous tracing
+    //    raytrace_key_update = true;
 
     switch ( event.type )
     {
