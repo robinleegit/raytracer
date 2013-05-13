@@ -310,6 +310,8 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
     // leaf node
     if (!left_node && !right_node)
     {
+        cout << "leaf" << endl;
+
 #ifdef ISPC
         intersect_leaf_simd(packet, info, intersected);
 #else
@@ -330,6 +332,8 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
 
         return;
     }
+
+    //cout << "left" << endl;
 
     // left node
     bool left_active[rays_per_packet];
@@ -355,6 +359,8 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
     {
         intersect_packet(packet, info, left_active);
     }
+
+    //cout << "right" << endl;
 
     // right node
     bool right_active[rays_per_packet];
@@ -383,7 +389,7 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
 
     for (int i = 0; i < rays_per_packet; i++)
     {
-        intersected[i] = intersected[i] || left_active[i] || right_active[i];
+        intersected[i] = left_active[i] || right_active[i];
     }
 }
 

@@ -54,7 +54,7 @@ void Model::intersect_packet(const Packet& packet, IsectInfo *infos, bool *inter
             temp_intersected[i] = true;
         }
 
-        // SIMD inside
+        // packetized version that currently doesn't work - put SIMD inside
         bvh->intersect_packet(instance_packet, temp_info, intersected);
 
         // TODO make this simd
@@ -81,16 +81,6 @@ void Model::intersect_packet(const Packet& packet, IsectInfo *infos, bool *inter
         }
         */
     }
-    /*
-    else
-    {
-        // TODO make this simd
-        for (int i = 0; i < rays_per_packet; i++)
-        {
-            intersected[i] = false;
-        }
-    }
-    */
 }
 
 void Model::compute_ray_info(const BvhNode::IsectInfo& bvh_info, IsectInfo& info) const
