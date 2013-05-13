@@ -26,19 +26,29 @@
 <div class="section">Project Summary</div>
 
 <p>
-We have implemented a ray tracer utilizing bounding volume hierarchies (BVH) and packetized traversal on the CPU.  The BVH is built using the surface area heuristic (SAH) to produce BVHs that are inexpensive to traverse.  On Monday we plan to demonstrate our ray tracer rendering detailed scenes at interactive or near-interactive rates.
+We have implemented a ray tracer utilizing bounding volume hierarchies (BVH) and packetized traversal on the CPU.  The BVH is built using the surface area heuristic (SAH) to produce BVHs that are inexpensive to traverse.  At the parallelism competition we demonstrated our ray tracer rendering detailed scenes at basic interactive rates.
 </p>
 
 <div class="section">Background</div>
 
 <p>
-Ray tracing is a rendering technique that calculates the color displayed by an image at each pixel by "tracing" a ray through the scene starting at that pixel.  Since a ray may intersect with multiple objects in the scene, finding the point of closest intersection is a search problem which can be highly computation-intensive given the detail in typical images.
+Ray tracing is a technique for rendering 3D models of a scene to a computer screen.  It calculates the color displayed by an image at each pixel by "tracing" a ray from the viewpoint, through the image plane, and to light sources in the scene, bouncing off of objects as it goes.  Since a ray may intersect with multiple objects in the scene, finding the point of closest intersection is a search problem which can be highly computation-intensive.
 </p>
 <p>
-Naive algorithms for ray tracing can easily take many hours to traverse simple scenes, and even highly-efficient ray tracers can take long lengths of time given a high degree of desired realism.  Our goal was to implement a ray tracer that provides a reasonable level of realistic detail at an interactive frame rate.  
+Ray tracing is commonly used when high levels of realism are desired in an offline setting, for instance in film animation, but only more recently has been the subject of active research for online, real-time rendering applications.  Naive algorithms for ray tracing can easily take many hours to traverse simple scenes, and even highly-efficient ray tracers can take long lengths of time given a high degree of desired realism.  Our goal was to implement a ray tracer that provides a reasonable level of realistic detail at an interactive frame rate.  
 </p>
 <p>
-The ray tracing problem is embarassingly parallel in the sense that all rays are independent of one another, but the coherence of ray paths quickly breaks down within a typical scene and the resulting divergence can prove problematic for data parallel hardware such as GPUs.  In light of this, we chose to do our primary implementation on multi-core CPUs, where we can take advantage of separate cores that are able to gracefully handle branch instructions.
+The ray tracing problem is embarassingly parallel in the sense that all rays are independent of one another, but the coherence of ray paths quickly breaks down within a typical scene, and the resulting divergence can prove problematic for data parallel hardware such as GPUs.  In light of this, we chose to do our primary implementation on multi-core CPUs, where we can take advantage of separate cores that are able to gracefully handle branch instructions.
+
+</br>
+
+<center>
+<figure>
+<img alt="Divergence"src="divergence.png">
+<figcaption>Divergent rays</figcaption>
+</figure>
+</center>
+
 </p>
 
 <div class="section">Approach</div>
@@ -47,6 +57,7 @@ The ray tracing problem is embarassingly parallel in the sense that all rays are
 There are two major axes of our implementation: a bounding volume hiearchy and packetization.
 </p>
 
+<div class="subsection">Bounding Volume Hierarchy</div>
 <p>
 The creation of the BVH acceleration structure is done as a pre-processing step before any rays are traced through the scene.  The structure creates a bounding box around an entire model (containing arbitrary numbers of triangles) and recursively sub-partitions the interior triangles into smaller bounding boxes.  The actual triangles are referenced at the leaf nodes, with each leaf holding up to a pre-set number of triangles, which in our case is set to optimize for the SIMD width of our processors.
 </p>
@@ -57,9 +68,19 @@ The creation of the BVH acceleration structure is done as a pre-processing step 
 At each node of the tree, the choice of how to partition the interior triangles into two child nodes is done by evaluating the Surface Area Heuristic, which roughly tries to balance the surface area of the triangles in each child node of the parent BVH node.
 </p>
 
+<center>
+<figure>
+<img alt="The Surface Area Heuristic"src="sah.png">
+<figcaption>The Surface Area Heuristic (credit: Wald07)</figcaption>
+</figure>
+</center>
+
+
 <p>
-Since we restricted ourselves to static scenes for the purposes of this project, we only have to build the BVH once.
+With axis-aligned boxes and n triangles, there are 3n - 3 possible choices for axis-aligned partitions between triangles.  Since we restricted ourselves to static scenes for the purposes of this project, we only have to build the BVH once.  Therefore, we elected to find the optimal partition at each level according to the SAH cost function by evaluating each possibility.  Thus we traded increased (NLogN) build time for decreased logarithmic traversal time.
 </p>
+
+<div class="subsection">Packetization</div>
 
 <p>
 Packetization involves evaluating multiple rays at once.  The normal ray tracing algorithm loops over all pixels on the screen, and for each pixel loops over all scene objects to find intersections.  By packetizing, we group a block of screen pixels together and trace a frustum through the scene rather than individual rays.  If the frustum does not intersect an object, then none of its interior rays will either, and the ray tracer can safely skip those rays in its computations. 
@@ -70,15 +91,15 @@ In addition, each packet can be easily mapped over a CPU core for high level par
 </p>
 
 <p>
-For packet intersection, we traverse the BVH and determine which rays can possibly intersect which objects. A frustum test is used to determine that the packet intersects the BVH; if it doesn't, all its rays can be disregarded for that object. Once the packet passes the frustum test for a node, the intersect function recurses on that node. As the packet descends into the BVH, rays that don't intersect are marked as inactive until there is a list of active rays and the triangles in the BVH they each active ray intersect. Our first packet based implementations just looped over each packet for intersection tests with bounding boxes and triangles. We then created an implementation that loops over all triangles at the leaf and intersects each ray in SIMD with that iteration's triangle. 
+Once descended into a packet, we keep track of which rays are active at each node, meaning that the ray has not missed an intersection at a higher node in the tree (which means it would not intersect any child nodes either).  By updating this list when we check the left and right nodes' bounding boxes, we only need to evaluate the active rays at each node. Leaf nodes contain up to a preset number of triangles.
 </p>
 
 <p>
-Once an intersection is found, the rays will reflect or refract, at which point the packet may no longer be coherent (the rays may not be tightly packed or going in similar directions).  From there the computation is done on a single lane of each core to minimized the effects of the resulting divergence.  
+Active triangle traversal of nodes and leaves is a promising candidate for SIMD instructions, but getting good speedup with ISPC proved to be challenging, as discussed in a subsequent section.
 </p>
 
 <p>
-This approach should decrease the amount of time spent doing intersection tests, and push a little more work towards the part of the code that actually computes the value of each pixel.
+Once an intersection is found, the rays will reflect or refract, at which point the packet may no longer be coherent (the rays may not be tightly packed or going in similar directions).  Because of this, we trace rays individually rather than in packets from the point of intersection.
 </p>
 
 <div class="section">Results</div>
