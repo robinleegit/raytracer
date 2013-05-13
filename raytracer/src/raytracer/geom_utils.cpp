@@ -45,35 +45,22 @@ bool triangle_ray_intersect(Vector3 eye, Vector3 ray, Vector3 p0, Vector3 p1,
     float m = a * ei_minus_hf + b * gf_minus_di + c * dh_minus_eg;
     t = -1.0 * (f * ak_minus_jb + e * jc_minus_al + d * bl_minus_kc) / m;
 
-    if (t < eps)
-    {
-        return false;
-    }
-
     gamma = (i * ak_minus_jb + h * jc_minus_al + g * bl_minus_kc) / m;
-
-    if (gamma < 0.0 || gamma > 1.0)
-    {
-        return false;
-    }
-
     beta = (j * ei_minus_hf + k * gf_minus_di + l * dh_minus_eg) / m;
+    float alpha = 1 - beta - gamma;
 
-    if (beta < 0.0 || beta > 1.0 - gamma)
-    {
-        return false;
-    }
+    bool gamma_ok = gamma >= 0.0 && gamma <= 1.0;
+    bool beta_ok = beta >= 0.0 && beta <= 1.0;
+    bool alpha_ok = alpha >= 0.0 && alpha <= 1.0;
+    bool t_better = t < min_time && t > eps;
 
-    if (t < min_time && t > eps)
-    {
-        min_time = t;
-        min_gamma = gamma;
-        min_beta = beta;
+    bool replace = alpha_ok && gamma_ok && beta_ok && t_better;
 
-        return true;
-    }
-
-    return false;
+    min_time  = replace ? t     : min_time;
+    min_gamma = replace ? gamma : min_gamma;
+    min_beta  = replace ? beta  : min_beta;;
+    
+    return replace;
 }
 
 bool frustum_box_intersect(Frustum frustum, Vector3 box_min, Vector3 box_max)
