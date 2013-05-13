@@ -6,9 +6,10 @@
 #include "raytracer/bvh.hpp"
 #include "scene/model.hpp"
 #include "raytracer/geom_utils.hpp"
+#include "raytracer/profiler.hpp"
 
 #define ISPC
-//#undef ISPC
+#undef ISPC
 
 #define VERBOSE
 #undef VERBOSE
@@ -17,7 +18,7 @@
 #include "raytracer/utils.h"
 #endif
 
-#define STEP_SIZE 10
+#define NUM_PARTITIONS 10
 #define LEAF_SIZE 4
 
 using namespace std;
@@ -146,11 +147,13 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end)
 
         double sort_start = CycleTimer::currentSeconds();
 
+        PROFILER_START("BVH Sort");
         for (int i = 0; i < 3; i++)
         {
             triangle_less tl(mesh, i);
             sort(indices[i].begin(), indices[i].end(), tl);
         }
+        PROFILER_STOP("BVH Sort");
 
         double done = CycleTimer::currentSeconds();
         cout << "Indices creation took   " << (done - index_assign_start) << "s" << endl
@@ -176,11 +179,12 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end)
     float mid_val;
     float mincost = numeric_limits<float>::max();
 
+    PROFILER_START("BVH SAH new");
     Box *left_boxes = new Box[len];
     Box *right_boxes = new Box[len];
+    PROFILER_STOP("BVH SAH new");
 
-    int step = (end - start) / STEP_SIZE;
-    step = step > 0 ? step : 1;
+    PROFILER_START("BVH SAH choose partition");
 
     for (int i = 0; i < 3; i++)
     {
@@ -193,11 +197,17 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end)
             right_boxes[len-j-1] = Box(mesh, indices[i], start + (len-j-1), start + (len-j)) + right_boxes[len-j];
         }
 
+        int step = (end - start) / NUM_PARTITIONS;
+        step = step > 0 ? step : 1;
+
         // Actually find the minimum cost partition using the partial sums
         for (int j = 1; j < len; j += step)
         {
+            profiler.Increment("BVH SAH get surface area");
+            //PROFILER_START("BVH SAH get surface area");
             float left_sa = left_boxes[j-1].get_surface_area();
             float right_sa = right_boxes[j].get_surface_area();
+            //PROFILER_STOP("BVH SAH get surface area");
             float cost = left_sa * j + right_sa * (len - j);
 
             if (cost < mincost)
@@ -214,12 +224,16 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end)
             }
         }
     }
+    PROFILER_STOP("BVH SAH choose partition");
 
+    PROFILER_START("BVH SAH delete");
     delete [] right_boxes;
     delete [] left_boxes;
+    PROFILER_STOP("BVH SAH delete");
     ///////////////////////////////////
 
     // partition
+    PROFILER_START("BVH partitioning");
     for (int i = 0; i < 3; i++)
     {
         if (i != axis)
@@ -262,6 +276,7 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end)
             }
         }
     }
+    PROFILER_STOP("BVH partitioning");
 
     left_node = new BvhNode(mesh, indices, start, mid_idx);
     right_node = new BvhNode(mesh, indices, mid_idx, end);
@@ -338,6 +353,11 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
     bool left_active[rays_per_packet];
     bool any_active_left = false;
 
+    if (root)
+    {
+        PROFILER_START("BVH packet box intersect (total)");
+        PROFILER_START("BVH packet box intersect left");
+    }
     for (int i = 0; i < rays_per_packet; i++)
     {
         left_active[i] = false;
@@ -354,14 +374,27 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
         }
     }
 
+    if (root)
+    {
+        PROFILER_STOP("BVH packet box intersect left");
+        PROFILER_STOP("BVH packet box intersect (total)");
+    }
+
     if (any_active_left)
     {
+        profiler.Increment("BVH intersect packet left");
         left_node->intersect_packet(packet, info, left_active);
     }
 
     // right node
     bool right_active[rays_per_packet];
     bool any_active_right = false;
+
+    if (root)
+    {
+        PROFILER_START("BVH packet box intersect (total)");
+        PROFILER_START("BVH packet box intersect right");
+    }
 
     for (int i = 0; i < rays_per_packet; i++)
     {
@@ -379,10 +412,20 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
         }
     }
 
+    if (root)
+    {
+        PROFILER_STOP("BVH packet box intersect right");
+        PROFILER_STOP("BVH packet box intersect (total)");
+    }
+
     if (any_active_right)
     {
+        profiler.Increment("BVH intersect packet right");
         right_node->intersect_packet(packet, info, right_active);
     }
+
+    if (any_active_left && any_active_right)
+        profiler.Increment("BVH intersect packet (both)");
 
     for (int i = 0; i < rays_per_packet; i++)
     {
@@ -528,6 +571,11 @@ bool BvhNode::intersect_ray(const Ray& ray, BvhNode::IsectInfo& info)
 {
     bool ret = false;
 
+    if (root)
+    {
+        PROFILER_START("BVH intersect ray");
+    }
+
     // leaf node case
     if (!left_node && !right_node)
     {
@@ -568,6 +616,11 @@ bool BvhNode::intersect_ray(const Ray& ray, BvhNode::IsectInfo& info)
         ret = ret || r_inter;
     }
 
+    if (root)
+    {
+        PROFILER_STOP("BVH intersect ray");
+    }
+
     return ret;
 }
 
@@ -576,6 +629,11 @@ bool BvhNode::shadow_test(const Ray& ray)
 {
     bool ret = false;
     BvhNode::IsectInfo info;
+
+    if (root)
+    {
+        PROFILER_START("BVH shadow test");
+    }
 
     if (!left_node && !right_node)
     {
@@ -619,6 +677,11 @@ bool BvhNode::shadow_test(const Ray& ray)
     {
         bool r_inter = right_node->intersect_ray(ray, info);
         ret = ret || r_inter;
+    }
+
+    if (root)
+    {
+        PROFILER_STOP("BVH shadow test");
     }
 
     return ret;

@@ -5,6 +5,7 @@
 #include "application/opengl.hpp"
 #include "scene/scene.hpp"
 #include "raytracer/raytracer.hpp"
+#include "raytracer/profiler.hpp"
 
 #include <iostream>
 #include <cstring>
@@ -18,11 +19,14 @@ using namespace std;
 namespace _462
 {
 
+Profiler profiler;
+
 #define DEFAULT_WIDTH 800
 #define DEFAULT_HEIGHT 600
 
 #define BUFFER_SIZE(w,h) ( (size_t) ( 4 * (w) * (h) ) )
 
+#define KEY_QUIT SDLK_ESCAPE
 #define KEY_RAYTRACE SDLK_r
 #define KEY_SCREENSHOT SDLK_f
 
@@ -108,8 +112,8 @@ bool RaytracerApplication::initialize()
     // copy camera into camera control so it can be moved via mouse
     camera_control.camera = scene.camera;
     bool load_gl = options.open_window;
-    //options.numthreads = 1;
-    options.numthreads = boost::thread::hardware_concurrency();
+    options.numthreads = 1;
+    //options.numthreads = boost::thread::hardware_concurrency();
 
     try
     {
@@ -271,6 +275,9 @@ void RaytracerApplication::handle_event(const SDL_Event& event)
             break;
         case KEY_SCREENSHOT:
             output_image();
+            break;
+        case KEY_QUIT:
+            exit(0);
             break;
         default:
             break;

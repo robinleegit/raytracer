@@ -8,6 +8,7 @@
 #include "raytracer/ray.hpp"
 #include "raytracer/bvh.hpp"
 #include "raytracer/CycleTimer.hpp"
+#include "raytracer/profiler.hpp"
 
 #include <iostream>
 #include <cstring>
@@ -143,13 +144,9 @@ void Model::make_bounding_volume()
         delete bvh;
     }
 
-    double bvh_create_start = CycleTimer::currentSeconds();
-
+    profiler.Start("BVH Creation");
     bvh = new BvhNode(mesh, NULL, 0, 0);
-
-    double done = CycleTimer::currentSeconds();
-
-    cout << "Bvh creation took       " << (done - bvh_create_start) << "s" << endl;
+    profiler.Stop("BVH Creation");
 }
 
 bool Model::intersect_frustum(const Frustum& frustum) const

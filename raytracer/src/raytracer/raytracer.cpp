@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "raytracer.hpp"
+#include "profiler.hpp"
 #include "CycleTimer.hpp"
 
 using namespace std;
@@ -399,6 +400,7 @@ void Raytracer::trace_packet_worker(tsqueue<PacketRegion> *packet_queue, unsigne
     while (true)
     {
         bool empty;
+
         PacketRegion packet = packet_queue->Pop(empty);
 
         if (empty)
@@ -406,7 +408,9 @@ void Raytracer::trace_packet_worker(tsqueue<PacketRegion> *packet_queue, unsigne
             break;
         }
 
+        PROFILER_START("Raytracer trace packet");
         trace_packet(packet, 1.0, buffer);
+        PROFILER_STOP("Raytracer trace packet");
     }
 }
 
@@ -438,16 +442,22 @@ void Raytracer::trace_packet(PacketRegion region, float refractive, unsigned cha
         }
     }
 
+    PROFILER_START("Raytracer intersect packet");
     for (size_t i = 0; i < scene->num_geometries(); i++)
     {
         scene->get_geometries()[i]->intersect_packet(packet, infos, intersected);
     }
+    PROFILER_STOP("Raytracer intersect packet");
 
     for (int i = 0; i < rays_per_packet; i++)
     {
         if (intersected[i])
         {
+            PROFILER_START("Raytracer trace pixel");
+
             Color3 color = trace_pixel_end(0, packet.rays[i], refractive, infos[i]);
+
+            PROFILER_STOP("Raytracer trace pixel");
             color.to_array(&buffer[4 * (pixels[i].y * width + pixels[i].x)]);
         }
         else
