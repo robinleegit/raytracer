@@ -41,9 +41,9 @@ void Model::intersect_packet(const Packet& packet, IsectInfo *infos, bool *inter
 {
     if (intersect_frustum(packet.frustum))
     {
+        Packet instance_packet;
         BvhNode::IsectInfo temp_info[rays_per_packet];
         bool temp_intersected[rays_per_packet];
-        Packet instance_packet;
         
         for (int i = 0; i < rays_per_packet; i++)
         {
