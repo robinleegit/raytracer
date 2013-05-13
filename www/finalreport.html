@@ -126,9 +126,42 @@ Below is a table of our render times for both BVH building and traversal, for th
 By simply doing the traversal/pixel color computation across 8 threads on an Intel i7-2630QM CPU (4 physical cores + hyperthreading) we were able to obtain over 4x speedup. Hyperthreading accounts for the fact that we don't get a huge amount more speedup with greater than 4 cores. The near linear speedup is expected, since the splitting up the screen across multiple cores is embarrasingly parallel; each thread can write to its own part of the output image buffer, and threads only have to read from shared data structures, so there is no heavy contention.
 </p>
 
+<!-- Graph: Speedup from threads, also have the SIMD results -->
+
+<!-- Profiling data: show that crazy kind of bar graph -->
+
 <p>
 We got a speedup of about 2x from moving to SAH from BVH in terms of BVH traversal time, but build time increased drastically. This slow down is acceptable to us since we are focusing on getting an interactive static scene, so we only have to build the BVH one time. If there is time we may optimize this build process by not trying so many different splits, and also by reducing dynamic memory allocation.
 </p>
+
+<div class="section">Future Work</div>
+
+There are several strategies that would be worth pursuing to improve performance for interactive ray tracing.
+
+<div class="subsection">BVH Traversal</div>
+
+BVH traversal is limited by intersection,
+<ul>
+    <li>SIMD: Convert data structures to be ISPC friendly and do packet intersection in SIMD</li>
+    <li>Make tree 8-ary, traverse in parallel?</li>
+    <li>Bring frustum test into BVH, more early exit</li>
+</ul>
+
+<div class="subsection">System Architecture</div>
+<ul>
+    <li>Do load balancing on the GPU and CPU: a piece of work is one call to trace pixel, if we can get large enough chunks of work (a large number of trace pixel requests), we can do chunks of them using SIMD (either GPU or ISPC). These SIMD operations could set some bit vectors (incident rays etc..)</li>
+    <li>Shadow tests are more data parallel, since they don't recurse. This could potentially be done on the GPU, but still has some issues with SIMD since it involves BVH traversal</li>
+</ul>
+
+<div class="subsection">BVH Build</div>
+
+<!-- Object load time also a bottleneck (though I feel like this won't be as big of a deal once the data's loaded into memory) -->
+
+If we got to the point where we have gotten as much performance as possible out of interactive tracing, a good next step would be to support animation. The big barrier to doing this is the BVH build time. Since nodes access disjoint data, the build can be split without too much worry for contention. 
+
+As shown in Figure FIGBREAKDOWN to our implementation, the act of choosing the partition using SAH takes most of the time. This part of the algorithm requires doing partial sums of bounding boxes, and then computing the cost (as in equation SURFACEAREA_EQUATION). This could see some benefit from doing a prefix sum on the GPU, but good implementations top out at about 6x speedup [REFERENCE_TO_CUDA_SCAN].
+
+The other option would be to do some kind of parallelization of building subtrees. For example, for a CPU with 8 cores, spawn off a new thread to continue the sub-tree traversal at depth 3, when there are 8 separate subtrees.
 
 <div class="section">References</div>
 

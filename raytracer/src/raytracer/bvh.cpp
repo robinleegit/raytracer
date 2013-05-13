@@ -8,7 +8,7 @@
 #include "raytracer/geom_utils.hpp"
 
 #define ISPC
-//#undef ISPC
+#undef ISPC
 
 #define VERBOSE
 #undef VERBOSE
