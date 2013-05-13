@@ -112,8 +112,11 @@ bool RaytracerApplication::initialize()
     // copy camera into camera control so it can be moved via mouse
     camera_control.camera = scene.camera;
     bool load_gl = options.open_window;
+#ifdef PROFILER
     options.numthreads = 1;
-    //options.numthreads = boost::thread::hardware_concurrency();
+#else
+    options.numthreads = boost::thread::hardware_concurrency();
+#endif
 
     try
     {

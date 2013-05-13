@@ -79,7 +79,7 @@ extern Profiler profiler;
 }
 
 #define PROFILER
-//#undef PROFILER
+#undef PROFILER
 
 #ifdef PROFILER
 #define PROFILER_START(key) profiler.Start(key)
