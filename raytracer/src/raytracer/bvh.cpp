@@ -336,7 +336,7 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
 
         if (intersected[i])
         {
-            left_active[i] = left_active[i] ||
+            left_active[i] = 
                 left_bbox.intersect_ray(packet.rays[i].eye, packet.rays[i].dir);
 
             if (left_active[i])
@@ -361,7 +361,7 @@ void BvhNode::intersect_packet(const Packet& packet, BvhNode::IsectInfo *info, b
 
         if (intersected[i])
         {
-            right_active[i] = right_active[i] ||
+            right_active[i] =
                 right_bbox.intersect_ray(packet.rays[i].eye, packet.rays[i].dir);
 
             if (right_active[i])
