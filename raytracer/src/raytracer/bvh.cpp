@@ -18,7 +18,7 @@
 #endif
 
 #define STEP_SIZE 10
-#define LEAF_SIZE 4
+#define LEAF_SIZE 8
 
 using namespace std;
 

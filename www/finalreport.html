@@ -105,7 +105,7 @@ Once an intersection is found, the rays will reflect or refract, at which point 
 <div class="section">Results</div>
 
 <p>
-The Happy Buddha image below contains over a million triangles and, with our current implementation, rendered in less than a second on our laptops (disregarding BVH build time, which only happens once).  We are continuing to iterate and hope to have this down considerably further by Monday as there are still a number of optimizations to make.  We anticipate a render rate of a few frames per second on scenes like this one.
+The Happy Buddha image below contains over a million triangles and, after object loading and creation of the BVH (which only happen once), renders in less than a second on our laptops, allowing for basic interactivity.
 </p>
 
 <img alt="1 million triangle Buddha model"src="buddha.png">
@@ -188,6 +188,9 @@ Here is a table showing rays/second for our techniques:
 
 
 
+<p>
+Additionally, we achieved 1.2 million rays/sec on an Intel Core i7 in a Macbook Pro Retina.  This is the machine that with which we demo'd at the parallelism competition.
+<p>
 
 
 
