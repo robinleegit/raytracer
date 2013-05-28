@@ -1,0 +1,81 @@
+Building:
+
+    Run 'make' to build the code. All builds are done in the 'bin/' directory,
+    and the final binary is copied to the top-level directory.
+
+    There are two build modes: debug and release. Debug is the default. Debug
+    builds with no optimizations and debugging info, while release builds with
+    optimizations and no debugging info. Run 'make MODE=debug' or
+    'make MODE=release' to build the different modes. 
+
+    The packages you need on Ubuntu are:
+
+        mesa-common-dev
+        libglu1-mesa-dev
+        freeglut3-dev
+        libglew-dev
+        libsdl-dev
+        libpng-dev
+
+    (Should work for Mac OSX and other Linux distributions as well)
+
+Options:
+
+    -r:
+        Raytraces the scene and saves to the output file without
+        loading a window or creating an opengl context.
+    -d width height
+        The dimensions of image to raytrace (and window if using
+        and opengl context. Defaults to width=800, height=600.
+    input_scene:
+        The scene file to load and raytrace.
+    output_file:
+        The output file in which to write the rendered images.
+        If not specified, default timestamped filenames are used.
+
+Instructions:
+
+    Press 'r' to raytrace the scene. Press 'r' again to go back to
+    to OpenGL rendering. Press 'f' to dump the most recently
+    raytraced image to the output file.
+
+    Use the mouse and 'w', 'a', 's', 'd', 'q', and 'e' to move the
+    camera around. The keys translate the camera, and left and right
+    mouse buttons rotate the camera.
+
+    If not using windowed mode (i.e., -r was specified), then output
+    image will be automatically generated and the program will exit.
+
+Files:
+
+    Makefile            -- makefile for the project.
+    make.mk             -- more of the makefile.
+    sources.mk          -- list of sources and target
+
+    models/             -- .obj models used in scenes.
+    images/             -- textures used in scenes.
+    scenes/             -- scenes in xml format
+
+    src/raytracer       == 
+        main            -- Main function, application backend, and rendering.
+        raytracer       -- Primary raytracing logic.
+
+    src/application/    == General application files.
+        application     -- SDL backend, runs main loop.
+        camera_roam     -- Functions for camera control via mouse and keyboard.
+        imageio         -- Functions to load and save PNG files.
+        opengl          -- Header to include correct OpenGL headers.
+        scene_loader    -- Code to load a scene from a file.
+
+    src/math/           == Math utilities.
+        camera          -- Camera class with functions to mutate.
+        color           -- A class for RGB colors and related functions.
+        math            -- Basic header and a few generic functions.
+        matrix          -- 3D, 4D matrix classes and several related functions.
+        quaternion      -- Quaternion class and several related functions
+        vector          -- 2D, 3D, 4D vector classes and many related functions.
+
+    src/scene/          == Scene-specific files and rendering. Intersections.
+
+    src/tinyxml/        == XML parser, used with scenes.
+

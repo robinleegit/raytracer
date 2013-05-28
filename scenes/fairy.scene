@@ -1,0 +1,692 @@
+<scene>
+    <camera>
+        <fov v=".785"/>
+        <near_clip v=".01"/>
+        <far_clip v="200.0"/>
+        <position x="0.0" y="6.0" z="11.0"/>
+        <orientation a="-0.50" x="1.0" y="0.0" z="0.0"/>
+    </camera>
+
+    <background_color r="0.4" g="0.4" b="0.4"/>
+
+    <refractive_index v="1.0"/>
+
+    <ambient_light r="0.2" g="0.2" b="0.2"/>
+
+    <point_light>
+        <position x="10.0" y="5.0" z="10.0"/>
+        <color r="1.0" g="1.0" b="1.0"/>
+    </point_light>
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy00">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy00" filename="models/fairy/fairy00.obj"/>
+
+    <model material="fairy00" mesh="fairy00">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+    <material name="fairy01">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy01" filename="models/fairy/fairy01.obj"/>
+
+    <model material="fairy01" mesh="fairy01">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy02">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy02" filename="models/fairy/fairy02.obj"/>
+
+    <model material="fairy02" mesh="fairy02">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy03">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy03" filename="models/fairy/fairy03.obj"/>
+
+    <model material="fairy03" mesh="fairy03">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy04">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy04" filename="models/fairy/fairy04.obj"/>
+
+    <model material="fairy04" mesh="fairy04">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy05">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy05" filename="models/fairy/fairy05.obj"/>
+
+    <model material="fairy05" mesh="fairy05">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy06">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy06" filename="models/fairy/fairy06.obj"/>
+
+    <model material="fairy06" mesh="fairy06">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy07">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy07" filename="models/fairy/fairy07.obj"/>
+
+    <model material="fairy07" mesh="fairy07">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy08">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy08" filename="models/fairy/fairy08.obj"/>
+
+    <model material="fairy08" mesh="fairy08">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy09">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy09" filename="models/fairy/fairy09.obj"/>
+
+    <model material="fairy09" mesh="fairy09">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy10">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy10" filename="models/fairy/fairy10.obj"/>
+
+    <model material="fairy10" mesh="fairy10">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy11">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy11" filename="models/fairy/fairy11.obj"/>
+
+    <model material="fairy11" mesh="fairy11">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy12">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy12" filename="models/fairy/fairy12.obj"/>
+
+    <model material="fairy12" mesh="fairy12">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy13">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy13" filename="models/fairy/fairy13.obj"/>
+
+    <model material="fairy13" mesh="fairy13">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy14">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy14" filename="models/fairy/fairy14.obj"/>
+
+    <model material="fairy14" mesh="fairy14">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy15">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy15" filename="models/fairy/fairy15.obj"/>
+
+    <model material="fairy15" mesh="fairy15">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy16">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy16" filename="models/fairy/fairy16.obj"/>
+
+    <model material="fairy16" mesh="fairy16">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy17">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy17" filename="models/fairy/fairy17.obj"/>
+
+    <model material="fairy17" mesh="fairy17">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy18">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy18" filename="models/fairy/fairy18.obj"/>
+
+    <model material="fairy18" mesh="fairy18">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy19">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy19" filename="models/fairy/fairy19.obj"/>
+
+    <model material="fairy19" mesh="fairy19">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy20">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy20" filename="models/fairy/fairy20.obj"/>
+
+    <model material="fairy20" mesh="fairy20">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy21">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy21" filename="models/fairy/fairy21.obj"/>
+
+    <model material="fairy21" mesh="fairy21">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy22">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy22" filename="models/fairy/fairy22.obj"/>
+
+    <model material="fairy22" mesh="fairy22">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy23">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy23" filename="models/fairy/fairy23.obj"/>
+
+    <model material="fairy23" mesh="fairy23">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy24">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy24" filename="models/fairy/fairy24.obj"/>
+
+    <model material="fairy24" mesh="fairy24">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+
+    <material name="fairy25">
+        <diffuse r="0.8" g="0.8" b="0.8"/>
+        <specular r="0.1" g="0.1" b="0.1"/>
+    </material>
+
+    <mesh name="fairy25" filename="models/fairy/fairy25.obj"/>
+
+    <model material="fairy25" mesh="fairy25">
+        <position x="0.0" y="1.0" z="0.0"/>
+        <orientation a="1.3" x="0.0" y="1.0" z="0.0"/>
+    </model> 
+
+
+
+
+
+
+
+
+
+
+</scene>
+
