@@ -16,8 +16,11 @@ Building:
         libglew-dev
         libsdl-dev
         libpng-dev
+        libboost-all-dev
 
-    (Should work for Mac OSX and other Linux distributions as well)
+    You may also need ISPC, depending on the day...
+
+    (Should work for Mac OSX and other Linux distributions as well, with the appropriate package equivalents.)
 
 Options:
 
