@@ -1,5 +1,7 @@
-#ifndef _462_RAYTRACER_HPP_
-#define _462_RAYTRACER_HPP_
+//#ifndef _462_RAYTRACER_HPP_
+//#define _462_RAYTRACER_HPP_
+
+#pragma once
 
 #include "raytracer/ray.hpp"
 #include "math/color.hpp"
@@ -55,5 +57,5 @@ private:
 
 } /* _462 */
 
-#endif /* _462_RAYTRACER_HPP_ */
+//#endif /* _462_RAYTRACER_HPP_ */
 

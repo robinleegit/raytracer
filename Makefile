@@ -1,6 +1,6 @@
 # directories
 
-# srouce file diretory
+# source file diretory
 SRC_DIR = src
 # top-level output directory (for .o and .d files)
 TOP_OBJ_DIR = bin
@@ -59,7 +59,6 @@ UNAME := $(shell uname)
 # MODE: the mode, either "debug" or "release"
 # SRCS: the source files
 # TARGET: the target (executable) name
-# MODE = release
 
 ifeq ($(TARGET),)
 ERRORMSG = "No target specified"
