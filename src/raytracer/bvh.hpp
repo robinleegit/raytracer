@@ -1,5 +1,4 @@
-#ifndef __BVH_H__
-#define __BVH_H__
+#pragma once
 
 #include <vector>
 #include <limits>
@@ -77,5 +76,3 @@ public:
 };
 
 }
-
-#endif

@@ -5,8 +5,7 @@
  * @author Eric Butler (edbutler)
  */
 
-#ifndef _462_MATH_COLOR_HPP_
-#define _462_MATH_COLOR_HPP_
+#pragma once
 
 #include "math/math.hpp"
 #include <iostream>
@@ -149,6 +148,4 @@ Color3 clamp( const Color3& c, real_t min, real_t max );
 std::ostream& operator<<( std::ostream& os, const Color3& rhs );
 
 } /* _462 */
-
-#endif /* _462_MATH_COLOR_HPP_ */
 

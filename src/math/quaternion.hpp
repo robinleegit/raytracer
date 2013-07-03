@@ -6,8 +6,7 @@
  * @author Zeyang Li (zeyangl)
  */
 
-#ifndef _462_MATH_QUATERNION_HPP_
-#define _462_MATH_QUATERNION_HPP_
+#pragma once
 
 #include "math/math.hpp"
 #include "math/vector.hpp"
@@ -147,6 +146,4 @@ Quaternion conjugate( const Quaternion& q );
 std::ostream& operator <<( std::ostream& o, const Quaternion& q );
 
 } /* _462 */
-
-#endif /* _462_MATH_QUATERNION_HPP_ */
 

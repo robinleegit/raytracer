@@ -1,5 +1,4 @@
-#ifndef _462_SCENE_SPHERE_HPP_
-#define _462_SCENE_SPHERE_HPP_
+#pragma once
 
 #include "scene/scene.hpp"
 
@@ -28,6 +27,4 @@ public:
 };
 
 } /* _462 */
-
-#endif /* _462_SCENE_SPHERE_HPP_ */
 

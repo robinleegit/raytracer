@@ -1,5 +1,4 @@
-#ifndef __RAY_H__
-#define __RAY_H__
+#pragma once
 
 #include "raytracer/geom_utils.hpp"
 #include "math/color.hpp"
@@ -51,5 +50,3 @@ struct IsectInfo
 };
 
 }
-
-#endif

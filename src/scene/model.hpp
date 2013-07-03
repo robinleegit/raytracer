@@ -1,5 +1,4 @@
-#ifndef _462_SCENE_MODEL_HPP_
-#define _462_SCENE_MODEL_HPP_
+#pragma once
 
 #include "scene/geometry.hpp"
 #include "scene/mesh.hpp"
@@ -36,6 +35,4 @@ public:
 
 
 } /* _462 */
-
-#endif /* _462_SCENE_MODEL_HPP_ */
 

@@ -1,5 +1,4 @@
-#ifndef __GEOM_UTILS_H__
-#define __GEOM_UTILS_H__
+#pragma once
 
 #include <cstring>
 #include "math/vector.hpp"
@@ -37,4 +36,3 @@ bool triangle_ray_intersect(Vector3 eye, Vector3 ray, Vector3 p0, Vector3 p1,
 bool frustum_box_intersect(Frustum frustum, Vector3 box_min, Vector3 box_max);
 
 }
-#endif

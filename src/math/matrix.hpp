@@ -6,8 +6,7 @@
  * @author Zeyang Li (zeyangl)
  */
 
-#ifndef _462_MATH_MATRIX_HPP_
-#define _462_MATH_MATRIX_HPP_
+#pragma once
 
 #include "math/math.hpp"
 #include "math/vector.hpp"
@@ -290,6 +289,4 @@ void make_inverse_transformation_matrix(
 void make_normal_matrix( Matrix3* rv, const Matrix4& tmat );
 
 } /* _462 */
-
-#endif /* _462_MATH_MATRIX_HPP_ */
 

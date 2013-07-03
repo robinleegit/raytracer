@@ -1,5 +1,4 @@
-#ifndef _462_SCENE_MESH_HPP_
-#define _462_SCENE_MESH_HPP_
+#pragma once
 
 #include "math/vector.hpp"
 #include <vector>
@@ -97,6 +96,4 @@ private:
 
 
 } /* _462 */
-
-#endif /* _462_SCENE_MESH_HPP_ */
 

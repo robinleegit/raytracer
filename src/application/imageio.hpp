@@ -24,8 +24,7 @@
  *            this source code.
  */
 
-#ifndef _462_APPLICATION_IMAGEIO_HPP_
-#define _462_APPLICATION_IMAGEIO_HPP_
+#pragma once
 
 #include <cstdlib>
 
@@ -52,5 +51,3 @@ bool imageio_save_screenshot( const char* filename, int width, int height );
 void imageio_gen_name( char* filename, size_t len );
 
 } /* _462 */
-
-#endif /* _462_APPLICATION_IMAGEIO_HPP_ */

@@ -1,5 +1,4 @@
-#ifndef __TSQUEUE_H__
-#define __TSQUEUE_H__
+#pragma once
 
 #include <queue>
 #include <boost/thread.hpp>
@@ -36,5 +35,3 @@ public:
         return ret;
     }
 };
-
-#endif

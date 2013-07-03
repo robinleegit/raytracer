@@ -5,8 +5,7 @@
  * @author Eric Butler (edbutler)
  */
 
-#ifndef _462_MATH_CAMERA_HPP_
-#define _462_MATH_CAMERA_HPP_
+#pragma once
 
 #include "math/vector.hpp"
 #include "math/quaternion.hpp"
@@ -75,6 +74,4 @@ public:
 };
 
 } /* _462 */
-
-#endif /* _462_MATH_CAMERA_HPP_ */
 

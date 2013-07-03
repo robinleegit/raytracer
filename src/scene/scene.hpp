@@ -1,5 +1,4 @@
-#ifndef _462_SCENE_SCENE_HPP_
-#define _462_SCENE_SCENE_HPP_
+#pragma once
 
 #include "math/vector.hpp"
 #include "math/quaternion.hpp"
@@ -102,6 +101,4 @@ private:
 };
 
 } /* _462 */
-
-#endif /* _462_SCENE_SCENE_HPP_ */
 

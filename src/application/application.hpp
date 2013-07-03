@@ -5,8 +5,7 @@
  * @author Eric Butler (edbutler)
  */
 
-#ifndef _462_APPLICATION_APPLICATION_HPP_
-#define _462_APPLICATION_APPLICATION_HPP_
+#pragma once
 
 #include "math/math.hpp"
 #include <SDL/SDL_events.h>
@@ -86,6 +85,4 @@ private:
 };
 
 } /* _462 */
-
-#endif /* _462_APPLICATION_APPLICATION_HPP_ */
 

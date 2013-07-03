@@ -4,8 +4,7 @@
  *  platform. Use this file to include any gl header files.
  */
 
-#ifndef _462_OPENGL_HPP_
-#define _462_OPENGL_HPP_
+#pragma once
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -18,6 +17,4 @@
 
 #define NO_SDL_GLEXT
 #include <SDL/SDL_opengl.h>
-
-#endif /* _462_OPENGL_HPP_ */
 

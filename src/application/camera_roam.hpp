@@ -5,8 +5,7 @@
  * @author Zeyang Li (zeyangl)
  */
 
-#ifndef _462_APPLICATION_CAMERAROAM_HPP_
-#define _462_APPLICATION_CAMERAROAM_HPP_
+#pragma once
 
 #include "application/application.hpp"
 #include "math/camera.hpp"
@@ -42,6 +41,4 @@ private:
 };
 
 } /* _462 */
-
-#endif /* _462_APPLICATION_CAMERAROAM_HPP_ */
 

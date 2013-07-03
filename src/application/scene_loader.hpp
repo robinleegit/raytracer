@@ -5,8 +5,7 @@
  * @author Eric Butler (edbutler)
  */
 
-#ifndef _462_APPLICATOIN_SCENELOADER_HPP_
-#define _462_APPLICATOIN_SCENELOADER_HPP_
+#pragma once
 
 namespace _462
 {
@@ -22,6 +21,4 @@ class Scene;
 bool load_scene( Scene* scene, const char* filename );
 
 } /* _462 */
-
-#endif /* _462_APPLICATOIN_SCENELOADER_HPP_ */
 

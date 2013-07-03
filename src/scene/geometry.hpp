@@ -1,5 +1,4 @@
-#ifndef __GEOMETRY_H__
-#define __GEOMETRY_H__
+#pragma once
 
 #include "math/quaternion.hpp"
 #include "math/matrix.hpp"
@@ -50,5 +49,3 @@ public:
 };
 
 }
-
-#endif

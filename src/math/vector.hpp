@@ -5,8 +5,7 @@
  * @author Eric Butler (edbutler)
  */
 
-#ifndef _462_MATH_VECTOR_HPP_
-#define _462_MATH_VECTOR_HPP_
+#pragma once
 
 #include "math/math.hpp"
 #include <algorithm>
@@ -810,6 +809,4 @@ inline Vector4 operator*( real_t s, const Vector4& rhs )
 std::ostream& operator<<( std::ostream& os, const Vector4& rhs );
 
 } /* _462 */
-
-#endif /* _462_MATH_VECTOR_HPP_ */
 

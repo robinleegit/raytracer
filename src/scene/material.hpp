@@ -1,5 +1,4 @@
-#ifndef _462_SCENE_MATERIAL_HPP_
-#define _462_SCENE_MATERIAL_HPP_
+#pragma once
 
 #include "math/color.hpp"
 #include "math/vector.hpp"
@@ -83,6 +82,4 @@ private:
 };
 
 } /* _462 */
-
-#endif /* _462_SCENE_MATERIAL_HPP_ */
 

@@ -6,8 +6,7 @@
  * @author Zeyang Li (zeyangl)
  */
 
-#ifndef _462_MATH_MATH_HPP_
-#define _462_MATH_MATH_HPP_
+#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -31,6 +30,4 @@ inline T clamp( T val, T min, T max )
 
 
 } /* _462 */
-
-#endif /* _462_MATH_MATH_HPP_ */
 

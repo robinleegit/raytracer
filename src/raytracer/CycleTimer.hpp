@@ -1,5 +1,4 @@
-#ifndef _SYRAH_CYCLE_TIMER_H_
-#define _SYRAH_CYCLE_TIMER_H_
+#pragma once
 
 #if defined(__APPLE__)
 #if defined(__x86_64__)
@@ -192,5 +191,3 @@ public:
 private:
     CycleTimer();
 };
-
-#endif // #ifndef _SYRAH_CYCLE_TIMER_H_
