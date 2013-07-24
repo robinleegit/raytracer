@@ -472,6 +472,7 @@ void Raytracer::trace_packet(PacketRegion region, float refractive, unsigned cha
  */
 bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, int numthreads)
 {
+    (void) max_time; // unused parameter
     boost::thread *thread = new boost::thread[numthreads];
     tsqueue<PacketRegion> packet_queue;
 
@@ -479,7 +480,7 @@ bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, int numthreads
 
     for (size_t y = 0; y < height; y += packet_dim)
     {
-        int ymax = y + packet_dim - 1;
+        size_t ymax = y + packet_dim - 1;
 
         if (ymax >= height)
         {
@@ -488,7 +489,7 @@ bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, int numthreads
 
         for (size_t x = 0; x < width; x += packet_dim )
         {
-            int xmax = x + packet_dim - 1;
+            size_t xmax = x + packet_dim - 1;
 
             if (xmax >= width)
             {

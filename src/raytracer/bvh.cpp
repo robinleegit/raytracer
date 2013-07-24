@@ -93,12 +93,12 @@ Box::Box(const Mesh* mesh, vector<int>& indices, int n, int m)
         max_corner[axis] = -INFINITY;
     }
 
-    for (size_t i = n; i < m; i++)
+    for (int i = n; i < m; i++)
     {
         MeshTriangle t = mesh->get_triangles()[indices[i]];
 
         // Iterate over the 3 vertices in the triangle
-        for (size_t j = 0; j < 3; j++)
+        for (int j = 0; j < 3; j++)
         {
             int vidx = t.vertices[j];
             MeshVertex v = mesh->get_vertices()[vidx];
@@ -397,7 +397,7 @@ bool BvhNode::intersect_leaf(const Vector3& eye, const Vector3& ray,
     bool ret = false;
 
     //TODO SIMD
-    for (size_t s = start_triangle; s < end_triangle; s++)
+    for (int s = start_triangle; s < end_triangle; s++)
     {
         unsigned int v0, v1, v2;
         Vector3 p0, p1, p2;
@@ -532,7 +532,7 @@ bool BvhNode::intersect_ray(const Ray& ray, BvhNode::IsectInfo& info)
     if (!left_node && !right_node)
     {
         //TODO SIMD
-        for (size_t s = start_triangle; s < end_triangle; s++)
+        for (int s = start_triangle; s < end_triangle; s++)
         {
             unsigned int v0, v1, v2;
             Vector3 p0, p1, p2;
@@ -579,7 +579,7 @@ bool BvhNode::shadow_test(const Ray& ray)
 
     if (!left_node && !right_node)
     {
-        for (size_t s = start_triangle; s < end_triangle; s++)
+        for (int s = start_triangle; s < end_triangle; s++)
         {
             unsigned int v0, v1, v2;
             Vector3 p0, p1, p2;

@@ -148,6 +148,7 @@ static void parse_attrib_string( const TiXmlElement* elem, bool required, const 
 template< typename T >
 static void parse_elem( const TiXmlElement* elem, T* val )
 {
+    (void)elem; (void)val; // suppress compiler warnings
     throw std::exception();
 }
 
@@ -287,6 +288,7 @@ static void parse_geom_base( const MaterialMap& matmap, const TiXmlElement* elem
     parse_elem( elem, false, STR_SCALE,     &geom->scale );
     // normalize orientation
     geom->orientation = normalize( ori );
+    (void)matmap; //suppress compiler warning
 }
 
 static void parse_geom_sphere( const MaterialMap& matmap, const TiXmlElement* elem, Sphere* geom )

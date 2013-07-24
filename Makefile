@@ -26,9 +26,9 @@ SRCS = \
 
 # compiler flags
 CXX = clang++
-CXXFLAGS += -Wall -pedantic -I"./include" -I"./$(SRC_DIR)" -I"./$(TOP_OBJ_DIR)"
-LDFLAGS = -lSDLmain -lSDL -lpng -lpthread
-LDFLAGS += -lGL -lGLU -lboost_thread -lboost_system
+CXXFLAGS = -Wall -Wextra -Werror -pedantic -std=c++11 -I"./include" -I"./$(SRC_DIR)" -I"./$(TOP_OBJ_DIR)"
+LDLIBS = -lSDLmain -lSDL -lpng -lpthread
+LDLIBS += -lGL -lGLU -lboost_thread -lboost_system
 ISPC = ispc
 ISPCFLAGS = -O2 --target=avx-x2 --arch=x86-64
 
@@ -63,14 +63,12 @@ else ifeq ($(MODE), debug)
 endif
 
 # targets
-.PHONY: all clean fmt target
+.PHONY: all clean fmt 
 
-all: target
-
-target: $(TARGET)
+all: $(TARGET)
 
 $(TARGET): $(OBJS_PATH)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
 
 $(OBJ_DIR)/%.d: $(SRC_DIR)/%.cpp
 	mkdir -p $(@D)
@@ -96,5 +94,3 @@ clean:
 fmt:
 	astyle --recursive --style=allman "*.cpp"
 	astyle --recursive --style=allman "*.hpp"
-
-
