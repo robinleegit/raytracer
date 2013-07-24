@@ -15,32 +15,31 @@ ISPC_DEPS = $(addprefix $(SRC_DIR)/,$(ISPC_SRCS:.ispc=.h))
 
 SRCS = \
 	application/application.cpp \
-	application/imageio.cpp \
 	application/camera_roam.cpp \
+	application/imageio.cpp \
 	application/scene_loader.cpp \
-	math/math.cpp \
-	math/color.cpp \
-	math/vector.cpp \
-	math/quaternion.cpp \
-	math/matrix.cpp \
 	math/camera.cpp \
+	math/color.cpp \
+	math/math.cpp \
+	math/matrix.cpp \
+	math/quaternion.cpp \
+	math/vector.cpp \
+	raytracer/bvh.cpp \
+	raytracer/geom_utils.cpp \
+	raytracer/main.cpp \
+	raytracer/raytracer.cpp \
 	scene/geometry.cpp \
 	scene/material.cpp \
 	scene/mesh.cpp \
+	scene/model.cpp \
 	scene/scene.cpp \
 	scene/sphere.cpp \
 	scene/triangle.cpp \
-	scene/model.cpp \
 	tinyxml/tinyxml.cpp \
 	tinyxml/tinyxmlerror.cpp \
 	tinyxml/tinyxmlparser.cpp \
-	raytracer/main.cpp \
-	raytracer/bvh.cpp \
-    raytracer/geom_utils.cpp \
-	raytracer/raytracer.cpp
 
 TARGET = raytracer
-
 
 .PHONY: all clean
 
