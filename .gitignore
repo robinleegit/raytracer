@@ -21,3 +21,6 @@ bin
 *.swp
 /models/buddha.obj
 /models/dragon.obj
+
+#YouCompleteMe
+.ycm_extra_conf.pyc
