@@ -8,7 +8,7 @@ Building:
     optimizations and no debugging info. Run 'make MODE=debug' or
     'make MODE=release' to build the different modes. 
 
-    The packages you need on Ubuntu are:
+    You will need C++11.  Other packages you need on Ubuntu are:
 
         mesa-common-dev
         libglu1-mesa-dev
@@ -16,7 +16,6 @@ Building:
         libglew-dev
         libsdl-dev
         libpng-dev
-        libboost-all-dev
 
     You may also need ISPC, depending on the day...
 

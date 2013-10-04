@@ -1,3 +1,6 @@
+#include <iostream>
+#include <cstring>
+#include <thread>
 #include "application/application.hpp"
 #include "application/camera_roam.hpp"
 #include "application/imageio.hpp"
@@ -5,9 +8,6 @@
 #include "application/opengl.hpp"
 #include "scene/scene.hpp"
 #include "raytracer/raytracer.hpp"
-
-#include <iostream>
-#include <cstring>
 
 #ifdef __APPLE__
 #include <GLUT/glut.h>
@@ -109,7 +109,7 @@ bool RaytracerApplication::initialize()
     camera_control.camera = scene.camera;
     bool load_gl = options.open_window;
     //options.numthreads = 1;
-    options.numthreads = boost::thread::hardware_concurrency();
+    options.numthreads = std::thread::hardware_concurrency();
 
     try
     {
@@ -586,7 +586,7 @@ int main( int argc, char* argv[] )
     Options opt;
     opt.width = 0;
     opt.height = 0;
-    opt.numthreads = boost::thread::hardware_concurrency();
+    opt.numthreads = std::thread::hardware_concurrency();
 
     Matrix3 mat;
     Matrix4 trn;

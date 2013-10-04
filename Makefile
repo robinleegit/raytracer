@@ -27,8 +27,7 @@ SRCS = \
 # compiler flags
 CXX = clang++
 CXXFLAGS = -Wall -Wextra -Werror -pedantic -std=c++11 -I"./include" -I"./$(SRC_DIR)" -I"./$(TOP_OBJ_DIR)"
-LDLIBS = -lSDLmain -lSDL -lpng -lpthread
-LDLIBS += -lGL -lGLU -lboost_thread -lboost_system
+LDLIBS = -lSDLmain -lSDL -lpng -lGL -lGLU
 ISPC = ispc
 ISPCFLAGS = -O2 --target=avx-x2 --arch=x86-64
 

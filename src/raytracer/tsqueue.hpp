@@ -1,14 +1,14 @@
 #pragma once
 
 #include <queue>
-#include <boost/thread.hpp>
+#include <mutex>
 
 template<class T>
 class tsqueue
 {
 private:
     std::queue<T> q;
-    boost::mutex mut;
+    std::mutex mut;
 public:
     void Push(T item)
     {
