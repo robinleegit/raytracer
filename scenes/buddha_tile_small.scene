@@ -137,7 +137,7 @@
     </material>
 
 
-    <mesh name="buddha" filename="models/buddha.obj"/>
+    <mesh name="buddha" filename="models/buddha_watertight.obj"/>
 
     <model material="jade1" mesh="buddha">
         <position x="0.0" y="2.25" z="0.0"/>
