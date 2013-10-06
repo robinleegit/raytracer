@@ -21,6 +21,7 @@ bin
 *.swp
 /models/buddha.obj
 /models/dragon.obj
+/models/buddha_watertight.obj
 
 #YouCompleteMe
 .ycm_extra_conf.pyc

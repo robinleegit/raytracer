@@ -2,7 +2,7 @@
 #include <iostream>
 #include <math.h>
 #include <algorithm>
-
+#include <thread>
 #include "raytracer.hpp"
 #include "CycleTimer.hpp"
 
@@ -473,7 +473,7 @@ void Raytracer::trace_packet(PacketRegion region, float refractive, unsigned cha
 bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, int numthreads)
 {
     (void) max_time; // unused parameter
-    boost::thread *thread = new boost::thread[numthreads];
+    std::thread *thread = new std::thread[numthreads];
     tsqueue<PacketRegion> packet_queue;
 
     double tot_start = CycleTimer::currentSeconds();
@@ -511,7 +511,7 @@ bool Raytracer::raytrace(unsigned char *buffer, real_t* max_time, int numthreads
     for (int i = 0; i < numthreads; i++)
     {
         //cout << "Launching thread " << i << endl;
-        thread[i] = boost::thread(&Raytracer::trace_packet_worker, this, &packet_queue, buffer);
+        thread[i] = std::thread(&Raytracer::trace_packet_worker, this, &packet_queue, buffer);
     }
 
     for (int i = 0; i < numthreads; i++)
