@@ -20,7 +20,6 @@ bin
 /raytracer
 *.swp
 /models/buddha.obj
-/models/buddha_watertight.obj
 /models/dragon.obj
 /models/buddha_watertight.obj
 
