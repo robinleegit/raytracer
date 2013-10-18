@@ -501,7 +501,7 @@ Vector3 Mesh::compute_triangle_centroid(size_t index) const
     vidx1 = triangles[index].vertices[1];
     vidx2 = triangles[index].vertices[2];
 
-    return (vertices[vidx0].position + vertices[vidx0].position + vertices[vidx0].position) / 3;
+    return (vertices[vidx0].position + vertices[vidx1].position + vertices[vidx2].position) / 3;
 }
 
 } /* _462 */

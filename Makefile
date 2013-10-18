@@ -25,7 +25,7 @@ SRCS = \
 	tinyxml/tinyxmlparser.cpp \
 
 # compiler flags
-CXX = clang++
+CXX = g++
 CXXFLAGS = -Wall -Wextra -Werror -pedantic -std=c++11 -I"./include" -I"./$(SRC_DIR)" -I"./$(TOP_OBJ_DIR)"
 LDLIBS = -lSDLmain -lSDL -lpng -lpthread
 LDLIBS += -lGL -lGLU -lboost_thread -lboost_system

@@ -41,7 +41,7 @@ public:
     /**
      * The number of dimensions.
      */
-    static const size_t DIM = 2;
+    static const int DIM = 2;
 
     /**
      * The zero vector.
@@ -139,7 +139,7 @@ public:
     /**
      * @remark No bounds checking.
      */
-    const real_t& operator[]( size_t i ) const
+    const real_t& operator[]( int i ) const
     {
         // assumes all members are in a contiguous block
         assert( i >= 0 && i < DIM );
@@ -149,7 +149,7 @@ public:
     /**
      * @remark No bounds checking.
      */
-    real_t& operator[]( size_t i )
+    real_t& operator[]( int i )
     {
         // assumes all members are in a contiguous block
         assert( i >= 0 && i < DIM );
@@ -272,7 +272,7 @@ public:
     /**
      * The number of dimensions.
      */
-    static const size_t DIM = 3;
+    static const int DIM = 3;
 
     /**
      * The zero vector.
@@ -391,7 +391,7 @@ public:
     /**
      * @remark No bounds checking.
      */
-    const real_t& operator[]( size_t i ) const
+    const real_t& operator[]( int i ) const
     {
         // assumes all members are in a contiguous block
         assert( i >= 0 && i < DIM );
@@ -401,7 +401,7 @@ public:
     /**
      * @remark No bounds checking.
      */
-    real_t& operator[]( size_t i )
+    real_t& operator[]( int i )
     {
         // assumes all members are in a contiguous block
         assert( i >= 0 && i < DIM );
@@ -539,7 +539,7 @@ public:
     /**
      * The number of dimensions.
      */
-    static const size_t DIM = 4;
+    static const int DIM = 4;
 
     /**
      * The zero vector.
@@ -661,7 +661,7 @@ public:
     /**
      * @remark No bounds checking.
      */
-    const real_t& operator[]( size_t i ) const
+    const real_t& operator[]( int i ) const
     {
         // assumes all members are in a contiguous block
         assert( i >= 0 && i < DIM );
@@ -671,7 +671,7 @@ public:
     /**
      * @remark No bounds checking.
      */
-    real_t& operator[]( size_t i )
+    real_t& operator[]( int i )
     {
         // assumes all members are in a contiguous block
         assert( i >= 0 && i < DIM );

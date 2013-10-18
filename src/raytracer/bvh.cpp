@@ -172,8 +172,8 @@ BvhNode::BvhNode(const Mesh *_mesh, vector<int> *_indices, int start, int end)
 
     ///////////////////////////////////
     // Do SAH to choose partition
-    int mid_idx, mid_tri_id, len = end - start, axis;
-    float mid_val;
+    int mid_idx = 0, mid_tri_id = 0, len = end - start, axis = 0;
+    float mid_val = 0;
     float mincost = numeric_limits<float>::max();
 
     Box *left_boxes = new Box[len];
