@@ -54,7 +54,6 @@ bool Box::intersect_ray(Vector3 eye, Vector3 ray) const
 {
     double tmin = -INFINITY, tmax = INFINITY;
 
-
     if (ray.x != 0.0)
     {
         double tx1 = (min_corner.x - eye.x) / ray.x;
